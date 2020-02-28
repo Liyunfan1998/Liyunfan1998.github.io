@@ -100,3 +100,4 @@ theme: archer #landscape
 deploy:
   type: git
   repo: https://github.com/liyunfan1998/liyunfan1998.github.io.git
+  branch: master
