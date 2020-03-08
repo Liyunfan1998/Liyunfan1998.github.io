@@ -152,6 +152,92 @@
 
     <div class="post-header index">
         <h1 class="title">
+            <a href="/2020/03/08/AlexNet%E8%AF%A6%E7%BB%86%E8%A7%A3%E8%AF%BB/">
+                AlexNet详细解读
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-03-08</span>
+            
+            
+            
+        </div>
+    </div>
+
+    
+        <div class="content">
+            <h1 id="AlexNet详细解读"><a href="#AlexNet详细解读" class="headerlink" title="AlexNet详细解读"></a>AlexNet详细解读</h1><p>  之前在自学计算机视觉与深度学习方向的论文，今天给大家带来的是很经典的一篇文章 ：《ImageNet Classification with Deep Convolutional Neural Networks》。纯粹是自学之后，自己的一点知识总结，如果有什么不对的地方欢迎大家指正。AlexNet的篇文章当中，我们可以主要从五个大方面去讲：ReLU，LPN，Overlapping Pooling，总体架构，减少过度拟合。重点介绍总体结构和减少过度拟合。</p>
+<h2 id="1-ReLU-Nonlinearity"><a href="#1-ReLU-Nonlinearity" class="headerlink" title="1. ReLU Nonlinearity"></a>1. ReLU Nonlinearity</h2><p>一般神经元的激活函数会选择sigmoid函数或者tanh函数，然而Alex发现在训练时间的梯度衰减方面，这些非线性饱和函数要比非线性非饱和函数慢很多。在AlexNet中用的非线性非饱和函数是f=max(0,x)，即ReLU。实验结果表明，要将深度网络训练至training error rate达到25%的话，ReLU只需5个epochs的迭代，但tanh单元需要35个epochs的迭代，用ReLU比tanh快6倍。</p>
+<h2 id="2-双GPU并行运行"><a href="#2-双GPU并行运行" class="headerlink" title="2. 双GPU并行运行"></a>2. 双GPU并行运行</h2><p>为提高运行速度和提高网络运行规模，作者采用双GPU的设计模式。并且规定GPU只能在特定的层进行通信交流。其实就是每一个GPU负责一半的运算处理。作者的实验数据表示，two-GPU方案会比只用one-GPU跑半个上面大小网络的方案，在准确度上提高了1.7%的top-1和1.2%的top-5。值得注意的是，虽然one-GPU网络规模只有two-GPU的一半，但其实这两个网络其实并非等价的。</p>
+<h2 id="3-LRN局部响应归一化"><a href="#3-LRN局部响应归一化" class="headerlink" title="3. LRN局部响应归一化"></a>3. LRN局部响应归一化</h2><p><img src="https://img-blog.csdn.net/20180518200153219" alt="img"></p>
+<p>ReLU本来是不需要对输入进行标准化，但本文发现进行局部标准化能提高性能。</p>
+<p>其中a代表在feature map中第i个卷积核(x,y)坐标经过了ReLU激活函数的输出，n表示相邻的几个卷积核。N表示这一层总的卷积核数量。k, n, α和β是hyper-parameters，他们的值是在验证集上实验得到的，其中k = 2，n = 5，α = 0.0001，β = 0.75。</p>
+<p>这种归一化操作实现了某种形式的横向抑制，这也是受真实神经元的某种行为启发。</p>
+<p>卷积核矩阵的排序是随机任意，并且在训练之前就已经决定好顺序。这种LPN形成了一种横向抑制机制。</p>
+<h2 id="4-Overlapping-Pooling"><a href="#4-Overlapping-Pooling" class="headerlink" title="4. Overlapping Pooling"></a>4. Overlapping Pooling</h2><p>池层是相同卷积核领域周围神经元的输出。池层被认为是由空间距离s个像素的池单元网格的组成。也可以理解成以大小为步长对前面卷积层的结果进行分块，对块大小为的卷积映射结果做总结，这时有。然而，Alex说还有的情况，也就是带交叠的Pooling，顾名思义这指Pooling单元在总结提取特征的时候，其输入会受到相邻pooling单元的输入影响，也就是提取出来的结果可能是有重复的(对max pooling而言)。而且，实验表示使用 带交叠的Pooling的效果比的传统要好，在top-1和top-5上分别提高了0.4%和0.3%，在训练阶段有避免过拟合的作用。</p>
+<h2 id="5-总体结构"><a href="#5-总体结构" class="headerlink" title="5. 总体结构"></a>5. 总体结构</h2><p>如果说前面的ReLU、LRN、Overlapping Pooling是铺垫的话，那么它们一定是为这部分服务的。</p>
+<p>因为这才是全文的重点！！！理解这里才是把握住这篇的论文的精华！</p>
+<p><img src="https://img-blog.csdn.net/20180518202244353" alt="img"></p>
+<p><img src="https://img-blog.csdnimg.cn/20190222100954397.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h4Ym95NjE=,size_16,color_FFFFFF,t_70" alt="img"></p>
+<p><img src="https://upload-images.jianshu.io/upload_images/1689929-063fb60285b6ed42.png?imageMogr2/auto-orient/strip%7CimageView2/2" alt="img"></p>
+<p>首先总体概述下：</p>
+<p>  AlexNet为8层结构，其中前5层为卷积层，后面3层为全连接层；学习参数有6千万个，神经元有650,000个<br>  AlexNet在两个GPU上运行；<br>  AlexNet在第2,4,5层均是前一层自己GPU内连接，第3层是与前面两层全连接，全连接是2个GPU全连接；<br>  RPN层第1,2个卷积层后；<br>  Max pooling层在RPN层以及第5个卷积层后。<br>  ReLU在每个卷积层以及全连接层后。<br>  卷积核大小数量：</p>
+<p>conv1:96 11<em>11</em>3(个数/长/宽/深度)</p>
+<p>conv2:256 5<em>5</em>48</p>
+<p>conv3:384 3<em>3</em>256</p>
+<p>conv4: 384 3<em>3</em>192</p>
+<p>conv5: 256 3<em>3</em>192</p>
+<p>ReLU、双GPU运算：提高训练速度。（应用于所有卷积层和全连接层）</p>
+<p>重叠pool池化层：提高精度，不容易产生过度拟合。（应用在第一层，第二层，第五层后面）</p>
+<p>局部响应归一化层(LRN)：提高精度。（应用在第一层和第二层后面）</p>
+<p>Dropout：减少过度拟合。（应用在前两个全连接层）<br>第1层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180518203413676" alt="img"><br>第一层输入数据为原始图像的227<em>227</em>3的图像（最开始是224<em>224</em>3，为后续处理方便必须进行调整）,这个图像被11<em>11</em>3（3代表深度，例如RGB的3通道）的卷积核进行卷积运算，卷积核对原始图像的每次卷积都会生成一个新的像素。卷积核的步长为4个像素，朝着横向和纵向这两个方向进行卷积。由此，会生成新的像素；（227-11）/4+1=55个像素(227个像素减去11，正好是54，即生成54个像素，再加上被减去的11也对应生成一个像素)，由于第一层有96个卷积核，所以就会形成55<em>55</em>96个像素层，系统是采用双GPU处理，因此分为2组数据：55<em>55</em>48的像素层数据。</p>
+<p>重叠pool池化层：这些像素层还需要经过pool运算（池化运算）的处理，池化运算的尺度由预先设定为3<em>3，运算的步长为2，则池化后的图像的尺寸为：（55-3）/2+1=27。即经过池化处理过的规模为27</em>27*96.</p>
+<p>局部响应归一化层(LRN)：最后经过局部响应归一化处理，归一化运算的尺度为5<em>5；第一层卷积层结束后形成的图像层的规模为27</em>27*96.分别由96个卷积核对应生成，这96层数据氛围2组，每组48个像素层，每组在独立的GPU下运算。<br>第2层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180518221411890" alt="img"><br>第二层输入数据为第一层输出的27<em>27</em>96的像素层（为方便后续处理，这对每幅像素层进行像素填充），分为2组像素数据，两组像素数据分别在两个不同的GPU中进行运算。每组像素数据被5<em>5</em>48的卷积核进行卷积运算，同理按照第一层的方式进行：（27-5+2<em>2）/1+1=27个像素，一共有256个卷积核，这样也就有了27</em>27*128两组像素层。</p>
+<p>重叠pool池化层：同样经过池化运算，池化后的图像尺寸为（27-3）/2+1=13，即池化后像素的规模为2组13<em>13</em>128的像素层。</p>
+<p>局部响应归一化层(LRN)：最后经过归一化处理，分别对应2组128个卷积核所运算形成。每组在一个GPU上进行运算。即共256个卷积核，共2个GPU进行运算。<br>第3层分析</p>
+<p><img src="https://img-blog.csdn.net/20180518223031687" alt="img"><br>第三层输入数据为第二层输出的两组13<em>13</em>128的像素层（为方便后续处理，这对每幅像素层进行像素填充），分为2组像素数据，两组像素数据分别在两个不同的GPU中进行运算。每组像素数据被3<em>3</em>128的卷积核（两组，一共也就有3<em>3</em>256）进行卷积运算，同理按照第一层的方式进行：（13-3+1<em>2）/1+1=13个像素，一共有384个卷积核，这样也就有了13</em>13*192两组像素层。<br>第4层分析:</p>
+<p><img src="https://img-blog.csdn.net/20180518223330629" alt="img"></p>
+<p>第四层输入数据为第三层输出的两组13<em>13</em>192的像素层（为方便后续处理，这对每幅像素层进行像素填充），分为2组像素数据，两组像素数据分别在两个不同的GPU中进行运算。每组像素数据被3<em>3</em>192的卷积核进行卷积运算，同理按照第一层的方式进行：（13-3+1<em>2）/1+1=13个像素，一共有384个卷积核，这样也就有了13</em>13*192两组像素层。<br>第5层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180518223635261" alt="img"></p>
+<p>第五层输入数据为第四层输出的两组13<em>13</em>192的像素层（为方便后续处理，这对每幅像素层进行像素填充），分为2组像素数据，两组像素数据分别在两个不同的GPU中进行运算。每组像素数据被3<em>3</em>192的卷积核进行卷积运算，同理按照第一层的方式进行：（13-3+1<em>2）/1+1=13个像素，一共有256个卷积核，这样也就有了13</em>13*128两组像素层。</p>
+<p>重叠pool池化层：进过池化运算，池化后像素的尺寸为（13-3）/2+1=6，即池化后像素的规模变成了两组6<em>6</em>128的像素层，共6<em>6</em>256规模的像素层。<br>第6层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180518223855977" alt="img"><br>第6层输入数据的尺寸是6<em>6</em>256，采用6<em>6</em>256尺寸的滤波器对第六层的输入数据进行卷积运算；每个6<em>6</em>256尺寸的滤波器对第六层的输入数据进行卷积运算生成一个运算结果，通过一个神经元输出这个运算结果；共有4096个6<em>6</em>256尺寸的滤波器对输入数据进行卷积，通过4096个神经元的输出运算结果；然后通过ReLU激活函数以及dropout运算输出4096个本层的输出结果值。</p>
+<p>很明显在第6层中，采用的滤波器的尺寸（6<em>6</em>256）和待处理的feature map的尺寸（6<em>6</em>256）相同，即滤波器中的每个系数只与feature map中的一个像素值相乘；而采用的滤波器的尺寸和待处理的feature map的尺寸不相同，每个滤波器的系数都会与多个feature map中像素相乘。因此第6层被称为全连接层。<br>第7层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180519092620718" alt="img"><br>第6层输出的4096个数据与第7层的4096个神经元进行全连接，然后经由ReLU和Dropout进行处理后生成4096个数据。<br>第8层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180519092826659" alt="img"></p>
+<p>第7层输入的4096个数据与第8层的1000个神经元进行全连接，经过训练后输出被训练的数值。</p>
+<h2 id="6-减少过度拟合"><a href="#6-减少过度拟合" class="headerlink" title="6. 减少过度拟合"></a>6. 减少过度拟合</h2><h3 id="6-1-数据增益"><a href="#6-1-数据增益" class="headerlink" title="6.1 数据增益"></a>6.1 数据增益</h3><p>增强图片数据集最简单和最常用的方法是在不改变图片核心元素（即不改变图片的分类）的前提下对图片进行一定的变换，比如在垂直和水平方向进行一定的唯一，翻转等。</p>
+<p>AlexNet用到的第一种数据增益的方法：是原图片大小为256<em>256中随机的提取224</em>224的图片，以及他们水平方向的映像。</p>
+<p>第二种数据增益的方法就是在图像中每个像素的R、G、B值上分别加上一个数，用到 方法为PCA。对于图像每个像素，增加以下量 ：</p>
+<p><img src="https://img-blog.csdn.net/20180519094519363" alt="img"><br>p是主成分，lamda是特征值，alpha是N(0，0.1)高斯分布中采样得到的随机值。此方案名义上得到自然图像的重要特性，也就是说，目标是不随着光照强度和颜色而改变的。此方法降低top-1错误率1%。<br>6.2 Dropout</p>
+<p>结合多个模型的预测值是减少错误的有效方法，但是对于训练时间用好几天的大型神经网络太耗费时间。Dropout是有效的模型集成学习方法，具有0.5的概率讲隐藏神经元设置输出为0。运用了这种机制的神经元不会干扰前向传递也不影响后续操作。因此当有输入的时候，神经网络采样不用的结构，但是这些结构都共享一个权重。这就减少了神经元适应的复杂性。测试时，用0.5的概率随机失活神经元。dropout减少了过拟合，也使收敛迭代次数增加一倍。</p>
+<h2 id="7-学习细节"><a href="#7-学习细节" class="headerlink" title="7. 学习细节"></a>7. 学习细节</h2><p>AlexNet训练采用的是随机梯度下降 (stochastic gradient descent)，每批图像大小为128，动力为0.9，权重衰减为0.005,（Alexnet认为权重衰减非常重要，但是没有讲为什么）</p>
+<p>对于权重值的更新规则如下：</p>
+<p><img src="https://img-blog.csdn.net/2018051909591899" alt="img"><br>其中i是迭代指数，v是动力变量，ε是学习率，是目标关于w、对求值的导数在第i批样例上的平均值。我们用一个均值为0、标准差为0.01的高斯分布初始化了每一层的权重。我们用常数1初始化了第二、第四和第五个卷积层以及全连接隐层的神经元偏差。该初始化通过提供带正输入的ReLU来加速学习的初级阶段。我们在其余层用常数0初始化神经元偏差。<br>  对于所有层都使用了相等的学习率，这是在整个训练过程中手动调整的。我们遵循的启发式是，当验证误差率在当前学习率下不再提高时，就将学习率除以10。学习率初始化为0.01，在终止前降低三次。作者训练该网络时大致将这120万张图像的训练集循环了90次，在两个NVIDIA GTX 580 3GB GPU上花了五到六天。</p>
+<h2 id="8-实验结果"><a href="#8-实验结果" class="headerlink" title="8. 实验结果"></a>8. 实验结果</h2><p>ILSVRC2010比赛冠军方法是Sparse coding,这之后(AlexNet前)报道最好方法是SIFT+FVs。CNN方法横空出世，远超传统方法。</p>
+<p><img src="https://img-blog.csdn.net/20180519100236278" alt="img"></p>
+<p>ILSVRC-2012，Alex参加比赛，获得冠军，远超第二名SIFT+FVs。</p>
+<p><img src="https://img-blog.csdn.net/20180519100534494" alt="img"><br>定量分析：</p>
+<p><img src="https://img-blog.csdn.net/20180519100835132" alt="img"><br>图3显示了卷积层学到的有频率和方向选择性的卷积核，和颜色斑点(color blob)。GPU 1 (color-agnostic)和GPU 2(color-specific)学习到的卷积核并不一样。不一样的原因是3.5中的受限连接(restricted connectivity)。</p>
+<p>图4显示，即使目标偏离中心，也可以被识别出来，比如mite。top-5预测结果是reasonable的，比如leopard的预测的可能结果是其他类型的猫科动物。但是也存在对intended focus的模糊问题，就是网络不知道我们到底想识别图片中的什么物体，比如cherry,分类结果是dalmatian,网络显然关注的是dog。</p>
+<p>网络最后4096-d隐藏层产生的是feature activations是另一个重要指标。如果两张图像产生欧氏距离相近的feature activation vectors,那么网络的higher levels就认为他们是相似的。使用此度量，可以实现较好的图像检索。<br>通过欧氏距离计算两个4096维度效率太低，可以使用自动编码压缩向量成二进制码。这比直接在原始像素上使用自动编码效果更好。因为在raw pixels上使用quto-encoder，没用到标签数据，只是检索有相似边缘模式(similar patterns of edges)的图像,却不管他们语义(semantically)上是否相似。</p>
+<h2 id="9-探讨"><a href="#9-探讨" class="headerlink" title="9.探讨"></a>9.探讨</h2><p>深度很重要，去掉任一层，性能都会降低。</p>
+<p>为了简化实验，没有使用非监督预训练。但是当有足够计算能力扩大网络结构，而没增加相应数据时，非监督预训练可能会有所帮助。</p>
+<p>虽然通过增大网络结构和增加训练时长可以改善网络，但是我们与达到人类视觉系统的时空推理能力(infero-temporal pathway of the human visual system)还相距甚远。所以，最终希望能将CNN用到视频序列分析中，视频相对静态图像有很多有用的时间结构信息。</p>
+
+        </div>
+    
+
+</div>
+            
+                
+<div class="post">
+
+    <div class="post-header index">
+        <h1 class="title">
             <a href="/2020/03/08/%E5%8D%B7%E7%A9%8D%E4%B8%AD%E7%9A%84stride%E5%92%8Cpadding/">
                 卷積中的stride和padding
             </a>
@@ -1925,383 +2011,6 @@ Epoch [199/200], Step [1000/1875], d_loss: 0.9865, g_loss: 1.4814, D(x): 0.65, D
 
 </div>
             
-                
-<div class="post">
-
-    <div class="post-header index">
-        <h1 class="title">
-            <a href="/2020/02/29/5.CNN-Image-Classification/">
-                5.CNN-Image-Classification
-            </a>
-        </h1>
-        <div class="post-info">
-            
-                <span class="date">2020-02-29</span>
-            
-            
-            
-        </div>
-    </div>
-
-    
-        <div class="content">
-            <h1 id="第五课-CNN图像分类"><a href="#第五课-CNN图像分类" class="headerlink" title="第五课 CNN图像分类"></a>第五课 CNN图像分类</h1><p>褚则伟 <a href="mailto:zeweichu@gmail.com">zeweichu@gmail.com</a></p>
-<p>参考资料</p>
-<ul>
-<li><a href="http://cs231n.github.io/convolutional-networks/" target="_blank" rel="noopener">Stanford CS231n</a></li>
-<li><a href="http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf" target="_blank" rel="noopener">AlexNet</a></li>
-<li><a href="https://arxiv.org/pdf/1409.1556.pdf" target="_blank" rel="noopener">VGG</a></li>
-<li><a href="https://arxiv.org/pdf/1512.03385.pdf" target="_blank" rel="noopener">ResNet</a></li>
-<li><a href="https://arxiv.org/pdf/1608.06993.pdf" target="_blank" rel="noopener">DenseNet</a></li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"><span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> datasets, transforms</span><br><span class="line">print(<span class="string">"PyTorch Version: "</span>,torch.__version__)</span><br></pre></td></tr></table></figure>
-
-<pre><code>PyTorch Version:  1.0.0</code></pre><p>首先我们定义一个基于ConvNet的简单神经网络</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Net</span><span class="params">(nn.Module)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        super(Net, self).__init__()</span><br><span class="line">        self.conv1 = nn.Conv2d(<span class="number">1</span>, <span class="number">20</span>, <span class="number">5</span>, <span class="number">1</span>) <span class="comment"># 28 * 28 -&gt; (28+1-5) 24 * 24</span></span><br><span class="line">        self.conv2 = nn.Conv2d(<span class="number">20</span>, <span class="number">50</span>, <span class="number">5</span>, <span class="number">1</span>) <span class="comment"># 20 * 20</span></span><br><span class="line">        self.fc1 = nn.Linear(<span class="number">4</span>*<span class="number">4</span>*<span class="number">50</span>, <span class="number">500</span>)</span><br><span class="line">        self.fc2 = nn.Linear(<span class="number">500</span>, <span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, x)</span>:</span></span><br><span class="line">        <span class="comment"># x: 1 * 28 * 28</span></span><br><span class="line">        x = F.relu(self.conv1(x)) <span class="comment"># 20 * 24 * 24</span></span><br><span class="line">        x = F.max_pool2d(x,<span class="number">2</span>,<span class="number">2</span>) <span class="comment"># 12 * 12</span></span><br><span class="line">        x = F.relu(self.conv2(x)) <span class="comment"># 8 * 8</span></span><br><span class="line">        x = F.max_pool2d(x,<span class="number">2</span>,<span class="number">2</span>) <span class="comment"># 4 *4</span></span><br><span class="line">        x = x.view(<span class="number">-1</span>, <span class="number">4</span>*<span class="number">4</span>*<span class="number">50</span>) <span class="comment"># reshape (5 * 2 * 10), view(5, 20) -&gt; (5 * 20)</span></span><br><span class="line">        x = F.relu(self.fc1(x))</span><br><span class="line">        x= self.fc2(x)</span><br><span class="line">        <span class="comment"># return x</span></span><br><span class="line">        <span class="keyword">return</span> F.log_softmax(x, dim=<span class="number">1</span>) <span class="comment"># log probability</span></span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mnist_data = datasets.MNIST(<span class="string">"./mnist_data"</span>, train=<span class="literal">True</span>, download=<span class="literal">True</span>,</span><br><span class="line">                           transform=transforms.Compose([</span><br><span class="line">                               transforms.ToTensor(),</span><br><span class="line">                           ]))</span><br><span class="line">mnist_data</span><br></pre></td></tr></table></figure>
-
-
-
-
-<pre><code>&lt;torchvision.datasets.mnist.MNIST at 0x7fa362b9c7b8&gt;</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data = [d[<span class="number">0</span>].data.cpu().numpy() <span class="keyword">for</span> d <span class="keyword">in</span> mnist_data]</span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">np.mean(data)</span><br></pre></td></tr></table></figure>
-
-
-
-
-<pre><code>0.13066062</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">np.std(data)</span><br></pre></td></tr></table></figure>
-
-
-
-
-<pre><code>0.30810776</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mnist_data[<span class="number">223</span>][<span class="number">0</span>].shape</span><br></pre></td></tr></table></figure>
-
-
-
-
-<pre><code>torch.Size([1, 28, 28])</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">train</span><span class="params">(model, device, train_loader, optimizer, epoch)</span>:</span></span><br><span class="line">    model.train()</span><br><span class="line">    <span class="keyword">for</span> idx, (data, target) <span class="keyword">in</span> enumerate(train_loader):</span><br><span class="line">        data, target = data.to(device), target.to(device)</span><br><span class="line"></span><br><span class="line">        pred = model(data) <span class="comment"># batch_size * 10</span></span><br><span class="line">        loss = F.nll_loss(pred, target)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># SGD</span></span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> idx % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">            print(<span class="string">"Train Epoch: &#123;&#125;, iteration: &#123;&#125;, Loss: &#123;&#125;"</span>.format(</span><br><span class="line">                epoch, idx, loss.item()))</span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">(model, device, test_loader)</span>:</span></span><br><span class="line">    model.eval()</span><br><span class="line">    total_loss = <span class="number">0.</span></span><br><span class="line">    correct = <span class="number">0.</span></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        <span class="keyword">for</span> idx, (data, target) <span class="keyword">in</span> enumerate(test_loader):</span><br><span class="line">            data, target = data.to(device), target.to(device)</span><br><span class="line"></span><br><span class="line">            output = model(data) <span class="comment"># batch_size * 10</span></span><br><span class="line">            total_loss += F.nll_loss(output, target, reduction=<span class="string">"sum"</span>).item()</span><br><span class="line">            pred = output.argmax(dim=<span class="number">1</span>) <span class="comment"># batch_size * 1</span></span><br><span class="line">            correct += pred.eq(target.view_as(pred)).sum().item()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    total_loss /= len(test_loader.dataset)</span><br><span class="line">    acc = correct/len(test_loader.dataset) * <span class="number">100.</span></span><br><span class="line">    print(<span class="string">"Test loss: &#123;&#125;, Accuracy: &#123;&#125;"</span>.format(total_loss, acc))</span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">device = torch.device(<span class="string">"cuda"</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">"cpu"</span>)</span><br><span class="line">batch_size = <span class="number">32</span></span><br><span class="line">train_dataloader = torch.utils.data.DataLoader(</span><br><span class="line">    datasets.MNIST(<span class="string">"./mnist_data"</span>, train=<span class="literal">True</span>, download=<span class="literal">True</span>,</span><br><span class="line">           transform=transforms.Compose([</span><br><span class="line">               transforms.ToTensor(),</span><br><span class="line">               transforms.Normalize((<span class="number">0.1307</span>,), (<span class="number">0.3081</span>,))</span><br><span class="line">           ])),</span><br><span class="line">    batch_size=batch_size, shuffle=<span class="literal">True</span>,</span><br><span class="line">    num_workers=<span class="number">1</span>, pin_memory=<span class="literal">True</span></span><br><span class="line">)</span><br><span class="line">test_dataloader = torch.utils.data.DataLoader(</span><br><span class="line">    datasets.MNIST(<span class="string">"./mnist_data"</span>, train=<span class="literal">False</span>, download=<span class="literal">True</span>,</span><br><span class="line">           transform=transforms.Compose([</span><br><span class="line">               transforms.ToTensor(),</span><br><span class="line">               transforms.Normalize((<span class="number">0.1307</span>,), (<span class="number">0.3081</span>,))</span><br><span class="line">           ])),</span><br><span class="line">    batch_size=batch_size, shuffle=<span class="literal">True</span>,</span><br><span class="line">    num_workers=<span class="number">1</span>, pin_memory=<span class="literal">True</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">lr = <span class="number">0.01</span></span><br><span class="line">momentum  = <span class="number">0.5</span></span><br><span class="line">model = Net().to(device)</span><br><span class="line">optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)</span><br><span class="line"></span><br><span class="line">num_epochs = <span class="number">2</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(num_epochs):</span><br><span class="line">    train(model, device, train_dataloader, optimizer, epoch)</span><br><span class="line">    test(model, device, test_dataloader)</span><br><span class="line"></span><br><span class="line">torch.save(model.state_dict(), <span class="string">"mnist_cnn.pt"</span>)</span><br></pre></td></tr></table></figure>
-
-<pre><code>Train Epoch: 0, iteration: 0, Loss: 2.283817768096924
-Train Epoch: 0, iteration: 100, Loss: 0.6110288500785828
-Train Epoch: 0, iteration: 200, Loss: 0.18155980110168457
-Train Epoch: 0, iteration: 300, Loss: 0.31043028831481934
-Train Epoch: 0, iteration: 400, Loss: 0.518582284450531
-Train Epoch: 0, iteration: 500, Loss: 0.1202855259180069
-Train Epoch: 0, iteration: 600, Loss: 0.0989612340927124
-Train Epoch: 0, iteration: 700, Loss: 0.09637182205915451
-Train Epoch: 0, iteration: 800, Loss: 0.13470694422721863
-Train Epoch: 0, iteration: 900, Loss: 0.06548292934894562
-Train Epoch: 0, iteration: 1000, Loss: 0.03107370436191559
-Train Epoch: 0, iteration: 1100, Loss: 0.03948028385639191
-Train Epoch: 0, iteration: 1200, Loss: 0.09810394793748856
-Train Epoch: 0, iteration: 1300, Loss: 0.15199752151966095
-Train Epoch: 0, iteration: 1400, Loss: 0.016710489988327026
-Train Epoch: 0, iteration: 1500, Loss: 0.005827277898788452
-Train Epoch: 0, iteration: 1600, Loss: 0.0754864513874054
-Train Epoch: 0, iteration: 1700, Loss: 0.012112855911254883
-Train Epoch: 0, iteration: 1800, Loss: 0.03425520658493042
-Test loss: 0.07333157858848571, Accuracy: 97.71
-Train Epoch: 1, iteration: 0, Loss: 0.07740284502506256
-Train Epoch: 1, iteration: 100, Loss: 0.018157958984375
-Train Epoch: 1, iteration: 200, Loss: 0.006041824817657471
-Train Epoch: 1, iteration: 300, Loss: 0.1392734944820404
-Train Epoch: 1, iteration: 400, Loss: 0.022600188851356506
-Train Epoch: 1, iteration: 500, Loss: 0.020594105124473572
-Train Epoch: 1, iteration: 600, Loss: 0.031451016664505005
-Train Epoch: 1, iteration: 700, Loss: 0.09078143537044525
-Train Epoch: 1, iteration: 800, Loss: 0.013186424970626831
-Train Epoch: 1, iteration: 900, Loss: 0.04006651043891907
-Train Epoch: 1, iteration: 1000, Loss: 0.014285147190093994
-Train Epoch: 1, iteration: 1100, Loss: 0.22637280821800232
-Train Epoch: 1, iteration: 1200, Loss: 0.02185329794883728
-Train Epoch: 1, iteration: 1300, Loss: 0.13519427180290222
-Train Epoch: 1, iteration: 1400, Loss: 0.021606311202049255
-Train Epoch: 1, iteration: 1500, Loss: 0.016718149185180664
-Train Epoch: 1, iteration: 1600, Loss: 0.07150381058454514
-Train Epoch: 1, iteration: 1700, Loss: 0.041178762912750244
-Train Epoch: 1, iteration: 1800, Loss: 0.004264324903488159
-Test loss: 0.040256525754928586, Accuracy: 98.61</code></pre><p>NLL loss的定义</p>
-<p>$\ell(x, y) = L = {l_1,\dots,l_N}^\top, \quad<br>        l_n = - w_{y_n} x_{n,y_n}, \quad<br>        w_{c} = \text{weight}[c] \cdot \mathbb{1}{c \not= \text{ignore_index}}$</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">device = torch.device(<span class="string">"cuda"</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">"cpu"</span>)</span><br><span class="line">batch_size = <span class="number">32</span></span><br><span class="line">train_dataloader = torch.utils.data.DataLoader(</span><br><span class="line">    datasets.FashionMNIST(<span class="string">"./fashion_mnist_data"</span>, train=<span class="literal">True</span>, download=<span class="literal">True</span>,</span><br><span class="line">           transform=transforms.Compose([</span><br><span class="line">               transforms.ToTensor(),</span><br><span class="line">               transforms.Normalize((<span class="number">0.1307</span>,), (<span class="number">0.3081</span>,))</span><br><span class="line">           ])),</span><br><span class="line">    batch_size=batch_size, shuffle=<span class="literal">True</span>,</span><br><span class="line">    num_workers=<span class="number">1</span>, pin_memory=<span class="literal">True</span></span><br><span class="line">)</span><br><span class="line">test_dataloader = torch.utils.data.DataLoader(</span><br><span class="line">    datasets.FashionMNIST(<span class="string">"./fashion_mnist_data"</span>, train=<span class="literal">False</span>, download=<span class="literal">True</span>,</span><br><span class="line">           transform=transforms.Compose([</span><br><span class="line">               transforms.ToTensor(),</span><br><span class="line">               transforms.Normalize((<span class="number">0.1307</span>,), (<span class="number">0.3081</span>,))</span><br><span class="line">           ])),</span><br><span class="line">    batch_size=batch_size, shuffle=<span class="literal">True</span>,</span><br><span class="line">    num_workers=<span class="number">1</span>, pin_memory=<span class="literal">True</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">lr = <span class="number">0.01</span></span><br><span class="line">momentum  = <span class="number">0.5</span></span><br><span class="line">model = Net().to(device)</span><br><span class="line">optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)</span><br><span class="line"></span><br><span class="line">num_epochs = <span class="number">2</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(num_epochs):</span><br><span class="line">    train(model, device, train_dataloader, optimizer, epoch)</span><br><span class="line">    test(model, device, test_dataloader)</span><br><span class="line"></span><br><span class="line">torch.save(model.state_dict(), <span class="string">"fashion_mnist_cnn.pt"</span>)</span><br></pre></td></tr></table></figure>
-
-<pre><code>Train Epoch: 0, iteration: 0, Loss: 2.2915596961975098
-Train Epoch: 0, iteration: 100, Loss: 1.0237065553665161
-Train Epoch: 0, iteration: 200, Loss: 0.840910017490387
-Train Epoch: 0, iteration: 300, Loss: 0.7526986598968506
-Train Epoch: 0, iteration: 400, Loss: 0.9580956697463989
-Train Epoch: 0, iteration: 500, Loss: 0.6261149644851685
-Train Epoch: 0, iteration: 600, Loss: 0.4255485534667969
-Train Epoch: 0, iteration: 700, Loss: 0.4818880558013916
-Train Epoch: 0, iteration: 800, Loss: 0.731956958770752
-Train Epoch: 0, iteration: 900, Loss: 0.45393142104148865
-Train Epoch: 0, iteration: 1000, Loss: 0.7139236927032471
-Train Epoch: 0, iteration: 1100, Loss: 0.4227047562599182
-Train Epoch: 0, iteration: 1200, Loss: 0.23375816643238068
-Train Epoch: 0, iteration: 1300, Loss: 0.4680781960487366
-Train Epoch: 0, iteration: 1400, Loss: 0.352077841758728
-Train Epoch: 0, iteration: 1500, Loss: 0.36358141899108887
-Train Epoch: 0, iteration: 1600, Loss: 0.46214842796325684
-Train Epoch: 0, iteration: 1700, Loss: 0.4750059247016907
-Train Epoch: 0, iteration: 1800, Loss: 0.4483456015586853
-Test loss: 0.45549455399513245, Accuracy: 83.48
-Train Epoch: 1, iteration: 0, Loss: 0.46502870321273804
-Train Epoch: 1, iteration: 100, Loss: 0.4504859745502472
-Train Epoch: 1, iteration: 200, Loss: 0.5228638648986816
-Train Epoch: 1, iteration: 300, Loss: 0.507514476776123
-Train Epoch: 1, iteration: 400, Loss: 0.33425623178482056
-Train Epoch: 1, iteration: 500, Loss: 0.15890713036060333
-Train Epoch: 1, iteration: 600, Loss: 0.4329398274421692
-Train Epoch: 1, iteration: 700, Loss: 0.47604358196258545
-Train Epoch: 1, iteration: 800, Loss: 0.40596315264701843
-Train Epoch: 1, iteration: 900, Loss: 0.31725335121154785
-Train Epoch: 1, iteration: 1000, Loss: 0.5835919380187988
-Train Epoch: 1, iteration: 1100, Loss: 0.3334502577781677
-Train Epoch: 1, iteration: 1200, Loss: 0.3043973743915558
-Train Epoch: 1, iteration: 1300, Loss: 0.3891294002532959
-Train Epoch: 1, iteration: 1400, Loss: 0.20209042727947235
-Train Epoch: 1, iteration: 1500, Loss: 0.26769235730171204
-Train Epoch: 1, iteration: 1600, Loss: 0.366751104593277
-Train Epoch: 1, iteration: 1700, Loss: 0.16336065530776978
-Train Epoch: 1, iteration: 1800, Loss: 0.48901161551475525
-Test loss: 0.37672775785923, Accuracy: 86.15</code></pre><h1 id="CNN模型的迁移学习"><a href="#CNN模型的迁移学习" class="headerlink" title="CNN模型的迁移学习"></a>CNN模型的迁移学习</h1><ul>
-<li>很多时候当我们需要训练一个新的图像分类任务，我们不会完全从一个随机的模型开始训练，而是利用_预训练_的模型来加速训练的过程。我们经常使用在<code>ImageNet</code>上的预训练模型。</li>
-<li>这是一种transfer learning的方法。我们常用以下两种方法做迁移学习。<ul>
-<li>fine tuning: 从一个预训练模型开始，我们改变一些模型的架构，然后继续训练整个模型的参数。</li>
-<li>feature extraction: 我们不再改变预训练模型的参数，而是只更新我们改变过的部分模型参数。我们之所以叫它feature extraction是因为我们把预训练的CNN模型当做一个特征提取模型，利用提取出来的特征做来完成我们的训练任务。</li>
-</ul>
-</li>
-</ul>
-<p>以下是构建和训练迁移学习模型的基本步骤：</p>
-<ul>
-<li>初始化预训练模型</li>
-<li>把最后一层的输出层改变成我们想要分的类别总数</li>
-<li>定义一个optimizer来更新参数</li>
-<li>模型训练</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> torchvision</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> datasets, transforms, models</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> copy</span><br><span class="line">print(<span class="string">"Torchvision Version: "</span>,torchvision.__version__)</span><br></pre></td></tr></table></figure>
-
-<pre><code>Torchvision Version:  0.2.0</code></pre><h2 id="数据"><a href="#数据" class="headerlink" title="数据"></a>数据</h2><p>我们会使用<em>hymenoptera_data</em>数据集，<a href="https://download.pytorch.org/tutorial/hymenoptera_data.zip" target="_blank" rel="noopener">下载</a>.</p>
-<p>这个数据集包括两类图片, <strong>bees</strong> 和 <strong>ants</strong>, 这些数据都被处理成了可以使用<code>ImageFolder &lt;https://pytorch.org/docs/stable/torchvision/datasets.html#torchvision.datasets.ImageFolder&gt;</code>来读取的格式。我们只需要把<code>data_dir</code>设置成数据的根目录，然后把<code>model_name</code>设置成我们想要使用的与训练模型：<br>::<br>   [resnet, alexnet, vgg, squeezenet, densenet, inception]</p>
-<p>其他的参数有：</p>
-<ul>
-<li><code>num_classes</code>表示数据集分类的类别数</li>
-<li><code>batch_size</code></li>
-<li><code>num_epochs</code></li>
-<li><code>feature_extract</code>表示我们训练的时候使用fine tuning还是feature extraction方法。如果<code>feature_extract = False</code>，整个模型都会被同时更新。如果<code>feature_extract = True</code>，只有模型的最后一层被更新。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Top level data directory. Here we assume the format of the directory conforms</span></span><br><span class="line"><span class="comment">#   to the ImageFolder structure</span></span><br><span class="line">data_dir = <span class="string">"./hymenoptera_data"</span></span><br><span class="line"><span class="comment"># Models to choose from [resnet, alexnet, vgg, squeezenet, densenet, inception]</span></span><br><span class="line">model_name = <span class="string">"resnet"</span></span><br><span class="line"><span class="comment"># Number of classes in the dataset</span></span><br><span class="line">num_classes = <span class="number">2</span></span><br><span class="line"><span class="comment"># Batch size for training (change depending on how much memory you have)</span></span><br><span class="line">batch_size = <span class="number">32</span></span><br><span class="line"><span class="comment"># Number of epochs to train for</span></span><br><span class="line">num_epochs = <span class="number">15</span></span><br><span class="line"><span class="comment"># Flag for feature extracting. When False, we finetune the whole model,</span></span><br><span class="line"><span class="comment">#   when True we only update the reshaped layer params</span></span><br><span class="line">feature_extract = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">input_size = <span class="number">224</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="读入数据"><a href="#读入数据" class="headerlink" title="读入数据"></a>读入数据</h2><p>现在我们知道了模型输入的size，我们就可以把数据预处理成相应的格式。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">all_imgs = datasets.ImageFolder(os.path.join(data_dir, <span class="string">"train"</span>), transforms.Compose([</span><br><span class="line">        transforms.RandomResizedCrop(input_size),</span><br><span class="line">        transforms.RandomHorizontalFlip(),</span><br><span class="line">        transforms.ToTensor(),</span><br><span class="line">    ]))</span><br><span class="line">loader = torch.utils.data.DataLoader(all_imgs, batch_size=batch_size, shuffle=<span class="literal">True</span>, num_workers=<span class="number">4</span>)</span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">data_transforms = &#123;</span><br><span class="line">    <span class="string">"train"</span>: transforms.Compose([</span><br><span class="line">        transforms.RandomResizedCrop(input_size),</span><br><span class="line">        transforms.RandomHorizontalFlip(),</span><br><span class="line">        transforms.ToTensor(),</span><br><span class="line">        transforms.Normalize([<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>], [<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>])</span><br><span class="line">    ]),</span><br><span class="line">    <span class="string">"val"</span>: transforms.Compose([</span><br><span class="line">        transforms.Resize(input_size),</span><br><span class="line">        transforms.CenterCrop(input_size),</span><br><span class="line">        transforms.ToTensor(),</span><br><span class="line">        transforms.Normalize([<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>], [<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>])</span><br><span class="line">    ])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">image_datasets = &#123;x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x]) <span class="keyword">for</span> x <span class="keyword">in</span> [<span class="string">"train"</span>, <span class="string">"val"</span>]&#125;</span><br><span class="line"></span><br><span class="line">dataloaders_dict = &#123;x: torch.utils.data.DataLoader(image_datasets[x],</span><br><span class="line">        batch_size=batch_size, shuffle=<span class="literal">True</span>, num_workers=<span class="number">4</span>) <span class="keyword">for</span> x <span class="keyword">in</span> [<span class="string">"train"</span>, <span class="string">"val"</span>]&#125;</span><br><span class="line"></span><br><span class="line">device = torch.device(<span class="string">"cuda"</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">"cpu"</span>)</span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">img = next(iter(dataloaders_dict[<span class="string">"val"</span>]))[<span class="number">0</span>]</span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">img.shape</span><br></pre></td></tr></table></figure>
-
-
-
-
-<pre><code>torch.Size([32, 3, 224, 224])</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">unloader = transforms.ToPILImage()  <span class="comment"># reconvert into PIL image</span></span><br><span class="line"></span><br><span class="line">plt.ion()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">imshow</span><span class="params">(tensor, title=None)</span>:</span></span><br><span class="line">    image = tensor.cpu().clone()  <span class="comment"># we clone the tensor to not do changes on it</span></span><br><span class="line">    image = image.squeeze(<span class="number">0</span>)      <span class="comment"># remove the fake batch dimension</span></span><br><span class="line">    image = unloader(image)</span><br><span class="line">    plt.imshow(image)</span><br><span class="line">    <span class="keyword">if</span> title <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        plt.title(title)</span><br><span class="line">    plt.pause(<span class="number">0.001</span>) <span class="comment"># pause a bit so that plots are updated</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">plt.figure()</span><br><span class="line">imshow(img[<span class="number">11</span>], title=<span class="string">'Image'</span>)</span><br></pre></td></tr></table></figure>
-
-
-<p><img src="output_24_0.png" alt="png"></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">set_parameter_requires_grad</span><span class="params">(model, feature_extract)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> feature_extract:</span><br><span class="line">        <span class="keyword">for</span> param <span class="keyword">in</span> model.parameters():</span><br><span class="line">            param.requires_grad = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">initialize_model</span><span class="params">(model_name, num_classes, feature_extract, use_pretrained=True)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> model_name == <span class="string">"resnet"</span>:</span><br><span class="line">        model_ft = models.resnet18(pretrained=use_pretrained)</span><br><span class="line">        set_parameter_requires_grad(model_ft, feature_extract)</span><br><span class="line">        num_ftrs = model_ft.fc.in_features</span><br><span class="line">        model_ft.fc = nn.Linear(num_ftrs, num_classes)</span><br><span class="line">        input_size = <span class="number">224</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        print(<span class="string">"model not implemented"</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span>, <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> model_ft, input_size</span><br><span class="line"></span><br><span class="line">model_ft, input_size = initialize_model(model_name,</span><br><span class="line">                    num_classes, feature_extract, use_pretrained=<span class="literal">True</span>)</span><br><span class="line">print(model_ft)</span><br></pre></td></tr></table></figure>
-
-<pre><code>ResNet(
-  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-  (relu): ReLU(inplace)
-  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
-  (layer1): Sequential(
-    (0): BasicBlock(
-      (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      (relu): ReLU(inplace)
-      (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    )
-    (1): BasicBlock(
-      (conv1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      (relu): ReLU(inplace)
-      (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    )
-  )
-  (layer2): Sequential(
-    (0): BasicBlock(
-      (conv1): Conv2d(64, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
-      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      (relu): ReLU(inplace)
-      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      (downsample): Sequential(
-        (0): Conv2d(64, 128, kernel_size=(1, 1), stride=(2, 2), bias=False)
-        (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      )
-    )
-    (1): BasicBlock(
-      (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      (relu): ReLU(inplace)
-      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    )
-  )
-  (layer3): Sequential(
-    (0): BasicBlock(
-      (conv1): Conv2d(128, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
-      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      (relu): ReLU(inplace)
-      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      (downsample): Sequential(
-        (0): Conv2d(128, 256, kernel_size=(1, 1), stride=(2, 2), bias=False)
-        (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      )
-    )
-    (1): BasicBlock(
-      (conv1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      (relu): ReLU(inplace)
-      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    )
-  )
-  (layer4): Sequential(
-    (0): BasicBlock(
-      (conv1): Conv2d(256, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
-      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      (relu): ReLU(inplace)
-      (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      (downsample): Sequential(
-        (0): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
-        (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      )
-    )
-    (1): BasicBlock(
-      (conv1): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-      (relu): ReLU(inplace)
-      (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-      (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-    )
-  )
-  (avgpool): AvgPool2d(kernel_size=7, stride=1, padding=0)
-  (fc): Linear(in_features=512, out_features=2, bias=True)
-)</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model_ft.layer1[<span class="number">0</span>].conv1.weight.requires_grad</span><br></pre></td></tr></table></figure>
-
-
-
-
-<pre><code>False</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model_ft.fc.weight.requires_grad</span><br></pre></td></tr></table></figure>
-
-
-
-
-<pre><code>True</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">train_model</span><span class="params">(model, dataloaders, loss_fn, optimizer, num_epochs=<span class="number">5</span>)</span>:</span></span><br><span class="line">    best_model_wts = copy.deepcopy(model.state_dict())</span><br><span class="line">    best_acc = <span class="number">0.</span></span><br><span class="line">    val_acc_history = []</span><br><span class="line">    <span class="keyword">for</span> epoch <span class="keyword">in</span> range(num_epochs):</span><br><span class="line">        <span class="keyword">for</span> phase <span class="keyword">in</span> [<span class="string">"train"</span>, <span class="string">"val"</span>]:</span><br><span class="line">            running_loss = <span class="number">0.</span></span><br><span class="line">            running_corrects = <span class="number">0.</span></span><br><span class="line">            <span class="keyword">if</span> phase == <span class="string">"train"</span>:</span><br><span class="line">                model.train()</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                model.eval()</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> inputs, labels <span class="keyword">in</span> dataloaders[phase]:</span><br><span class="line">                inputs, labels = inputs.to(device), labels.to(device)</span><br><span class="line"></span><br><span class="line">                <span class="keyword">with</span> torch.autograd.set_grad_enabled(phase==<span class="string">"train"</span>):</span><br><span class="line">                    outputs = model(inputs) <span class="comment"># bsize * 2</span></span><br><span class="line">                    loss = loss_fn(outputs, labels)</span><br><span class="line"></span><br><span class="line">                preds = outputs.argmax(dim=<span class="number">1</span>)</span><br><span class="line">                <span class="keyword">if</span> phase == <span class="string">"train"</span>:</span><br><span class="line">                    optimizer.zero_grad()</span><br><span class="line">                    loss.backward()</span><br><span class="line">                    optimizer.step()</span><br><span class="line">                running_loss += loss.item() * inputs.size(<span class="number">0</span>)</span><br><span class="line">                running_corrects += torch.sum(preds.view(<span class="number">-1</span>) == labels.view(<span class="number">-1</span>)).item()</span><br><span class="line"></span><br><span class="line">            epoch_loss = running_loss / len(dataloaders[phase].dataset)</span><br><span class="line">            epoch_acc = running_corrects / len(dataloaders[phase].dataset)</span><br><span class="line"></span><br><span class="line">            print(<span class="string">"Phase &#123;&#125; loss: &#123;&#125;, acc: &#123;&#125;"</span>.format(phase, epoch_loss, epoch_acc))</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> phase == <span class="string">"val"</span> <span class="keyword">and</span> epoch_acc &gt; best_acc:</span><br><span class="line">                best_acc = epoch_acc</span><br><span class="line">                best_model_wts = copy.deepcopy(model.state_dict())</span><br><span class="line">            <span class="keyword">if</span> phase == <span class="string">"val"</span>:</span><br><span class="line">                val_acc_history.append(epoch_acc)</span><br><span class="line">    model.load_state_dict(best_model_wts)    </span><br><span class="line">    <span class="keyword">return</span> model, val_acc_history</span><br></pre></td></tr></table></figure>
-
-<p>模型训练</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model_ft = model_ft.to(device)</span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">optimizer = torch.optim.SGD(filter(<span class="keyword">lambda</span> p: p.requires_grad,</span><br><span class="line">                                   model_ft.parameters()), lr=<span class="number">0.001</span>, momentum=<span class="number">0.9</span>)</span><br><span class="line">loss_fn = nn.CrossEntropyLoss()</span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_, ohist = train_model(model_ft, dataloaders_dict, loss_fn, optimizer, num_epochs=num_epochs)</span><br></pre></td></tr></table></figure>
-
-<pre><code>Phase train loss: 0.2441009590860273, acc: 0.9139344262295082
-Phase val loss: 0.2058036023495244, acc: 0.9477124183006536
-Phase train loss: 0.2242034280397853, acc: 0.9221311475409836
-Phase val loss: 0.19933121480972937, acc: 0.9477124183006536
-Phase train loss: 0.2179500304284643, acc: 0.930327868852459
-Phase val loss: 0.19292019200480842, acc: 0.9477124183006536
-Phase train loss: 0.2038783010889272, acc: 0.9221311475409836
-Phase val loss: 0.2022019473750607, acc: 0.9281045751633987
-Phase train loss: 0.20605210031642288, acc: 0.9180327868852459
-Phase val loss: 0.18852663916700027, acc: 0.9477124183006536
-Phase train loss: 0.1799576844348282, acc: 0.9426229508196722
-Phase val loss: 0.18889451397010704, acc: 0.9477124183006536
-Phase train loss: 0.16676783659419075, acc: 0.9426229508196722
-Phase val loss: 0.1854035053280444, acc: 0.9477124183006536
-Phase train loss: 0.20258395642530722, acc: 0.930327868852459
-Phase val loss: 0.1881853450162738, acc: 0.934640522875817
-Phase train loss: 0.17906492948532104, acc: 0.9180327868852459
-Phase val loss: 0.17941297795258315, acc: 0.954248366013072
-Phase train loss: 0.15364321333463074, acc: 0.9631147540983607
-Phase val loss: 0.18958801722604465, acc: 0.9281045751633987
-Phase train loss: 0.19896865452899307, acc: 0.9139344262295082
-Phase val loss: 0.1826314626176373, acc: 0.954248366013072
-Phase train loss: 0.16911793878821077, acc: 0.9344262295081968
-Phase val loss: 0.18108942452209448, acc: 0.9477124183006536
-Phase train loss: 0.16306845306373033, acc: 0.9467213114754098
-Phase val loss: 0.1891336505806524, acc: 0.9281045751633987
-Phase train loss: 0.1875694076545903, acc: 0.9385245901639344
-Phase val loss: 0.1793875343659345, acc: 0.9477124183006536
-Phase train loss: 0.20147151096922453, acc: 0.9139344262295082
-Phase val loss: 0.18119409422274507, acc: 0.9411764705882353</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">model_scratch, _ = initialize_model(model_name,</span><br><span class="line">                    num_classes, feature_extract=<span class="literal">False</span>, use_pretrained=<span class="literal">False</span>)</span><br><span class="line">model_scratch = model_scratch.to(device)</span><br><span class="line">optimizer = torch.optim.SGD(filter(<span class="keyword">lambda</span> p: p.requires_grad,</span><br><span class="line">                                   model_scratch.parameters()), lr=<span class="number">0.001</span>, momentum=<span class="number">0.9</span>)</span><br><span class="line">loss_fn = nn.CrossEntropyLoss()</span><br><span class="line">_, scratch_hist = train_model(model_scratch, dataloaders_dict, loss_fn, optimizer, num_epochs=num_epochs)</span><br></pre></td></tr></table></figure>
-
-<pre><code>Phase train loss: 0.73858080437926, acc: 0.47950819672131145
-Phase val loss: 0.704963364632301, acc: 0.46405228758169936
-Phase train loss: 0.668987612255284, acc: 0.5614754098360656
-Phase val loss: 0.6597700851415497, acc: 0.6339869281045751
-Phase train loss: 0.6411691278707786, acc: 0.6557377049180327
-Phase val loss: 0.6726375681902069, acc: 0.5751633986928104
-Phase train loss: 0.6194371883986426, acc: 0.6352459016393442
-Phase val loss: 0.6313814318257999, acc: 0.6274509803921569
-Phase train loss: 0.6170555851498588, acc: 0.6475409836065574
-Phase val loss: 0.6528662945709977, acc: 0.6274509803921569
-Phase train loss: 0.6110719637792619, acc: 0.6762295081967213
-Phase val loss: 0.626404657472972, acc: 0.6405228758169934
-Phase train loss: 0.5864127718034338, acc: 0.639344262295082
-Phase val loss: 0.6282203664966658, acc: 0.6405228758169934
-Phase train loss: 0.5998562847981688, acc: 0.6680327868852459
-Phase val loss: 0.6236733716297773, acc: 0.6274509803921569
-Phase train loss: 0.5662176755608105, acc: 0.6885245901639344
-Phase val loss: 0.5790788285872516, acc: 0.6862745098039216
-Phase train loss: 0.5466401464626437, acc: 0.7131147540983607
-Phase val loss: 0.5834652006236556, acc: 0.7124183006535948
-Phase train loss: 0.5393341779708862, acc: 0.7295081967213115
-Phase val loss: 0.5651591182534211, acc: 0.6797385620915033
-Phase train loss: 0.5473490689621597, acc: 0.7172131147540983
-Phase val loss: 0.5568503246587866, acc: 0.673202614379085
-Phase train loss: 0.5429437048122531, acc: 0.7090163934426229
-Phase val loss: 0.6801646998505188, acc: 0.6339869281045751
-Phase train loss: 0.512938850238675, acc: 0.7254098360655737
-Phase val loss: 0.6064363223275328, acc: 0.6862745098039216
-Phase train loss: 0.5331279508403091, acc: 0.6885245901639344
-Phase val loss: 0.5726334435098311, acc: 0.6928104575163399</code></pre><p>我们来plot模型训练时候loss的变化</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># Plot the training curves of validation accuracy vs. number</span></span><br><span class="line"><span class="comment">#  of training epochs for the transfer learning method and</span></span><br><span class="line"><span class="comment">#  the model trained from scratch</span></span><br><span class="line"></span><br><span class="line">plt.title(<span class="string">"Validation Accuracy vs. Number of Training Epochs"</span>)</span><br><span class="line">plt.xlabel(<span class="string">"Training Epochs"</span>)</span><br><span class="line">plt.ylabel(<span class="string">"Validation Accuracy"</span>)</span><br><span class="line">plt.plot(range(<span class="number">1</span>,num_epochs+<span class="number">1</span>),ohist,label=<span class="string">"Pretrained"</span>)</span><br><span class="line">plt.plot(range(<span class="number">1</span>,num_epochs+<span class="number">1</span>),scratch_hist,label=<span class="string">"Scratch"</span>)</span><br><span class="line">plt.ylim((<span class="number">0</span>,<span class="number">1.</span>))</span><br><span class="line">plt.xticks(np.arange(<span class="number">1</span>, num_epochs+<span class="number">1</span>, <span class="number">1.0</span>))</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
-
-
-<p><img src="output_35_0.png" alt="png"></p>
-<h3 id="课后学习"><a href="#课后学习" class="headerlink" title="课后学习"></a>课后学习</h3><ul>
-<li><a href="https://github.com/huggingface/pytorch-pretrained-BERT" target="_blank" rel="noopener">BERT</a></li>
-<li><a href="https://github.com/allenai/allennlp/blob/master/allennlp/modules/elmo.py" target="_blank" rel="noopener">ElMo</a></li>
-<li><a href="https://github.com/pytorch/vision/tree/master/torchvision/models" target="_blank" rel="noopener">Torch Vision Models</a></li>
-</ul>
-
-        </div>
-    
-
-</div>
-            
         </section>
     </div>
 </div>
@@ -2344,6 +2053,10 @@ Phase val loss: 0.5726334435098311, acc: 0.6928104575163399</code></pre><p>我�
         <ul>
             
             <li>
+                <a class="footer-post" href="/2020/03/08/AlexNet%E8%AF%A6%E7%BB%86%E8%A7%A3%E8%AF%BB/">AlexNet详细解读</a>
+            </li>
+            
+            <li>
                 <a class="footer-post" href="/2020/03/08/%E5%8D%B7%E7%A9%8D%E4%B8%AD%E7%9A%84stride%E5%92%8Cpadding/">卷積中的stride和padding</a>
             </li>
             
@@ -2353,10 +2066,6 @@ Phase val loss: 0.5726334435098311, acc: 0.6928104575163399</code></pre><p>我�
             
             <li>
                 <a class="footer-post" href="/2020/03/08/%E5%AF%B9%E7%A7%B0%E7%9F%A9%E9%98%B5summary/">对称矩阵summary</a>
-            </li>
-            
-            <li>
-                <a class="footer-post" href="/2020/03/07/%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86/">二叉树遍历</a>
             </li>
             
         </ul>

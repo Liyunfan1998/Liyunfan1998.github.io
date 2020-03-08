@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="AlexNet详细解读  之前在自学计算机视觉与深度学习方向的论文，今天给大家带来的是很经典的一篇文章 ：《ImageNet Classification with Deep Convolutional Neural Networks》。纯粹是自学之后，自己的一点知识总结，如果有什么不对的地方欢迎大">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Yunfan Li">
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="AlexNet详细解读"/>
+    
+
+    <!--Open Graph Description-->
+    
+
+    <!--Open Graph Site Name-->
+    <meta property="og:site_name" content="Hexo"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article" />
+    
+
+    <!--Page Cover-->
+    
+
+    
+        <meta name="twitter:card" content="summary" />
+    
+    
+    
+
+    <!-- Title -->
+    
+    <title>AlexNet详细解读 - Hexo</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet" />
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Google Analytics -->
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+<div class="bg-gradient"></div>
+<div class="bg-pattern"></div>
+
+<!-- Menu -->
+<!--Menu Links and Overlay-->
+<div class="menu-bg">
+    <div class="menu-container">
+        <ul>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Home
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Archives
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/about.html">
+                    About
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/tags">
+                    Tags
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/categories">
+                    Categories
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/contact.html">
+                    Contact
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+<!--Hamburger Icon-->
+<nav>
+    <a href="#menu"></a>
+</nav>
+
+<div class="container">
+
+    <!-- Main Content -->
+    <div class="row">
+    <div class="col-sm-12">
+
+        <!--Title and Logo-->
+        <header>
+    <div class="logo">
+        <a href="/"><i class="logo-icon fa fa-cube" aria-hidden="true"></i></a>
+        
+    </div>
+</header>
+
+        <section class="main">
+            
+<div class="post">
+
+    <div class="post-header">
+        <h1 class="title">
+            <a href="/2020/03/08/AlexNet%E8%AF%A6%E7%BB%86%E8%A7%A3%E8%AF%BB/">
+                AlexNet详细解读
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-03-08</span>
+            
+            
+            
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- Gallery -->
+        
+
+        <!-- Post Content -->
+        <h1 id="AlexNet详细解读"><a href="#AlexNet详细解读" class="headerlink" title="AlexNet详细解读"></a>AlexNet详细解读</h1><p>  之前在自学计算机视觉与深度学习方向的论文，今天给大家带来的是很经典的一篇文章 ：《ImageNet Classification with Deep Convolutional Neural Networks》。纯粹是自学之后，自己的一点知识总结，如果有什么不对的地方欢迎大家指正。AlexNet的篇文章当中，我们可以主要从五个大方面去讲：ReLU，LPN，Overlapping Pooling，总体架构，减少过度拟合。重点介绍总体结构和减少过度拟合。</p>
+<h2 id="1-ReLU-Nonlinearity"><a href="#1-ReLU-Nonlinearity" class="headerlink" title="1. ReLU Nonlinearity"></a>1. ReLU Nonlinearity</h2><p>一般神经元的激活函数会选择sigmoid函数或者tanh函数，然而Alex发现在训练时间的梯度衰减方面，这些非线性饱和函数要比非线性非饱和函数慢很多。在AlexNet中用的非线性非饱和函数是f=max(0,x)，即ReLU。实验结果表明，要将深度网络训练至training error rate达到25%的话，ReLU只需5个epochs的迭代，但tanh单元需要35个epochs的迭代，用ReLU比tanh快6倍。</p>
+<h2 id="2-双GPU并行运行"><a href="#2-双GPU并行运行" class="headerlink" title="2. 双GPU并行运行"></a>2. 双GPU并行运行</h2><p>为提高运行速度和提高网络运行规模，作者采用双GPU的设计模式。并且规定GPU只能在特定的层进行通信交流。其实就是每一个GPU负责一半的运算处理。作者的实验数据表示，two-GPU方案会比只用one-GPU跑半个上面大小网络的方案，在准确度上提高了1.7%的top-1和1.2%的top-5。值得注意的是，虽然one-GPU网络规模只有two-GPU的一半，但其实这两个网络其实并非等价的。</p>
+<h2 id="3-LRN局部响应归一化"><a href="#3-LRN局部响应归一化" class="headerlink" title="3. LRN局部响应归一化"></a>3. LRN局部响应归一化</h2><p><img src="https://img-blog.csdn.net/20180518200153219" alt="img"></p>
+<p>ReLU本来是不需要对输入进行标准化，但本文发现进行局部标准化能提高性能。</p>
+<p>其中a代表在feature map中第i个卷积核(x,y)坐标经过了ReLU激活函数的输出，n表示相邻的几个卷积核。N表示这一层总的卷积核数量。k, n, α和β是hyper-parameters，他们的值是在验证集上实验得到的，其中k = 2，n = 5，α = 0.0001，β = 0.75。</p>
+<p>这种归一化操作实现了某种形式的横向抑制，这也是受真实神经元的某种行为启发。</p>
+<p>卷积核矩阵的排序是随机任意，并且在训练之前就已经决定好顺序。这种LPN形成了一种横向抑制机制。</p>
+<h2 id="4-Overlapping-Pooling"><a href="#4-Overlapping-Pooling" class="headerlink" title="4. Overlapping Pooling"></a>4. Overlapping Pooling</h2><p>池层是相同卷积核领域周围神经元的输出。池层被认为是由空间距离s个像素的池单元网格的组成。也可以理解成以大小为步长对前面卷积层的结果进行分块，对块大小为的卷积映射结果做总结，这时有。然而，Alex说还有的情况，也就是带交叠的Pooling，顾名思义这指Pooling单元在总结提取特征的时候，其输入会受到相邻pooling单元的输入影响，也就是提取出来的结果可能是有重复的(对max pooling而言)。而且，实验表示使用 带交叠的Pooling的效果比的传统要好，在top-1和top-5上分别提高了0.4%和0.3%，在训练阶段有避免过拟合的作用。</p>
+<h2 id="5-总体结构"><a href="#5-总体结构" class="headerlink" title="5. 总体结构"></a>5. 总体结构</h2><p>如果说前面的ReLU、LRN、Overlapping Pooling是铺垫的话，那么它们一定是为这部分服务的。</p>
+<p>因为这才是全文的重点！！！理解这里才是把握住这篇的论文的精华！</p>
+<p><img src="https://img-blog.csdn.net/20180518202244353" alt="img"></p>
+<p><img src="https://img-blog.csdnimg.cn/20190222100954397.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3h4Ym95NjE=,size_16,color_FFFFFF,t_70" alt="img"></p>
+<p><img src="https://upload-images.jianshu.io/upload_images/1689929-063fb60285b6ed42.png?imageMogr2/auto-orient/strip%7CimageView2/2" alt="img"></p>
+<p>首先总体概述下：</p>
+<p>  AlexNet为8层结构，其中前5层为卷积层，后面3层为全连接层；学习参数有6千万个，神经元有650,000个<br>  AlexNet在两个GPU上运行；<br>  AlexNet在第2,4,5层均是前一层自己GPU内连接，第3层是与前面两层全连接，全连接是2个GPU全连接；<br>  RPN层第1,2个卷积层后；<br>  Max pooling层在RPN层以及第5个卷积层后。<br>  ReLU在每个卷积层以及全连接层后。<br>  卷积核大小数量：</p>
+<p>conv1:96 11<em>11</em>3(个数/长/宽/深度)</p>
+<p>conv2:256 5<em>5</em>48</p>
+<p>conv3:384 3<em>3</em>256</p>
+<p>conv4: 384 3<em>3</em>192</p>
+<p>conv5: 256 3<em>3</em>192</p>
+<p>ReLU、双GPU运算：提高训练速度。（应用于所有卷积层和全连接层）</p>
+<p>重叠pool池化层：提高精度，不容易产生过度拟合。（应用在第一层，第二层，第五层后面）</p>
+<p>局部响应归一化层(LRN)：提高精度。（应用在第一层和第二层后面）</p>
+<p>Dropout：减少过度拟合。（应用在前两个全连接层）<br>第1层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180518203413676" alt="img"><br>第一层输入数据为原始图像的227<em>227</em>3的图像（最开始是224<em>224</em>3，为后续处理方便必须进行调整）,这个图像被11<em>11</em>3（3代表深度，例如RGB的3通道）的卷积核进行卷积运算，卷积核对原始图像的每次卷积都会生成一个新的像素。卷积核的步长为4个像素，朝着横向和纵向这两个方向进行卷积。由此，会生成新的像素；（227-11）/4+1=55个像素(227个像素减去11，正好是54，即生成54个像素，再加上被减去的11也对应生成一个像素)，由于第一层有96个卷积核，所以就会形成55<em>55</em>96个像素层，系统是采用双GPU处理，因此分为2组数据：55<em>55</em>48的像素层数据。</p>
+<p>重叠pool池化层：这些像素层还需要经过pool运算（池化运算）的处理，池化运算的尺度由预先设定为3<em>3，运算的步长为2，则池化后的图像的尺寸为：（55-3）/2+1=27。即经过池化处理过的规模为27</em>27*96.</p>
+<p>局部响应归一化层(LRN)：最后经过局部响应归一化处理，归一化运算的尺度为5<em>5；第一层卷积层结束后形成的图像层的规模为27</em>27*96.分别由96个卷积核对应生成，这96层数据氛围2组，每组48个像素层，每组在独立的GPU下运算。<br>第2层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180518221411890" alt="img"><br>第二层输入数据为第一层输出的27<em>27</em>96的像素层（为方便后续处理，这对每幅像素层进行像素填充），分为2组像素数据，两组像素数据分别在两个不同的GPU中进行运算。每组像素数据被5<em>5</em>48的卷积核进行卷积运算，同理按照第一层的方式进行：（27-5+2<em>2）/1+1=27个像素，一共有256个卷积核，这样也就有了27</em>27*128两组像素层。</p>
+<p>重叠pool池化层：同样经过池化运算，池化后的图像尺寸为（27-3）/2+1=13，即池化后像素的规模为2组13<em>13</em>128的像素层。</p>
+<p>局部响应归一化层(LRN)：最后经过归一化处理，分别对应2组128个卷积核所运算形成。每组在一个GPU上进行运算。即共256个卷积核，共2个GPU进行运算。<br>第3层分析</p>
+<p><img src="https://img-blog.csdn.net/20180518223031687" alt="img"><br>第三层输入数据为第二层输出的两组13<em>13</em>128的像素层（为方便后续处理，这对每幅像素层进行像素填充），分为2组像素数据，两组像素数据分别在两个不同的GPU中进行运算。每组像素数据被3<em>3</em>128的卷积核（两组，一共也就有3<em>3</em>256）进行卷积运算，同理按照第一层的方式进行：（13-3+1<em>2）/1+1=13个像素，一共有384个卷积核，这样也就有了13</em>13*192两组像素层。<br>第4层分析:</p>
+<p><img src="https://img-blog.csdn.net/20180518223330629" alt="img"></p>
+<p>第四层输入数据为第三层输出的两组13<em>13</em>192的像素层（为方便后续处理，这对每幅像素层进行像素填充），分为2组像素数据，两组像素数据分别在两个不同的GPU中进行运算。每组像素数据被3<em>3</em>192的卷积核进行卷积运算，同理按照第一层的方式进行：（13-3+1<em>2）/1+1=13个像素，一共有384个卷积核，这样也就有了13</em>13*192两组像素层。<br>第5层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180518223635261" alt="img"></p>
+<p>第五层输入数据为第四层输出的两组13<em>13</em>192的像素层（为方便后续处理，这对每幅像素层进行像素填充），分为2组像素数据，两组像素数据分别在两个不同的GPU中进行运算。每组像素数据被3<em>3</em>192的卷积核进行卷积运算，同理按照第一层的方式进行：（13-3+1<em>2）/1+1=13个像素，一共有256个卷积核，这样也就有了13</em>13*128两组像素层。</p>
+<p>重叠pool池化层：进过池化运算，池化后像素的尺寸为（13-3）/2+1=6，即池化后像素的规模变成了两组6<em>6</em>128的像素层，共6<em>6</em>256规模的像素层。<br>第6层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180518223855977" alt="img"><br>第6层输入数据的尺寸是6<em>6</em>256，采用6<em>6</em>256尺寸的滤波器对第六层的输入数据进行卷积运算；每个6<em>6</em>256尺寸的滤波器对第六层的输入数据进行卷积运算生成一个运算结果，通过一个神经元输出这个运算结果；共有4096个6<em>6</em>256尺寸的滤波器对输入数据进行卷积，通过4096个神经元的输出运算结果；然后通过ReLU激活函数以及dropout运算输出4096个本层的输出结果值。</p>
+<p>很明显在第6层中，采用的滤波器的尺寸（6<em>6</em>256）和待处理的feature map的尺寸（6<em>6</em>256）相同，即滤波器中的每个系数只与feature map中的一个像素值相乘；而采用的滤波器的尺寸和待处理的feature map的尺寸不相同，每个滤波器的系数都会与多个feature map中像素相乘。因此第6层被称为全连接层。<br>第7层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180519092620718" alt="img"><br>第6层输出的4096个数据与第7层的4096个神经元进行全连接，然后经由ReLU和Dropout进行处理后生成4096个数据。<br>第8层分析：</p>
+<p><img src="https://img-blog.csdn.net/20180519092826659" alt="img"></p>
+<p>第7层输入的4096个数据与第8层的1000个神经元进行全连接，经过训练后输出被训练的数值。</p>
+<h2 id="6-减少过度拟合"><a href="#6-减少过度拟合" class="headerlink" title="6. 减少过度拟合"></a>6. 减少过度拟合</h2><h3 id="6-1-数据增益"><a href="#6-1-数据增益" class="headerlink" title="6.1 数据增益"></a>6.1 数据增益</h3><p>增强图片数据集最简单和最常用的方法是在不改变图片核心元素（即不改变图片的分类）的前提下对图片进行一定的变换，比如在垂直和水平方向进行一定的唯一，翻转等。</p>
+<p>AlexNet用到的第一种数据增益的方法：是原图片大小为256<em>256中随机的提取224</em>224的图片，以及他们水平方向的映像。</p>
+<p>第二种数据增益的方法就是在图像中每个像素的R、G、B值上分别加上一个数，用到 方法为PCA。对于图像每个像素，增加以下量 ：</p>
+<p><img src="https://img-blog.csdn.net/20180519094519363" alt="img"><br>p是主成分，lamda是特征值，alpha是N(0，0.1)高斯分布中采样得到的随机值。此方案名义上得到自然图像的重要特性，也就是说，目标是不随着光照强度和颜色而改变的。此方法降低top-1错误率1%。<br>6.2 Dropout</p>
+<p>结合多个模型的预测值是减少错误的有效方法，但是对于训练时间用好几天的大型神经网络太耗费时间。Dropout是有效的模型集成学习方法，具有0.5的概率讲隐藏神经元设置输出为0。运用了这种机制的神经元不会干扰前向传递也不影响后续操作。因此当有输入的时候，神经网络采样不用的结构，但是这些结构都共享一个权重。这就减少了神经元适应的复杂性。测试时，用0.5的概率随机失活神经元。dropout减少了过拟合，也使收敛迭代次数增加一倍。</p>
+<h2 id="7-学习细节"><a href="#7-学习细节" class="headerlink" title="7. 学习细节"></a>7. 学习细节</h2><p>AlexNet训练采用的是随机梯度下降 (stochastic gradient descent)，每批图像大小为128，动力为0.9，权重衰减为0.005,（Alexnet认为权重衰减非常重要，但是没有讲为什么）</p>
+<p>对于权重值的更新规则如下：</p>
+<p><img src="https://img-blog.csdn.net/2018051909591899" alt="img"><br>其中i是迭代指数，v是动力变量，ε是学习率，是目标关于w、对求值的导数在第i批样例上的平均值。我们用一个均值为0、标准差为0.01的高斯分布初始化了每一层的权重。我们用常数1初始化了第二、第四和第五个卷积层以及全连接隐层的神经元偏差。该初始化通过提供带正输入的ReLU来加速学习的初级阶段。我们在其余层用常数0初始化神经元偏差。<br>  对于所有层都使用了相等的学习率，这是在整个训练过程中手动调整的。我们遵循的启发式是，当验证误差率在当前学习率下不再提高时，就将学习率除以10。学习率初始化为0.01，在终止前降低三次。作者训练该网络时大致将这120万张图像的训练集循环了90次，在两个NVIDIA GTX 580 3GB GPU上花了五到六天。</p>
+<h2 id="8-实验结果"><a href="#8-实验结果" class="headerlink" title="8. 实验结果"></a>8. 实验结果</h2><p>ILSVRC2010比赛冠军方法是Sparse coding,这之后(AlexNet前)报道最好方法是SIFT+FVs。CNN方法横空出世，远超传统方法。</p>
+<p><img src="https://img-blog.csdn.net/20180519100236278" alt="img"></p>
+<p>ILSVRC-2012，Alex参加比赛，获得冠军，远超第二名SIFT+FVs。</p>
+<p><img src="https://img-blog.csdn.net/20180519100534494" alt="img"><br>定量分析：</p>
+<p><img src="https://img-blog.csdn.net/20180519100835132" alt="img"><br>图3显示了卷积层学到的有频率和方向选择性的卷积核，和颜色斑点(color blob)。GPU 1 (color-agnostic)和GPU 2(color-specific)学习到的卷积核并不一样。不一样的原因是3.5中的受限连接(restricted connectivity)。</p>
+<p>图4显示，即使目标偏离中心，也可以被识别出来，比如mite。top-5预测结果是reasonable的，比如leopard的预测的可能结果是其他类型的猫科动物。但是也存在对intended focus的模糊问题，就是网络不知道我们到底想识别图片中的什么物体，比如cherry,分类结果是dalmatian,网络显然关注的是dog。</p>
+<p>网络最后4096-d隐藏层产生的是feature activations是另一个重要指标。如果两张图像产生欧氏距离相近的feature activation vectors,那么网络的higher levels就认为他们是相似的。使用此度量，可以实现较好的图像检索。<br>通过欧氏距离计算两个4096维度效率太低，可以使用自动编码压缩向量成二进制码。这比直接在原始像素上使用自动编码效果更好。因为在raw pixels上使用quto-encoder，没用到标签数据，只是检索有相似边缘模式(similar patterns of edges)的图像,却不管他们语义(semantically)上是否相似。</p>
+<h2 id="9-探讨"><a href="#9-探讨" class="headerlink" title="9.探讨"></a>9.探讨</h2><p>深度很重要，去掉任一层，性能都会降低。</p>
+<p>为了简化实验，没有使用非监督预训练。但是当有足够计算能力扩大网络结构，而没增加相应数据时，非监督预训练可能会有所帮助。</p>
+<p>虽然通过增大网络结构和增加训练时长可以改善网络，但是我们与达到人类视觉系统的时空推理能力(infero-temporal pathway of the human visual system)还相距甚远。所以，最终希望能将CNN用到视频序列分析中，视频相对静态图像有很多有用的时间结构信息。</p>
+
+    </div>
+
+    
+
+    
+
+    <!-- Comments -->
+    
+
+</div>
+        </section>
+
+    </div>
+</div>
+
+
+</div>
+
+<!-- Footer -->
+<div class="push"></div>
+
+<footer class="footer-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 footer-about">
+                <h2>About</h2>
+                <p>
+                    This theme was developed by <a href="https://github.com/klugjo" target="_blank" rel="noopener">Jonathan Klughertz</a>. The source code is available on Github. Create Websites. Make Magic.
+                </p>
+            </div>
+            
+    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 recent-posts">
+        <h2>Recent Posts</h2>
+        <ul>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/08/AlexNet%E8%AF%A6%E7%BB%86%E8%A7%A3%E8%AF%BB/">AlexNet详细解读</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/08/%E5%8D%B7%E7%A9%8D%E4%B8%AD%E7%9A%84stride%E5%92%8Cpadding/">卷積中的stride和padding</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/08/Why%20does%20overlapped%20pooling%20help%20reduce%20overfitting%20in%20conv%20nets/">Why does overlapped pooli</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/08/%E5%AF%B9%E7%A7%B0%E7%9F%A9%E9%98%B5summary/">对称矩阵summary</a>
+            </li>
+            
+        </ul>
+    </div>
+
+
+
+            
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <ul class="list-inline footer-social-icons">
+                    
+                    <li class="list-inline-item">
+                        <a href="https://github.com/klugjo/hexo-theme-alpha-dust" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-github"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://twitter.com/?lang=en" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-twitter"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-facebook"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-instagram"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://dribbble.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-dribbble"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://plus.google.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-google-plus"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.behance.net/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-behance"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://500px.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-500px"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="mailto:test@example.com">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-envelope-o"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="\#">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-rss"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="footer-copyright">
+                    @Untitled. All right reserved | Design & Hexo <a href="http://www.codeblocq.com/" target="_blank" rel="noopener">Jonathan Klughertz</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- After footer scripts -->
+
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Tween Max -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.18.5/TweenMax.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Custom JavaScript -->
+
+<script src="/js/main.js"></script>
+
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>
