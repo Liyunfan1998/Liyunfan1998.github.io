@@ -10,6 +10,8 @@
 
     <!--Description-->
     
+        <meta name="description" content="Why does overlapped pooling help reduce overfitting in conv nets?I am going to answer this with the pooling example given above with some modification">
+    
 
     <!--Author-->
     
@@ -18,7 +20,7 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Hexo"/>
+        <meta property="og:title" content="Why does overlapped pooling help reduce overfitting in conv nets"/>
     
 
     <!--Open Graph Description-->
@@ -29,7 +31,7 @@
 
     <!--Type page-->
     
-        <meta property="og:type" content="website" />
+        <meta property="og:type" content="article" />
     
 
     <!--Page Cover-->
@@ -43,7 +45,7 @@
 
     <!-- Title -->
     
-    <title>Archives: 2020 - Hexo</title>
+    <title>Why does overlapped pooling help reduce overfitting in conv nets - Hexo</title>
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
@@ -132,9 +134,7 @@
 <div class="container">
 
     <!-- Main Content -->
-    
-
-<div class="row">
+    <div class="row">
     <div class="col-sm-12">
 
         <!--Title and Logo-->
@@ -142,178 +142,61 @@
     <div class="logo">
         <a href="/"><i class="logo-icon fa fa-cube" aria-hidden="true"></i></a>
         
-            <h1 id="main-title" class="title">2020</h1>
-        
     </div>
 </header>
 
-        <section class="main archive-container">
+        <section class="main">
             
-                <div class="archive-post">
-    <a href="/2020/02/28/My-New-Post/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        My New Post
-    </a>
+<div class="post">
+
+    <div class="post-header">
+        <h1 class="title">
+            <a href="/2020/03/08/Why%20does%20overlapped%20pooling%20help%20reduce%20overfitting%20in%20conv%20nets/">
+                Why does overlapped pooling help reduce overfitting in conv nets
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-03-08</span>
+            
+            
+            
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- Gallery -->
+        
+
+        <!-- Post Content -->
+        <h1 id="Why-does-overlapped-pooling-help-reduce-overfitting-in-conv-nets"><a href="#Why-does-overlapped-pooling-help-reduce-overfitting-in-conv-nets" class="headerlink" title="Why does overlapped pooling help reduce overfitting in conv nets?"></a><a href="https://stats.stackexchange.com/questions/283261/why-does-overlapped-pooling-help-reduce-overfitting-in-conv-nets" target="_blank" rel="noopener">Why does overlapped pooling help reduce overfitting in conv nets?</a></h1><p>I am going to answer this with the pooling example given above with some modifications. Let us say we have three <code>1D</code> features as given below.</p>
+<p>[0 0 5 0 0 6 0 0 3 0 0 4 0 0]</p>
+<p>[0 0 0 5 0 6 0 0 0 3 0 4 0 0]</p>
+<p>[0 0 5 0 0 6 0 0 3 0 4 0 0 0]</p>
+<p>When pooled using <code>z=2</code> and <code>s=2</code>, all 3 features lead to the same result as obtained above, that is</p>
+<p>[0, 5, 6, 0, 3, 4, 0]</p>
+<p>However when we use <code>z=3</code> and <code>s=2</code>, we get the following results respectively</p>
+<p>[5, 5, 6, 3, 3, 4, 0]</p>
+<p>[0, 5, 6, 0, 3, 4, 0]</p>
+<p>[5, 5, 6, 3, 4, 4, 0]</p>
+<p>Therefore, with overlapping pooling, we get three different results as opposed to one result when do not use overlapping. This is due to information loss when <code>z=s</code> which in this case leads to <strong>reduction</strong> in the amount of data available to train the network, i.e from 3 examples to 1 example. The shrinkage in the data size makes the training model overfit.</p>
+
+    </div>
+
+    
+
+    
+
+    <!-- Comments -->
+    
+
 </div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/hello-world/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        Hello World
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/3.language-model/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        3.language-model
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/4.sentiment/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        4.sentiment
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/7.seq2seq/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        7.seq2seq
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/4.sentiment_with_mask/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        4.sentiment_with_mask
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/2.word-embedding/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        2.word-embedding
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/1.two_layer_neural_net/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        1.two_layer_neural_net
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/6.style_GAN/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        6.style_GAN
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/5.CNN-Image-Classification/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        5.CNN-Image-Classification
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/01/%E7%AE%80%E5%8E%86/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        简历
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/05/multi-view%20learning/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        multi-view learning
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/07/Jupyter%20Notebook%20%E5%9C%A8%20macOS%20%E7%B3%BB%E7%BB%9F%E4%B8%8A%E7%9A%84%E5%BF%AB%E6%8D%B7%E9%94%AE/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        Jupyter Notebook 在 macOS 系统上的快捷键
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/07/Gram%E7%9F%A9%E9%98%B5/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        Gram矩阵
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/07/%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        二叉树遍历
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/08/%E5%AF%B9%E7%A7%B0%E7%9F%A9%E9%98%B5summary/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        对称矩阵summary
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/08/Why%20does%20overlapped%20pooling%20help%20reduce%20overfitting%20in%20conv%20nets/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        Why does overlapped pooling help reduce overfitting in conv nets
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/08/%E5%8D%B7%E7%A9%8D%E4%B8%AD%E7%9A%84stride%E5%92%8Cpadding/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        卷積中的stride和padding
-    </a>
-</div>
-            
         </section>
+
     </div>
 </div>
+
 
 </div>
 

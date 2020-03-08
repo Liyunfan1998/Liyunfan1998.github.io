@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="卷積神經網路(Convolutional neural network, CNN):卷積計算中的步伐(stride)和填充(padding)
+卷積神經網路(Convolutional neural network, CNN)其他相關連結我也一起列上來**NN-2–1 卷積神經網路(Convoluti">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Yunfan Li">
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="卷積中的stride和padding"/>
+    
+
+    <!--Open Graph Description-->
+    
+
+    <!--Open Graph Site Name-->
+    <meta property="og:site_name" content="Hexo"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article" />
+    
+
+    <!--Page Cover-->
+    
+
+    
+        <meta name="twitter:card" content="summary" />
+    
+    
+    
+
+    <!-- Title -->
+    
+    <title>卷積中的stride和padding - Hexo</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet" />
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Google Analytics -->
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+<div class="bg-gradient"></div>
+<div class="bg-pattern"></div>
+
+<!-- Menu -->
+<!--Menu Links and Overlay-->
+<div class="menu-bg">
+    <div class="menu-container">
+        <ul>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Home
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Archives
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/about.html">
+                    About
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/tags">
+                    Tags
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/categories">
+                    Categories
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/contact.html">
+                    Contact
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+<!--Hamburger Icon-->
+<nav>
+    <a href="#menu"></a>
+</nav>
+
+<div class="container">
+
+    <!-- Main Content -->
+    <div class="row">
+    <div class="col-sm-12">
+
+        <!--Title and Logo-->
+        <header>
+    <div class="logo">
+        <a href="/"><i class="logo-icon fa fa-cube" aria-hidden="true"></i></a>
+        
+    </div>
+</header>
+
+        <section class="main">
+            
+<div class="post">
+
+    <div class="post-header">
+        <h1 class="title">
+            <a href="/2020/03/08/%E5%8D%B7%E7%A9%8D%E4%B8%AD%E7%9A%84stride%E5%92%8Cpadding/">
+                卷積中的stride和padding
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-03-08</span>
+            
+            
+            
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- Gallery -->
+        
+
+        <!-- Post Content -->
+        <h1 id="卷積神經網路-Convolutional-neural-network-CNN-卷積計算中的步伐-stride-和填充-padding"><a href="#卷積神經網路-Convolutional-neural-network-CNN-卷積計算中的步伐-stride-和填充-padding" class="headerlink" title="卷積神經網路(Convolutional neural network, CNN):卷積計算中的步伐(stride)和填充(padding)"></a>卷積神經網路(Convolutional neural network, CNN):卷積計算中的步伐(stride)和填充(padding)</h1><hr>
+<p><strong>卷積神經網路(Convolutional neural network, CNN)其他相關連結我也一起列上來*<br>*</strong>NN-2–1 <a href="https://medium.com/@chih.sheng.huang821/卷積神經網路-convolutional-neural-network-cnn-卷積運算-池化運算-856330c2b703" target="_blank" rel="noopener">卷積神經網路(Convolutional neural network, CNN) — 卷積運算、池化運算</a><br>NN-2–2<a href="https://medium.com/@chih.sheng.huang821/卷積神經網路-convolutional-neural-network-cnn-cnn運算流程-ecaec240a631" target="_blank" rel="noopener"> 卷積神經網路(Convolutional neural network, CNN) — CNN運算流程</a><br>NN-2–3 <a href="https://medium.com/@chih.sheng.huang821/卷積神經網路-convolutional-neural-network-cnn-卷積計算的倒傳遞推導與稀疏矩陣觀點來看卷積計算-e82ac16e510f" target="_blank" rel="noopener">卷積神經網路(Convolutional neural network, CNN):卷積計算的倒傳遞推導與稀疏矩陣觀點來看卷積計算</a><br>NN-2–4 <a href="https://medium.com/@chih.sheng.huang821/卷積神經網路-convolutional-neural-network-cnn-卷積計算中的步伐-stride-和填充-padding-94449e638e82" target="_blank" rel="noopener">卷積神經網路(Convolutional neural network, CNN):卷積計算中的步伐(stride)和填充(padding)</a><br>NN-2–5 <a href="https://medium.com/@chih.sheng.huang821/卷積神經網路-convolutional-neural-network-cnn-1-1卷積計算在做什麼-7d7ebfe34b8" target="_blank" rel="noopener">卷積神經網路(Convolutional neural network, CNN): 1×1卷積計算在做什麼</a></p>
+<hr>
+<p><img src="https://miro.medium.com/max/60/1*hjn1l4rN8jwS3vD5pTvUwQ.png?q=20" alt="img"></p>
+<p><img src="https://miro.medium.com/max/1278/1*hjn1l4rN8jwS3vD5pTvUwQ.png" alt="img"></p>
+<p>一般看到的卷積介紹，大概就像上圖，圖會因為你的kernel map大小做完卷積後變的更小，實際上卷積怎麼執行可以參考我之前寫的:<br><a href="https://medium.com/@chih.sheng.huang821/卷積神經網路-convolutional-neural-network-cnn-卷積運算-池化運算-856330c2b703" target="_blank" rel="noopener">卷積神經網路(Convolutional neural network, CNN) — 卷積運算、池化運算</a></p>
+<p>Note: <strong>(2019/01/15增加)</strong>一般卷積網路過程中，除了Input image不稱為Feature map外，中間產生的圖我們都稱之為Feature map，原因很簡單就是這些中間產生的圖都是為了「描繪出該任務所應該產生對應的特徵資料」，這也呼應Yann LeCun, Yoshua Bengio &amp; Geoffrey Hinton寫的<a href="https://www.nature.com/articles/nature14539" target="_blank" rel="noopener">Deep Learning</a>第一句話寫的「Deep learning allows computational models that are composed of multiple processing layers to learn representations of data with multiple levels of abstraction」，深度學習過程就是在學資料的特性，所以中間出來的結果都是特徵資料，在影像因為是2D，所以用Feature map來稱呼。</p>
+<p>所以一個卷積計算基本上有幾個部份:</p>
+<p>\1. 輸入的圖: 假設大小是W × W。<br>\2. Filter (kernel map)大小是 ks × ks<br>\3. Stride: kernel map在移動時的步伐長度 S<br>\4. 輸出的圖大小為 new_height × new_width</p>
+<p>上圖的例子<br>\1. 輸入的圖: W × W =10 × 10。<br>\2. Filter (kernel map): ks × ks=3 × 3<br>\3. Stride: S=1<br>\4. 輸出的圖大小為 new_height × new_width = 8 × 8</p>
+<blockquote>
+<p>上圖的範例產生了2個問題<br>\1. 是不是卷積計算後，卷積後的圖是不是就一定只能變小?<br>\2. 卷積計算是不是一次只能移動一格?</p>
+</blockquote>
+<p>所以如果你有玩過deep learning的API，卷積計算部份除了基本的input和filter (kernel map)通常還有兩個參數可以調(strides, padding)，這邊舉<a href="https://www.tensorflow.org/versions/r1.0/api_docs/python/tf/nn/conv2d" target="_blank" rel="noopener">tensorflow</a>的例子:<br>tf.nn.conv2d(input, filter, <strong><em>strides\</em></strong>, <strong><em>padding\</em></strong>, use_cudnn_on_gpu=None, data_format=None, name=None)</p>
+<p><strong><em>strides\</em></strong>和 <strong><em>padding\</em></strong>這兩個參數就是在解決上面說的兩個問題。</p>
+<hr>
+<h2 id="是不是卷積計算後，卷積後的圖是不是就一定只能變小"><a href="#是不是卷積計算後，卷積後的圖是不是就一定只能變小" class="headerlink" title="是不是卷積計算後，卷積後的圖是不是就一定只能變小?"></a><strong>是不是卷積計算後，卷積後的圖是不是就一定只能變小?</strong></h2><p><strong>ANS: 用zero padding</strong></p>
+<p>這個手法就是看你會消失多少的大小，在輸入的圖部份就給你加上0元素進去，這個手法稱為zero padding，實際作法如下圖。</p>
+<p><img src="https://miro.medium.com/max/60/1*9kqLUr7bMEYryGNtAHyL8A.png?q=20" alt="img"></p>
+<p><img src="https://miro.medium.com/max/2000/1*9kqLUr7bMEYryGNtAHyL8A.png" alt="img"></p>
+<p>此刻的卷積計算如下，這樣卷積後的圖就不會變小了。</p>
+<p><img src="https://miro.medium.com/max/60/1*GwxhjA7-FLIRrtl__RkRgg.png?q=20" alt="img"></p>
+<p><img src="https://miro.medium.com/max/1522/1*GwxhjA7-FLIRrtl__RkRgg.png" alt="img"></p>
+<p>上圖舉的例子是kernel map是3x3，假設kernel map為5x5，此刻在輸入的圖上下左右行和列都各加2行和2列的0，讓圖變成14x14，就可以了。</p>
+<hr>
+<h2 id="卷積計算是不是一次只能移動一格"><a href="#卷積計算是不是一次只能移動一格" class="headerlink" title="卷積計算是不是一次只能移動一格?"></a><strong>卷積計算是不是一次只能移動一格?</strong></h2><p><strong>ANS: 當然不是，也可以2格3格，但此時卷積後的圖就會變的更小。</strong></p>
+<p><img src="https://miro.medium.com/max/60/1*Hy3dNn5siu4_q7jE7yO9eA.png?q=20" alt="img"></p>
+<p><img src="https://miro.medium.com/max/1638/1*Hy3dNn5siu4_q7jE7yO9eA.png" alt="img"></p>
+<p>在tensorflow，padding那邊給了兩個選項「padding = ‘VALID’」和「padding = ‘SAME’」</p>
+<p><strong>padding = ‘VALID’ 等於最一開始敘述的卷積計算，圖根據filter大小和stride大小而變小。</strong></p>
+<p>公式如下: new_height = new_width = (W — F + 1) / S （结果向上取整數，假設算出來結果是4.5，取5）</p>
+<p>剛剛的例子<br>filter 3x3, stride=1, 卷積後的大小: (10–3+1)/1=8<br>filter 3x3, stride=2, 卷積後的大小: (10–3+1)/2=4</p>
+<p><strong>padding = ‘SAME’，會用zero-padding的手法，讓輸入的圖不會受到kernel map的大小影響。</strong></p>
+<p>new_height = new_width = W / S （结果向上取整數）</p>
+<blockquote>
+<p>剛剛的例子，filter 3x3, stride=2, 卷積後的大小: 10/2=5 (這邊我沒有做這張圖，可以自己想像一下，做法如下所述)<br>這邊的作法會先補zero-padding的0元素，然後在作stride=2的卷積，所以實際上是最(10+2)*(10+2)的圖做padding = ‘VALID’的事情，(12–3+1)/2=5。</p>
+</blockquote>
+<hr>
+<h2 id="Padding補充說明-2019-01-15增加此內容"><a href="#Padding補充說明-2019-01-15增加此內容" class="headerlink" title="Padding補充說明 (2019/01/15增加此內容)"></a>Padding補充說明 (2019/01/15增加此內容)</h2><p>上面介紹的公式是針對tensorflow內建的function功能(「padding = ‘VALID’」和「padding = ‘SAME’」)，並不是一般算卷積後算新的feature map長寬的公式。</p>
+<p>一般卷積後算新的feature map長寬的公式如下:</p>
+<p><img src="https://miro.medium.com/max/60/1*NnC2iZDC0f8NlovHr9gwkg.png?q=20" alt="img"></p>
+<p><img src="https://miro.medium.com/max/1238/1*NnC2iZDC0f8NlovHr9gwkg.png" alt="img"></p>
+<p>floor(1.1)=1, floor(1.6)=1</p>
+<p>這邊跟前面差別在這邊多了一個pad參數。</p>
+<p>對應到caffe prototxt卷積的參數會這麼寫，如下(其他模組應該是一樣可以設pad參數)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">convolution_param &#123;</span><br><span class="line"> num_output: 32</span><br><span class="line"> pad: 1</span><br><span class="line"> kernel_size: 3</span><br><span class="line"> stride: 2</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>這代表卷積層filter數設定為32，filter的kernel size是3，步伐stride是2，pad是1。pad=1，表示圖外圈額外加1圈0，假設pad=2，圖外圈額外加2圈0，以此類推。<br>所以kernel size是3的時候，你希望卷積後圖的寬高不要變，pad就要設定為1<br>假設kernel size是5的時候，你希望卷積後圖的寬高不要變，pad就要設定為2<br>假設kernel size是7的時候，你希望卷積後圖的寬高不要變，pad就要設定為3</p>
+<p>Note: 因為一般大多只會用到卷積後，Feature map寬高會依據kernel size縮小一點(「padding = ‘VALID’」)或Feature map寬高不變(「padding = ‘SAME’」)，鮮少搞一些特殊的功能，比如1×1卷積還要加pad=1，這樣出來的圖會比原本大一圈，而且這一圈還全為0。<br>而且一般卷積網路都是希望卷積後圖越來越小(整體MACC計算量才會小)，除了segmentation和一些multi-scale object detection等才會用到deconv.或是一些upsample的方法把feature map放大。<br>Tensorflow是提供簡單的api，你就不需要自己去算pad要設多少，直接下strin即可(如下說明)，多方便阿。<br><code>**padding**</code>: A <code>string</code> from: <code>&quot;SAME&quot;, &quot;VALID&quot;</code>. The type of padding algorithm to use.</p>
+<h4 id="456"><a href="#456" class="headerlink" title="456"></a>456</h4>
+    </div>
+
+    
+
+    
+
+    <!-- Comments -->
+    
+
+</div>
+        </section>
+
+    </div>
+</div>
+
+
+</div>
+
+<!-- Footer -->
+<div class="push"></div>
+
+<footer class="footer-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 footer-about">
+                <h2>About</h2>
+                <p>
+                    This theme was developed by <a href="https://github.com/klugjo" target="_blank" rel="noopener">Jonathan Klughertz</a>. The source code is available on Github. Create Websites. Make Magic.
+                </p>
+            </div>
+            
+    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 recent-posts">
+        <h2>Recent Posts</h2>
+        <ul>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/08/%E5%8D%B7%E7%A9%8D%E4%B8%AD%E7%9A%84stride%E5%92%8Cpadding/">卷積中的stride和padding</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/08/Why%20does%20overlapped%20pooling%20help%20reduce%20overfitting%20in%20conv%20nets/">Why does overlapped pooli</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/08/%E5%AF%B9%E7%A7%B0%E7%9F%A9%E9%98%B5summary/">对称矩阵summary</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/07/%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86/">二叉树遍历</a>
+            </li>
+            
+        </ul>
+    </div>
+
+
+
+            
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <ul class="list-inline footer-social-icons">
+                    
+                    <li class="list-inline-item">
+                        <a href="https://github.com/klugjo/hexo-theme-alpha-dust" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-github"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://twitter.com/?lang=en" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-twitter"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-facebook"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-instagram"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://dribbble.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-dribbble"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://plus.google.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-google-plus"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.behance.net/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-behance"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://500px.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-500px"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="mailto:test@example.com">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-envelope-o"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="\#">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-rss"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="footer-copyright">
+                    @Untitled. All right reserved | Design & Hexo <a href="http://www.codeblocq.com/" target="_blank" rel="noopener">Jonathan Klughertz</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- After footer scripts -->
+
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Tween Max -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.18.5/TweenMax.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Custom JavaScript -->
+
+<script src="/js/main.js"></script>
+
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>
