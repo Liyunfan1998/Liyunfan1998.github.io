@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="线性代数 |最重要的矩阵：对称矩阵5.1  最重要的矩阵：对称矩阵
+在对数据进行降维与压缩的运算处理过程中，有一类矩阵扮演了极其重要的角色，那就是对称矩阵。在线性代数的理论与实践中，我们将对称矩阵称之为“最重要的”矩阵丝毫不显夸张。
+对称矩阵除了“自身与转置后的结果相等”这个最浅显、基本的性质外，还">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Yunfan Li">
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="线性代数 最重要的矩阵：对称矩阵"/>
+    
+
+    <!--Open Graph Description-->
+    
+
+    <!--Open Graph Site Name-->
+    <meta property="og:site_name" content="Hexo"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article" />
+    
+
+    <!--Page Cover-->
+    
+
+    
+        <meta name="twitter:card" content="summary" />
+    
+    
+    
+
+    <!-- Title -->
+    
+    <title>线性代数 最重要的矩阵：对称矩阵 - Hexo</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet" />
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Google Analytics -->
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+<div class="bg-gradient"></div>
+<div class="bg-pattern"></div>
+
+<!-- Menu -->
+<!--Menu Links and Overlay-->
+<div class="menu-bg">
+    <div class="menu-container">
+        <ul>
+            
+            <li class="menu-item">
+                <a href="/">
+                    Home
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Archives
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/about.html">
+                    About
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/tags">
+                    Tags
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/categories">
+                    Categories
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/contact.html">
+                    Contact
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+<!--Hamburger Icon-->
+<nav>
+    <a href="#menu"></a>
+</nav>
+
+<div class="container">
+
+    <!-- Main Content -->
+    <div class="row">
+    <div class="col-sm-12">
+
+        <!--Title and Logo-->
+        <header>
+    <div class="logo">
+        <a href="/"><i class="logo-icon fa fa-cube" aria-hidden="true"></i></a>
+        
+    </div>
+</header>
+
+        <section class="main">
+            
+<div class="post">
+
+    <div class="post-header">
+        <h1 class="title">
+            <a href="/2020/03/08/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0%20%E6%9C%80%E9%87%8D%E8%A6%81%E7%9A%84%E7%9F%A9%E9%98%B5%EF%BC%9A%E5%AF%B9%E7%A7%B0%E7%9F%A9%E9%98%B5/">
+                线性代数 最重要的矩阵：对称矩阵
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-03-08</span>
+            
+            
+            
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- Gallery -->
+        
+
+        <!-- Post Content -->
+        <h2 id="线性代数-最重要的矩阵：对称矩阵"><a href="#线性代数-最重要的矩阵：对称矩阵" class="headerlink" title="线性代数 |最重要的矩阵：对称矩阵"></a>线性代数 |最重要的矩阵：对称矩阵</h2><p><strong>5.1  最重要的矩阵：对称矩阵</strong></p>
+<p>在对数据进行降维与压缩的运算处理过程中，有一类矩阵扮演了极其重要的角色，那就是对称矩阵。在线性代数的理论与实践中，我们将对称矩阵称之为“最重要的”矩阵丝毫不显夸张。</p>
+<p>对称矩阵除了“自身与转置后的结果相等”这个最浅显、基本的性质外，还拥有许多重要的高级特性。在对角化的运算讨论中，我们会发现实数对称矩阵一定能够对角化，并且能够得到一组标准正交的特征向量。同时，任意一个矩阵A同他自身的转置矩阵<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcytbahxj300w00w0bj.jpg" alt="img">)相乘都能得到一个对称矩阵，我们在本小节中就将重点关注<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcyrinhlj301a00u0ck.jpg" alt="img">这类对称矩阵并细致的讨论他的特征值所具有的重要性质，这些基础知识将会为后续的高级主题打下坚实的基础，希望大家不要错过。</p>
+<p><strong>5.1.1 对称矩阵基本特性回顾</strong></p>
+<p>首先，我们简要的回顾一下在之前的章节中所介绍过的关于对称矩阵的一些重要基本特性：</p>
+<p>如果一个矩阵<strong><em>S\</em></strong>的所有数据项都满足<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcUNiaZUWibhRKlbBiaVe44FZibppY5uT4557zeQN1MmwQTYgJxD3clXBwEQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的相等关系，那么这个矩阵就被称作是一个对称矩阵。通俗的说，一个对称矩阵通过转置操作得到的结果仍然是他自身，即满足：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcku45axLrw3RqbBGj7p4Sklv5zVdpUZducSF1clbQWjV6vM5kibMHwng/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">的运算要求。我们从这里面还可以推断出对阵矩阵<strong><em>S\</em></strong>所蕴含的一个前提条件：他必须是一个方阵。</p>
+<p>我们还讲过，有一种获取对称矩阵的简单方法：一个矩阵乘以自己的转置矩阵，即<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">，其所得到的运算结果必然是一个对称矩阵，关于这个结论的证明方法也非常简单，我们简单看一下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJc6uAHG2onWxibwv4kFWicWZosMX7EfweNGL4nwv2swSANkibOR42Qpd4qQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
+<p>这个等式满足关于矩阵对称的基本定义。</p>
+<p><strong>5.1.2 实对称矩阵一定可以对角化</strong></p>
+<p>我们在这里只讨论实数范围内的对称矩阵问题。</p>
+<p>在上一章的内容里我们讲过，对于一个任意的方阵，如果他的特征值两两不同，那么特征值所对应的特征向量彼此之间满足线性无关，这个方阵可以被对角化。如果方阵有相同的特征值，他很可能存在线性相关的特征向量，那么如果发生了这种情况，该方阵就不能够被对角化了。</p>
+<p>但是，这种情况在对称矩阵身上是不会发生的。请大家牢牢记住：对于任意一个实数对称矩阵而言，他都一定可以被对角化。换句话说，对于一个对称矩阵，无论他的特征值是否重复，他的特征向量都一定满足线性无关。</p>
+<p>在这里，具体的证明过程我们不展开，大家有兴趣可以查阅相关的资料。</p>
+<p><strong>5.1.3 特征向量标准正交</strong></p>
+<h3 id="任意一个实对称矩阵都可以获得一组标准正交的特征向量。这可以说是对称矩阵里我认为最好的一个性质了，在这里我们用一个简单的方法来描述一下这个性质以及他的推导证明过程。"><a href="#任意一个实对称矩阵都可以获得一组标准正交的特征向量。这可以说是对称矩阵里我认为最好的一个性质了，在这里我们用一个简单的方法来描述一下这个性质以及他的推导证明过程。" class="headerlink" title="任意一个实对称矩阵都可以获得一组标准正交的特征向量。这可以说是对称矩阵里我认为最好的一个性质了，在这里我们用一个简单的方法来描述一下这个性质以及他的推导证明过程。"></a>任意一个实对称矩阵都可以获得一组标准正交的特征向量。这可以说是对称矩阵里我认为最好的一个性质了，在这里我们用一个简单的方法来描述一下这个性质以及他的推导证明过程。</h3><p>首先，实对称矩阵<strong><em>S\</em></strong>一定能够被对角化，可以被写成<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcgVflSTtES2ykOQlJrnVrBlC1wicJwJvtL2icFw9wTqATkeOiaqp6VO9TQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的形式，其中对角矩阵<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcysdmiaj300n00r0ae.jpg" alt="img">的各元素一定均由实数构成，并且最为关键的一点是任何一个对称矩阵分解得到的特征向量矩阵都可以是标准正交矩阵。</p>
+<p>为什么这么说呢，我们可以简单的看一个等式推导过程：</p>
+<p>首先对矩阵<strong><em>S\</em></strong>进行矩阵分解，得到：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcgVflSTtES2ykOQlJrnVrBlC1wicJwJvtL2icFw9wTqATkeOiaqp6VO9TQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)。由于矩阵<strong><em>S\</em></strong>是一个对称矩阵，满足<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcku45axLrw3RqbBGj7p4Sklv5zVdpUZducSF1clbQWjV6vM5kibMHwng/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">的关系，于是有：</p>
+<p><img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcz41s92j309d00w0sh.jpg" alt="img">。</p>
+<p>那么，想要使得上面的等式相等，我们就需要满足对应位置上的元素相等，即：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcKxgZVjH0y8ZpVOWNyrLuIibd9J9vJps3G0w0IxvvUAZGOTmzvA7WLIA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)，对此我们再进一步，就可以将其整理成<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcYLKz0YhlkCaAD38Uye86Hpfa7mz11U1z2R1ibaKiceTRfUUzG9rQTlvg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的漂亮形式。这恰恰说明了，我们此时获取的特征向量之间是满足标准正交关系的，我们可以将<strong><em>X\</em></strong>换记作正交矩阵的符号<strong><em>Q\</em></strong>，同时结合<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcnWj5lDrZbWCj4YL9pLYxWoItlanJlL0bEiaHxvfsBlrvAufgIkZqYXg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)这个基本特性，我们就可以把实对称矩阵的对角化过程变换成更好的形式，写作：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcs2JibWyPVMRXbKbcmqnhVGFdWgQoYBiaQFNC4A7ibicTibZXibvbNKoHvvWg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">。</p>
+<p><strong>5.1.4 对称矩阵的分解形式</strong></p>
+<p>将对称矩阵<strong><em>S\</em></strong>分解成标准正交的特征向量只是其中的一种形式而已，由定义式<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcRWmwzviaXbMkCxia8CJTpEGbyALicZFAbzJs8J84zbpdMn66GibQnnib9BQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">我们可以得知，显然，特征向量是一个方向上的向量集合，不一定非得满足长度为1的要求，但是我们仍然可以通过直觉感受到一个事实，那就是一旦把特征向量都设置为单位向量，那么会在实践的过程中收获很多简化和美好。这个在后面的几节内容里，我们会不断的感受到由此带来的巨大好处。</p>
+<p>此时，我们知道了对称矩阵<strong><em>S\</em></strong>一定可以得到由一组标准正交特征向量所构成的特征矩阵<strong><em>Q\</em></strong>。即，矩阵<strong><em>Q\</em></strong>可以表示成：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcJXtAJIdEZVPITC3oUJPIOKo1fzENsS69yVZ9RBYoZ0s3l3WvjrsUVw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">的形式， 我们进一步将等式<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcz88igvj302y0140m0.jpg" alt="img">)进行展开，可以得到<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcz5jkodj30e1061wea.jpg" alt="img">的完整相乘形式。</p>
+<p>这个式子是非常重要的，接下来我们进一步将其做展开运算，将矩阵<strong><em>S\</em></strong>写成一组矩阵相加的形式，你就会发现他的精彩之处：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcIicn5aDl8aIcicXx3GmjsUdVsMU17nuy7VibWQwMRChia7T5icG5s428ywA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">。</p>
+<p>在这一组标准正交向量当中，每一个<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcFKzmjTuutAdQhR1BzEOpDV1eib7jibItS8jBLibd7XTfhTJHeiaia5QutHg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">相乘所得到的结果项都是一个秩为1并且与矩阵<strong><em>S\</em></strong>维数相等的方阵。同时他还满足方阵与方阵之间相乘的结果为0这个性质，也可以广义的理解为方阵之间满足“正交”。</p>
+<p>最终，任意一个n阶对称矩阵<strong><em>S\</em></strong>都可以分解成n个秩1方阵乘以各自权重系数<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcyyw3e5j300m00w0be.jpg" alt="img">然后相加的结果。</p>
+<p><strong>5.1.5 <img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)与<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcz17i3uj301c0110cj.jpg" alt="img">的秩</strong></p>
+<p>在本书前面的章节中，我们介绍过这样一个结论，对于任意一个m×n形状的矩阵<strong><em>A\</em></strong>，他的列向量中线性无关向量的个数等于其行向量中线性无关向量的个数。</p>
+<p>换句话说，也就是任意矩阵的行秩等于列秩，即满足：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcp02jRb44qpVmWLe2xdmcsHpSnMASoB0OcwibSF07f1pYSuBGOicCNXWQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">。这个结论可以从线性方程组消元化简的角度去思考，这样大家就会很容易明白了。</p>
+<p>我们再看看矩阵<strong><em>A\</em></strong>和<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcytrknnj301b00w0cg.jpg" alt="img">的秩之间的关系：</p>
+<p>我们从零空间的角度入手去理解这个问题。即，如果方程<strong><em>Ax=0\</em></strong>和方程<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcz267czj302n00v0ig.jpg" alt="img">)是同解方程，那么他们就拥有相同的零空间，由于<strong><em>A\</em></strong>和<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcn8SKOn31jOL8QZQC9ib1QKSM8lah9JuQA3hDwmfKZWgiageLlL5W4kdw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">这两个矩阵的列的个数相等，都为 n，因此，就可以推断出他们的列空间的维数相同，均为：<strong><em>n***</em></strong>−N(A)***，换句话说，也就能够推出二者的秩相等。</p>
+<p>好的，那就让我们按照这个思路来推进：</p>
+<p>首先，如果满足方程<strong><em>Ax=0\</em></strong>成立，方程两边同时乘以转置矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJclDFCYpPPQ3aOcCwEUarLP1zr9gDw0AmJCx8DnMDmPhrnjakbRjZmew/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)，很明显，等式<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJce8ZA2jrNnvjXVwL1jIZEmZuicG8bFA3lDFcn6fWPZ3HtMj8thic78yfg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)同样能够成立。因此，我们可以说如果<strong><em>x\</em></strong>是方程<strong><em>Ax=0\</em></strong>的解，则能够推得出<strong><em>x\</em></strong>也一定是方程<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcY6ujibyA4J1pRMTkZ3G5iboRe1F2sDOpjgOY62eaZricJPHgWdu8K84xg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">的解。</p>
+<p>那么反过来呢，如果方程<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcY6ujibyA4J1pRMTkZ3G5iboRe1F2sDOpjgOY62eaZricJPHgWdu8K84xg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)成立，我们将方程两边同时乘以向量<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcyss9pbj300w00z0cb.jpg" alt="img">)，即方程<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcHkvStDOzOneG9xtHFhw1XRj5mrnAjoGpwgnQoWoqPZMiawu58bo1XIA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)当然也一定能够成立，我们对这个等式稍微整理一下，就可以得到<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcyu7my6j30440110mx.jpg" alt="img">)这个更加简洁的形式，从中可以看出一定能够满足<strong><em>Ax=0\</em></strong>成立。此时，我们可以说如果<strong><em>x\</em></strong>是方程<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcY6ujibyA4J1pRMTkZ3G5iboRe1F2sDOpjgOY62eaZricJPHgWdu8K84xg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">的解，那么他一定也是方程<strong><em>Ax=0\</em></strong>的解。</p>
+<p>于是，这个问题我们就说清楚了：方程<strong><img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcxHOY9Tgxq5RajNOb1uLbhickCKyn7WB8oDQH0nF2rVHIAN63icKaAk2w/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></strong>和方程<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJce8ZA2jrNnvjXVwL1jIZEmZuicG8bFA3lDFcn6fWPZ3HtMj8thic78yfg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)是一对同解的方程，矩阵<strong><em>A\</em></strong>和矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcn8SKOn31jOL8QZQC9ib1QKSM8lah9JuQA3hDwmfKZWgiageLlL5W4kdw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)这两个矩阵拥有相同的零空间，因此我们就解释清楚了矩阵<strong><em>A\</em></strong>和<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcn8SKOn31jOL8QZQC9ib1QKSM8lah9JuQA3hDwmfKZWgiageLlL5W4kdw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">秩相等的问题。</p>
+<p>那么同样的，我们由此不难发现也一定有矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJclDFCYpPPQ3aOcCwEUarLP1zr9gDw0AmJCx8DnMDmPhrnjakbRjZmew/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)和矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的秩相等。那么这下好了，在<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcp02jRb44qpVmWLe2xdmcsHpSnMASoB0OcwibSF07f1pYSuBGOicCNXWQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">这个相等关系的纽带连接下，我们就有了以下这个结论：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcAaTsjpvD0yKMb6SbmuKJvev3G1sUPehKdoqltUKXYGg1TiafgHIlIKw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
+<p>从等式中可以看出，他们的秩都是相等的。</p>
+<p><strong>5.1.6</strong> <strong><img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcyzi1thj301b00x0ci.jpg" alt="img">对称矩阵的正定性描述</strong></p>
+<p>最后，我们来聚焦一下对称矩阵特征值的问题，我们先介绍一组概念：如果一个矩阵的所有特征值都为正，我们称他是“正定的”矩阵，如果均为非负（即，最小的特征值为0），相当于结论上稍稍弱了一些，我们称之为“半正定的”矩阵，如果他含有负的特征值，那么显然，他是非正定的。</p>
+<p>那么换句话说，对于一个对称矩阵而言，从特征值的正负性角度来看的话，他一定是正定、半正定或非正定的其中一种。</p>
+<p>就正定性而言，一般的对称矩阵其实没有太多的特殊性，但是由任意矩阵<strong><em>A\</em></strong>乘以他的转置矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJclDFCYpPPQ3aOcCwEUarLP1zr9gDw0AmJCx8DnMDmPhrnjakbRjZmew/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)得到的对称矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcn8SKOn31jOL8QZQC9ib1QKSM8lah9JuQA3hDwmfKZWgiageLlL5W4kdw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">，则具备非常好的特殊性质。即，他的特征值一定是非负的，换句话说，他至少是半正定的。</p>
+<p>我们简单的说明一下为什么。</p>
+<p>我们还是从特征向量的定义式子<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcapMsO1fTnQjzian851TpLibZGk2CfjKyO4EXibbJdnU1ggSfEUJfeiacbw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)入手进行分析，我们将等式两边同时乘以向量<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcn9NrasX1TxJ7gE8WeENj9Lw4ibUzGkLbTfCOfcxyJmibNDkEZ8PLNpqw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)，得到<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcjwPibKvCJkTTNvOM5qQSlXIQEeKvnZjckMnKiatycFjkLqv4RqlhDhag/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)这个新等式，由于特征向量必须非零，所以必然存在有<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcMVb0xgvDW0Qs7qNUBUOfpicLfJ5htB0h40a8NElibO99qLTZZUWpwjag/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的不等关系。换句话说，此时等式<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmczalw8pj303h00z0lg.jpg" alt="img">)左侧的正负性就决定了右侧<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcyw3nbrj300l00r0af.jpg" alt="img">的正负性。</p>
+<p>那么问题就来了，如果要满足正定性（或半正定性）的要求，那么就一定要满足所有的<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJc6vwIsmHUPDLckTd4K3mJeHBv30YkCnUSofkhibVFnT7J5bPMmEZwWUQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)都为正（或非负）的要求，等价于<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJctEOYTMFsfC6otw0CztrsrIpCINREOOVZjlCKZrQDiaD7YdThjDWQ2YQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的计算结果恒为正（或非负），这在<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcjhCQv699nEYqG44B4VdoAU7TLed5GMALZrPDoCJvbjWbvltKykicl7A/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">的条件下能够保证成立么？我们将其代入到等式中发现，这个是可以保证成立的：</p>
+<p><img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcyxg7buj3099016741.jpg" alt="img">，</p>
+<p>此时，如果矩阵<strong><em>A\</em></strong>的各列满足线性无关，由于向量<strong><em>x\</em></strong>是非零的，因此就能够保证所有的<strong><em>Ax***</em></strong>≠0***都成立，那么就有<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcz0rn4tj302j0150k4.jpg" alt="img">)恒成立。此时，对称矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcn8SKOn31jOL8QZQC9ib1QKSM8lah9JuQA3hDwmfKZWgiageLlL5W4kdw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)所有的特征值都满足<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcicvZR3ugKLpzOo3NKmeKyzLrRibQR0WYsvljPqFzdl2HJNJPB1icOA8WA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">，因此矩阵是正定的。</p>
+<p>如果矩阵<strong><em>A\</em></strong>的各列线性相关，那么也就是说有x≠0而<strong><em>Ax=0\</em></strong>的情况存在，此时就只能保证<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcibgic2DWqRPVbR5Za6Eb2PBND3LENoDoiauoARYMicJ3aZmhH4M1dgxGBg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)（存在等于零的可能性），对称矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcdOXGiaU6cAWlGoRia6HEt1zGhY4zXh8wEHxzhWwEaEZ8Ajic8ibSUaWqBA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)就存在值为0的特征值<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJc6vwIsmHUPDLckTd4K3mJeHBv30YkCnUSofkhibVFnT7J5bPMmEZwWUQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">。因此，此时的矩阵是半正定的。</p>
+<p>那么此时就可以继续挖掘出结论：实对称矩阵中非零特征值的个数等于该矩阵的秩。这个结论非常明显：因为矩阵<strong><em>A\</em></strong>与相似对角化后的矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcFPgH3uA0h6V41ujDm4EJjXUcCXicneKCwqOwDEvicIxxlxQIqzQ0ODJA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)拥有相同的特征值，同时由于相似性可知：这两个矩阵的秩相等。而<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcFPgH3uA0h6V41ujDm4EJjXUcCXicneKCwqOwDEvicIxxlxQIqzQ0ODJA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">最容易看出非零特征值的个数和秩的相等关系，从而结论得证。</p>
+<p>我们总结一下，对称矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcn8SKOn31jOL8QZQC9ib1QKSM8lah9JuQA3hDwmfKZWgiageLlL5W4kdw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">的所有特征值都满足非负性，特别的，如果矩阵<strong><em>A\</em></strong>的列向量满足线性无关，则该矩阵是一个正定矩阵，其特征值均为正。</p>
+<p><strong>5.1.7 <img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJchJt4fLISBkOfHRgMia7okcSjkrvXME32jxXkwUm5nHkZPmQWbSEHfibg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)与<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">的特征值</strong></p>
+<p>最后，我们来看看<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcn8SKOn31jOL8QZQC9ib1QKSM8lah9JuQA3hDwmfKZWgiageLlL5W4kdw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)和<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)这两个对称矩阵的特征值满足什么样的关系。我告诉大家，这个问题的结论非常完美：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcn8SKOn31jOL8QZQC9ib1QKSM8lah9JuQA3hDwmfKZWgiageLlL5W4kdw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)和<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">拥有完全一样的非零特征值。</p>
+<p>我们从两个方向入手进行证明：说明如果<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJc6vwIsmHUPDLckTd4K3mJeHBv30YkCnUSofkhibVFnT7J5bPMmEZwWUQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)是矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的特征值，那么他也是矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJchJt4fLISBkOfHRgMia7okcSjkrvXME32jxXkwUm5nHkZPmQWbSEHfibg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的特征值；反过来，如果<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJc6vwIsmHUPDLckTd4K3mJeHBv30YkCnUSofkhibVFnT7J5bPMmEZwWUQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)是矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcn8SKOn31jOL8QZQC9ib1QKSM8lah9JuQA3hDwmfKZWgiageLlL5W4kdw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的特征值，那么他同样也是矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">的特征值。</p>
+<p>我们假设矩阵<strong><em>A\</em></strong>的维度是m×n，矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的一个非零特征值是<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJc6vwIsmHUPDLckTd4K3mJeHBv30YkCnUSofkhibVFnT7J5bPMmEZwWUQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)，对应的特征向量是<strong><em>x\</em></strong>，那么依据定义有：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcwSXrmbQFUTaicNadmZuvvv5Oab0bMjmfdiczWrERo3TPq2prWKn0icrrw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)，我们将等式两边同时乘以矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJclDFCYpPPQ3aOcCwEUarLP1zr9gDw0AmJCx8DnMDmPhrnjakbRjZmew/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)，即满足：<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcz3no6lj304i0100lp.jpg" alt="img">)的相等关系，我们稍作整理就可以得到一个漂亮的等式：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJc7ubquYA7NvjhvMk4oR65RSX02djBZUWDLDZFqBPjHwe5cb7eDreCLQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)，于是我们看出，矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcdOXGiaU6cAWlGoRia6HEt1zGhY4zXh8wEHxzhWwEaEZ8Ajic8ibSUaWqBA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的特征值仍然是<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJc6vwIsmHUPDLckTd4K3mJeHBv30YkCnUSofkhibVFnT7J5bPMmEZwWUQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)，对应的特征向量为<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJckRXFpSHfL0WpIJc17AWI5xORVc902Pics1wVHOEaSDZJXWROgBotAlQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">。</p>
+<p>那么反过来呢，证明过程也是非常简单的，已知矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcn8SKOn31jOL8QZQC9ib1QKSM8lah9JuQA3hDwmfKZWgiageLlL5W4kdw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的特征值<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJc6vwIsmHUPDLckTd4K3mJeHBv30YkCnUSofkhibVFnT7J5bPMmEZwWUQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)和对应的特征向量<strong><em>y\</em></strong>，依据定义有：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcHOtW5NEC2AWrianU8JMjqmLAiau50jTBrJ6P9FAB30wrMEDaeH30basA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)满足等式成立，两边同时乘以矩阵<strong><em>A\</em></strong>，可以得到：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJc0RHkia8aBicJnPUw9ibUnfGAZEMjkE3hNV9FUj8iaRmZoiaCuy2Feibm4pYQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的相等关系，也是对其稍作整理，就有：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcNs8zbNt8Np3tCj9ibjv7hjOHJDb8KpXIASk4BeHM7ShibzBgKq8AddtQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)，这个过程同样说明了，如果<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJc6vwIsmHUPDLckTd4K3mJeHBv30YkCnUSofkhibVFnT7J5bPMmEZwWUQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)是<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcdOXGiaU6cAWlGoRia6HEt1zGhY4zXh8wEHxzhWwEaEZ8Ajic8ibSUaWqBA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)的特征值，那么他也一定是<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">的特征值。</p>
+<p>这里，我们就给大家解释清了：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcdOXGiaU6cAWlGoRia6HEt1zGhY4zXh8wEHxzhWwEaEZ8Ajic8ibSUaWqBA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)和<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">这两个对称矩阵拥有完全相同的非负特征值。</p>
+<p><strong>5.1.8 对称矩阵的性质总结</strong></p>
+<p>在这一节里，我们讲解了对称矩阵的诸多重要性质和漂亮结论。他们不是零散的概念，而是可以构成一个知识网络。我在本节的最后给大家串联一下这些知识点，大家共同思考一下里面的内在关联：</p>
+<p>对于任意的一个m×n形状的矩阵A，有如下性质：</p>
+<p>● 矩阵A和转置矩阵<img src="https://tva1.sinaimg.cn/large/00831rSTgy1gcmcywjoqdj300100104g.jpg" alt="img">)<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJclDFCYpPPQ3aOcCwEUarLP1zr9gDw0AmJCx8DnMDmPhrnjakbRjZmew/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)相乘的结果<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcdOXGiaU6cAWlGoRia6HEt1zGhY4zXh8wEHxzhWwEaEZ8Ajic8ibSUaWqBA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcr8DULn2icdRficEXf8vGINhNQLgDzOEXhmBuGKq36xCDCvePbibEEF0Ww/640?wx_fmt=gif&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)和<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcr8DULn2icdRficEXf8vGINhNQLgDzOEXhmBuGKq36xCDCvePbibEEF0Ww/640?wx_fmt=gif&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">都是对称矩阵；</p>
+<p>● 矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcdOXGiaU6cAWlGoRia6HEt1zGhY4zXh8wEHxzhWwEaEZ8Ajic8ibSUaWqBA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcr8DULn2icdRficEXf8vGINhNQLgDzOEXhmBuGKq36xCDCvePbibEEF0Ww/640?wx_fmt=gif&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)和矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcr8DULn2icdRficEXf8vGINhNQLgDzOEXhmBuGKq36xCDCvePbibEEF0Ww/640?wx_fmt=gif&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">都能够被对角化，且都可以通过矩阵分解，获得一组标准正交的特征向量；</p>
+<p>● 矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcr8DULn2icdRficEXf8vGINhNQLgDzOEXhmBuGKq36xCDCvePbibEEF0Ww/640?wx_fmt=gif&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJchJt4fLISBkOfHRgMia7okcSjkrvXME32jxXkwUm5nHkZPmQWbSEHfibg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)和矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcr8DULn2icdRficEXf8vGINhNQLgDzOEXhmBuGKq36xCDCvePbibEEF0Ww/640?wx_fmt=gif&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)分别是n阶和m阶的方阵，一般情况下他们的维度都是不等的，但是他们的秩却一定满足相等关系，即满足：<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcWvkaC84J9q6W1iaqhibF65icM1KdoNXLnr3xe42PRpaxia3JfVObyyPdvg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcr8DULn2icdRficEXf8vGINhNQLgDzOEXhmBuGKq36xCDCvePbibEEF0Ww/640?wx_fmt=gif&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">的相等关系；</p>
+<p>● 对于矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcdOXGiaU6cAWlGoRia6HEt1zGhY4zXh8wEHxzhWwEaEZ8Ajic8ibSUaWqBA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcr8DULn2icdRficEXf8vGINhNQLgDzOEXhmBuGKq36xCDCvePbibEEF0Ww/640?wx_fmt=gif&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">而言，他的特征值一定都是非负的，特别的，如果矩阵A的列向量满足线性无关，那么他的特征值全部为正，即为正定矩阵；</p>
+<p>● 矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcdOXGiaU6cAWlGoRia6HEt1zGhY4zXh8wEHxzhWwEaEZ8Ajic8ibSUaWqBA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcr8DULn2icdRficEXf8vGINhNQLgDzOEXhmBuGKq36xCDCvePbibEEF0Ww/640?wx_fmt=gif&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)和矩阵<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcaXiaA0icTnQt8pEDnRfwwTY261gwL1x9HvgFUJWHiaZpdp9sWZIsPBQLA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">)<img src="https://mmbiz.qpic.cn/mmbiz_png/1y1ObuUF34yTW25WCkMeqfiaC2KmfQgJcr8DULn2icdRficEXf8vGINhNQLgDzOEXhmBuGKq36xCDCvePbibEEF0Ww/640?wx_fmt=gif&wxfrom=5&wx_lazy=1&wx_co=1" alt="img">拥有完全相同的非零特征值，非零特征值的个数与矩阵A的秩相等。</p>
+<p>熟悉、掌握这五个重要结论，将会为本章后面几节的内容扫清最大的数学障碍，帮助大家更好的掌握相关的高级内容。</p>
+
+    </div>
+
+    
+
+    
+
+    <!-- Comments -->
+    
+
+</div>
+        </section>
+
+    </div>
+</div>
+
+
+</div>
+
+<!-- Footer -->
+<div class="push"></div>
+
+<footer class="footer-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 footer-about">
+                <h2>About</h2>
+                <p>
+                    This theme was developed by <a href="https://github.com/klugjo" target="_blank" rel="noopener">Jonathan Klughertz</a>. The source code is available on Github. Create Websites. Make Magic.
+                </p>
+            </div>
+            
+    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 recent-posts">
+        <h2>Recent Posts</h2>
+        <ul>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/08/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0%20%E6%9C%80%E9%87%8D%E8%A6%81%E7%9A%84%E7%9F%A9%E9%98%B5%EF%BC%9A%E5%AF%B9%E7%A7%B0%E7%9F%A9%E9%98%B5/">线性代数 最重要的矩阵：对称矩阵</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/07/%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86/">二叉树遍历</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/07/Gram%E7%9F%A9%E9%98%B5/">Gram矩阵</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/03/07/Jupyter%20Notebook%20%E5%9C%A8%20macOS%20%E7%B3%BB%E7%BB%9F%E4%B8%8A%E7%9A%84%E5%BF%AB%E6%8D%B7%E9%94%AE/">Jupyter Notebook 在 macOS </a>
+            </li>
+            
+        </ul>
+    </div>
+
+
+
+            
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <ul class="list-inline footer-social-icons">
+                    
+                    <li class="list-inline-item">
+                        <a href="https://github.com/klugjo/hexo-theme-alpha-dust" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-github"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://twitter.com/?lang=en" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-twitter"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-facebook"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-instagram"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://dribbble.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-dribbble"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://plus.google.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-google-plus"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.behance.net/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-behance"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://500px.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-500px"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="mailto:test@example.com">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-envelope-o"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="\#">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-rss"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="footer-copyright">
+                    @Untitled. All right reserved | Design & Hexo <a href="http://www.codeblocq.com/" target="_blank" rel="noopener">Jonathan Klughertz</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- After footer scripts -->
+
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Tween Max -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.18.5/TweenMax.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Custom JavaScript -->
+
+<script src="/js/main.js"></script>
+
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

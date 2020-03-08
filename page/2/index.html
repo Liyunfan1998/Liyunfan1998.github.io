@@ -152,6 +152,488 @@
 
     <div class="post-header index">
         <h1 class="title">
+            <a href="/2020/02/29/4.sentiment_with_mask/">
+                4.sentiment_with_mask
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-02-29</span>
+            
+            
+            
+        </div>
+    </div>
+
+    
+        <div class="content">
+            <h1 id="情感分析"><a href="#情感分析" class="headerlink" title="情感分析"></a>情感分析</h1><p>褚则伟 <a href="mailto:zeweichu@gmail.com">zeweichu@gmail.com</a></p>
+<p>学习目标</p>
+<ul>
+<li>学习和训练文本分类模型</li>
+<li>学习torchtext的基本使用方法<ul>
+<li>BucketIterator</li>
+</ul>
+</li>
+<li>学习torch.nn的一些基本模型<ul>
+<li>Conv2d</li>
+</ul>
+</li>
+</ul>
+<p>本notebook参考了<a href="https://github.com/bentrevett/pytorch-sentiment-analysis" target="_blank" rel="noopener">https://github.com/bentrevett/pytorch-sentiment-analysis</a></p>
+<p>在这份notebook中，我们会用PyTorch模型和TorchText再来做情感分析(检测一段文字的情感是正面的还是负面的)。我们会使用<a href="http://ai.stanford.edu/~amaas/data/sentiment/" target="_blank" rel="noopener">IMDb 数据集</a>，即电影评论。</p>
+<p>模型从简单到复杂，我们会依次构建：</p>
+<ul>
+<li>Word Averaging模型</li>
+<li>RNN/LSTM模型</li>
+<li>CNN模型</li>
+</ul>
+<h2 id="准备数据"><a href="#准备数据" class="headerlink" title="准备数据"></a>准备数据</h2><ul>
+<li>TorchText中的一个重要概念是<code>Field</code>。<code>Field</code>决定了你的数据会被怎样处理。在我们的情感分类任务中，我们所需要接触到的数据有文本字符串和两种情感，”pos”或者”neg”。</li>
+<li><code>Field</code>的参数制定了数据会被怎样处理。</li>
+<li>我们使用<code>TEXT</code> field来定义如何处理电影评论，使用<code>LABEL</code> field来处理两个情感类别。</li>
+<li>我们的<code>TEXT</code> field带有<code>tokenize=&#39;spacy&#39;</code>，这表示我们会用<a href="https://spacy.io" target="_blank" rel="noopener">spaCy</a> tokenizer来tokenize英文句子。如果我们不特别声明<code>tokenize</code>这个参数，那么默认的分词方法是使用空格。</li>
+<li>安装spaCy<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install -U spacy</span><br><span class="line">python -m spacy download en</span><br></pre></td></tr></table></figure></li>
+<li><code>LABEL</code>由<code>LabelField</code>定义。这是一种特别的用来处理label的<code>Field</code>。我们后面会解释dtype。</li>
+<li>更多关于<code>Fields</code>，参见<a href="https://github.com/pytorch/text/blob/master/torchtext/data/field.py" target="_blank" rel="noopener">https://github.com/pytorch/text/blob/master/torchtext/data/field.py</a></li>
+<li>和之前一样，我们会设定random seeds使实验可以复现。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torchtext</span><br><span class="line"><span class="keyword">from</span> torchtext <span class="keyword">import</span> data</span><br><span class="line"></span><br><span class="line">SEED = <span class="number">1234</span></span><br><span class="line"></span><br><span class="line">torch.manual_seed(SEED)</span><br><span class="line">torch.cuda.manual_seed(SEED)</span><br><span class="line">torch.backends.cudnn.deterministic = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">TEXT = data.Field(tokenize=<span class="string">'spacy'</span>)</span><br><span class="line">LABEL = data.LabelField()<span class="comment"># dtype=torch.float)</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">print(torch.__version__)</span><br><span class="line">print(torchtext.__version__)</span><br></pre></td></tr></table></figure>
+
+<pre><code>1.1.0
+0.3.1</code></pre><ul>
+<li>TorchText支持很多常见的自然语言处理数据集。</li>
+<li>下面的代码会自动下载IMDb数据集，然后分成train/test两个<code>torchtext.datasets</code>类别。数据被前面的<code>Fields</code>处理。IMDb数据集一共有50000电影评论，每个评论都被标注为正面的或负面的。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torchtext <span class="keyword">import</span> datasets</span><br><span class="line">train_data, test_data = datasets.IMDB.splits(TEXT, LABEL)</span><br></pre></td></tr></table></figure>
+
+<p>查看每个数据split有多少条数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">f'Number of training examples: <span class="subst">&#123;len(train_data)&#125;</span>'</span>)</span><br><span class="line">print(<span class="string">f'Number of testing examples: <span class="subst">&#123;len(test_data)&#125;</span>'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>Number of training examples: 25000
+Number of testing examples: 25000</code></pre><p>查看一个example。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(vars(train_data.examples[<span class="number">0</span>]))</span><br></pre></td></tr></table></figure>
+
+<pre><code>{&apos;text&apos;: [&apos;Brilliant&apos;, &apos;adaptation&apos;, &apos;of&apos;, &apos;the&apos;, &apos;novel&apos;, &apos;that&apos;, &apos;made&apos;, &apos;famous&apos;, &apos;the&apos;, &apos;relatives&apos;, &apos;of&apos;, &apos;Chilean&apos;, &apos;President&apos;, &apos;Salvador&apos;, &apos;Allende&apos;, &apos;killed&apos;, &apos;.&apos;, &apos;In&apos;, &apos;the&apos;, &apos;environment&apos;, &apos;of&apos;, &apos;a&apos;, &apos;large&apos;, &apos;estate&apos;, &apos;that&apos;, &apos;arises&apos;, &apos;from&apos;, &apos;the&apos;, &apos;ruins&apos;, &apos;,&apos;, &apos;becoming&apos;, &apos;a&apos;, &apos;force&apos;, &apos;to&apos;, &apos;abuse&apos;, &apos;and&apos;, &apos;exploitation&apos;, &apos;of&apos;, &apos;outrage&apos;, &apos;,&apos;, &apos;a&apos;, &apos;luxury&apos;, &apos;estate&apos;, &apos;for&apos;, &apos;the&apos;, &apos;benefit&apos;, &apos;of&apos;, &apos;the&apos;, &apos;upstart&apos;, &apos;Esteban&apos;, &apos;Trueba&apos;, &apos;and&apos;, &apos;his&apos;, &apos;undeserved&apos;, &apos;family&apos;, &apos;,&apos;, &apos;the&apos;, &apos;brilliant&apos;, &apos;Danish&apos;, &apos;director&apos;, &apos;Bille&apos;, &apos;August&apos;, &apos;recreates&apos;, &apos;,&apos;, &apos;in&apos;, &apos;micro&apos;, &apos;,&apos;, &apos;which&apos;, &apos;at&apos;, &apos;the&apos;, &apos;time&apos;, &apos;would&apos;, &apos;be&apos;, &apos;the&apos;, &apos;process&apos;, &apos;leading&apos;, &apos;to&apos;, &apos;the&apos;, &apos;greatest&apos;, &apos;infamy&apos;, &apos;of&apos;, &apos;his&apos;, &apos;story&apos;, &apos;to&apos;, &apos;the&apos;, &apos;hardened&apos;, &apos;Chilean&apos;, &apos;nation&apos;, &apos;,&apos;, &apos;and&apos;, &apos;whose&apos;, &apos;main&apos;, &apos;character&apos;, &apos;would&apos;, &apos;Augusto&apos;, &apos;Pinochet&apos;, &apos;(&apos;, &apos;Stephen&apos;, &apos;similarities&apos;, &apos;with&apos;, &apos;it&apos;, &apos;are&apos;, &apos;inevitable&apos;, &apos;:&apos;, &apos;recall&apos;, &apos;,&apos;, &apos;as&apos;, &apos;an&apos;, &apos;example&apos;, &apos;,&apos;, &apos;that&apos;, &apos;image&apos;, &apos;of&apos;, &apos;the&apos;, &apos;senator&apos;, &apos;with&apos;, &apos;dark&apos;, &apos;glasses&apos;, &apos;that&apos;, &apos;makes&apos;, &apos;him&apos;, &apos;the&apos;, &apos;wink&apos;, &apos;to&apos;, &apos;the&apos;, &apos;general&apos;, &apos;to&apos;, &apos;begin&apos;, &apos;making&apos;, &apos;the&apos;, &apos;palace).&lt;br&apos;, &apos;/&gt;&lt;br&apos;, &apos;/&gt;Bille&apos;, &apos;August&apos;, &apos;attends&apos;, &apos;an&apos;, &apos;exceptional&apos;, &apos;cast&apos;, &apos;in&apos;, &apos;the&apos;, &apos;Jeremy&apos;, &apos;protruding&apos;, &apos;Irons&apos;, &apos;,&apos;, &apos;whose&apos;, &apos;character&apos;, &apos;changes&apos;, &apos;from&apos;, &apos;arrogance&apos;, &apos;and&apos;, &apos;extreme&apos;, &apos;cruelty&apos;, &apos;,&apos;, &apos;the&apos;, &apos;hard&apos;, &apos;lesson&apos;, &apos;that&apos;, &apos;life&apos;, &apos;always&apos;, &apos;brings&apos;, &apos;us&apos;, &apos;to&apos;, &apos;almost&apos;, &apos;force&apos;, &apos;us&apos;, &apos;to&apos;, &apos;change&apos;, &apos;.&apos;, &apos;In&apos;, &apos;Esteban&apos;, &apos;fully&apos;, &apos;applies&apos;, &apos;the&apos;, &apos;law&apos;, &apos;of&apos;, &apos;resonance&apos;, &apos;,&apos;, &apos;with&apos;, &apos;great&apos;, &apos;wisdom&apos;, &apos;,&apos;, &apos;Solomon&apos;, &apos;describes&apos;, &apos;in&apos;, &apos;these&apos;, &apos;words:&quot;The&apos;, &apos;things&apos;, &apos;that&apos;, &apos;freckles&apos;, &apos;are&apos;, &apos;the&apos;, &apos;same&apos;, &apos;punishment&apos;, &apos;that&apos;, &apos;will&apos;, &apos;serve&apos;, &apos;you&apos;, &apos;.&apos;, &apos;&quot;&apos;, &apos;&lt;&apos;, &apos;br&apos;, &apos;/&gt;&lt;br&apos;, &apos;/&gt;Unforgettable&apos;, &apos;Glenn&apos;, &apos;Close&apos;, &apos;playing&apos;, &apos;splint&apos;, &apos;,&apos;, &apos;the&apos;, &apos;tainted&apos;, &apos;sister&apos;, &apos;of&apos;, &apos;Stephen&apos;, &apos;,&apos;, &apos;whose&apos;, &apos;sin&apos;, &apos;,&apos;, &apos;driven&apos;, &apos;by&apos;, &apos;loneliness&apos;, &apos;,&apos;, &apos;spiritual&apos;, &apos;and&apos;, &apos;platonic&apos;, &apos;love&apos;, &apos;was&apos;, &apos;the&apos;, &apos;wife&apos;, &apos;of&apos;, &apos;his&apos;, &apos;cruel&apos;, &apos;snowy&apos;, &apos;brother&apos;, &apos;.&apos;, &apos;Meryl&apos;, &apos;Streep&apos;, &apos;also&apos;, &apos;brilliant&apos;, &apos;,&apos;, &apos;a&apos;, &apos;woman&apos;, &apos;whose&apos;, &apos;name&apos;, &apos;came&apos;, &apos;to&apos;, &apos;him&apos;, &apos;like&apos;, &apos;a&apos;, &apos;glove&apos;, &apos;Clara&apos;, &apos;.&apos;, &apos;With&apos;, &apos;telekinetic&apos;, &apos;powers&apos;, &apos;,&apos;, &apos;cognitive&apos;, &apos;and&apos;, &apos;mediumistic&apos;, &apos;,&apos;, &apos;this&apos;, &apos;hardened&apos;, &apos;woman&apos;, &apos;,&apos;, &apos;loyal&apos;, &apos;to&apos;, &apos;his&apos;, &apos;blunt&apos;, &apos;,&apos;, &apos;conservative&apos;, &apos;husband&apos;, &apos;,&apos;, &apos;is&apos;, &apos;an&apos;, &apos;indicator&apos;, &apos;of&apos;, &apos;character&apos;, &apos;and&apos;, &apos;self&apos;, &apos;-&apos;, &apos;control&apos;, &apos;that&apos;, &apos;we&apos;, &apos;wish&apos;, &apos;for&apos;, &apos;ourselves&apos;, &apos;and&apos;, &apos;for&apos;, &apos;all&apos;, &apos;human&apos;, &apos;beings&apos;, &apos;.&apos;, &apos;&lt;&apos;, &apos;br&apos;, &apos;/&gt;&lt;br&apos;, &apos;/&gt;Every&apos;, &apos;character&apos;, &apos;is&apos;, &apos;a&apos;, &apos;portrait&apos;, &apos;of&apos;, &apos;virtuosity&apos;, &apos;(&apos;, &apos;as&apos;, &apos;Blanca&apos;, &apos;worthy&apos;, &apos;rebel&apos;, &apos;leader&apos;, &apos;Pedro&apos;, &apos;Segundo&apos;, &apos;unhappy&apos;, &apos;...&apos;, &apos;)&apos;, &apos;or&apos;, &apos;a&apos;, &apos;portrait&apos;, &apos;of&apos;, &apos;humiliation&apos;, &apos;,&apos;, &apos;like&apos;, &apos;Stephen&apos;, &apos;Jr.&apos;, &apos;,&apos;, &apos;the&apos;, &apos;bastard&apos;, &apos;child&apos;, &apos;of&apos;, &apos;Senator&apos;, &apos;,&apos;, &apos;who&apos;, &apos;serves&apos;, &apos;as&apos;, &apos;an&apos;, &apos;instrument&apos;, &apos;for&apos;, &apos;the&apos;, &apos;return&apos;, &apos;of&apos;, &apos;the&apos;, &apos;boomerang&apos;, &apos;.&apos;, &apos;&lt;&apos;, &apos;br&apos;, &apos;/&gt;&lt;br&apos;, &apos;/&gt;The&apos;, &apos;film&apos;, &apos;moves&apos;, &apos;the&apos;, &apos;bowels&apos;, &apos;,&apos;, &apos;we&apos;, &apos;recreated&apos;, &apos;some&apos;, &apos;facts&apos;, &apos;that&apos;, &apos;should&apos;, &apos;not&apos;, &apos;ever&apos;, &apos;be&apos;, &apos;repeated&apos;, &apos;,&apos;, &apos;but&apos;, &apos;that&apos;, &apos;absurdly&apos;, &apos;still&apos;, &apos;happen&apos;, &apos;(&apos;, &apos;Colombia&apos;, &apos;is&apos;, &apos;a&apos;, &apos;sad&apos;, &apos;example&apos;, &apos;)&apos;, &apos;and&apos;, &apos;another&apos;, &apos;reminder&apos;, &apos;that&apos;, &apos;,&apos;, &apos;against&apos;, &apos;all&apos;, &apos;,&apos;, &apos;life&apos;, &apos;is&apos;, &apos;wonderful&apos;, &apos;because&apos;, &apos;there&apos;, &apos;are&apos;, &apos;always&apos;, &apos;people&apos;, &apos;like&apos;, &apos;Isabel&apos;, &apos;Allende&apos;, &apos;and&apos;, &apos;immortalize&apos;, &apos;just&apos;, &apos;Bille&apos;, &apos;August&apos;, &apos;.&apos;], &apos;label&apos;: &apos;pos&apos;}</code></pre><ul>
+<li>由于我们现在只有train/test这两个分类，所以我们需要创建一个新的validation set。我们可以使用<code>.split()</code>创建新的分类。</li>
+<li>默认的数据分割是 70、30，如果我们声明<code>split_ratio</code>，可以改变split之间的比例，<code>split_ratio=0.8</code>表示80%的数据是训练集，20%是验证集。</li>
+<li>我们还声明<code>random_state</code>这个参数，确保我们每次分割的数据集都是一样的。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line">train_data, valid_data = train_data.split(random_state=random.seed(SEED))</span><br></pre></td></tr></table></figure>
+
+<p>检查一下现在每个部分有多少条数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">f'Number of training examples: <span class="subst">&#123;len(train_data)&#125;</span>'</span>)</span><br><span class="line">print(<span class="string">f'Number of validation examples: <span class="subst">&#123;len(valid_data)&#125;</span>'</span>)</span><br><span class="line">print(<span class="string">f'Number of testing examples: <span class="subst">&#123;len(test_data)&#125;</span>'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>Number of training examples: 17500
+Number of validation examples: 7500
+Number of testing examples: 25000</code></pre><ul>
+<li>下一步我们需要创建 <em>vocabulary</em> 。<em>vocabulary</em> 就是把每个单词一一映射到一个数字。<br><img src="assets/sentiment5.png" alt=""></li>
+<li>我们使用最常见的25k个单词来构建我们的单词表，用<code>max_size</code>这个参数可以做到这一点。</li>
+<li>所有其他的单词都用<code>&lt;unk&gt;</code>来表示。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># TEXT.build_vocab(train_data, max_size=25000)</span></span><br><span class="line"><span class="comment"># LABEL.build_vocab(train_data)</span></span><br><span class="line">TEXT.build_vocab(train_data, max_size=<span class="number">25000</span>, vectors=<span class="string">"glove.6B.100d"</span>, unk_init=torch.Tensor.normal_)</span><br><span class="line">LABEL.build_vocab(train_data)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">f"Unique tokens in TEXT vocabulary: <span class="subst">&#123;len(TEXT.vocab)&#125;</span>"</span>)</span><br><span class="line">print(<span class="string">f"Unique tokens in LABEL vocabulary: <span class="subst">&#123;len(LABEL.vocab)&#125;</span>"</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>Unique tokens in TEXT vocabulary: 25002
+Unique tokens in LABEL vocabulary: 2</code></pre><ul>
+<li>当我们把句子传进模型的时候，我们是按照一个个 <em>batch</em> 穿进去的，也就是说，我们一次传入了好几个句子，而且每个batch中的句子必须是相同的长度。为了确保句子的长度相同，TorchText会把短的句子pad到和最长的句子等长。<br><img src="assets/sentiment6.png" alt=""></li>
+<li>下面我们来看看训练数据集中最常见的单词。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(TEXT.vocab.freqs.most_common(<span class="number">20</span>))</span><br></pre></td></tr></table></figure>
+
+<pre><code>[(&apos;the&apos;, 201455), (&apos;,&apos;, 192552), (&apos;.&apos;, 164402), (&apos;a&apos;, 108963), (&apos;and&apos;, 108649), (&apos;of&apos;, 100010), (&apos;to&apos;, 92873), (&apos;is&apos;, 76046), (&apos;in&apos;, 60904), (&apos;I&apos;, 54486), (&apos;it&apos;, 53405), (&apos;that&apos;, 49155), (&apos;&quot;&apos;, 43890), (&quot;&apos;s&quot;, 43151), (&apos;this&apos;, 42454), (&apos;-&apos;, 36769), (&apos;/&gt;&lt;br&apos;, 35511), (&apos;was&apos;, 34990), (&apos;as&apos;, 30324), (&apos;with&apos;, 29691)]</code></pre><p>我们可以直接用 <code>stoi</code>(<strong>s</strong>tring <strong>to</strong> <strong>i</strong>nt) 或者 <code>itos</code> (<strong>i</strong>nt <strong>to</strong>  <strong>s</strong>tring) 来查看我们的单词表。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(TEXT.vocab.itos[:<span class="number">10</span>])</span><br></pre></td></tr></table></figure>
+
+<pre><code>[&apos;&lt;unk&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;the&apos;, &apos;,&apos;, &apos;.&apos;, &apos;a&apos;, &apos;and&apos;, &apos;of&apos;, &apos;to&apos;, &apos;is&apos;]</code></pre><p>查看labels。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(LABEL.vocab.stoi)</span><br></pre></td></tr></table></figure>
+
+<pre><code>defaultdict(&lt;function _default_unk_index at 0x7f6944d3f730&gt;, {&apos;neg&apos;: 0, &apos;pos&apos;: 1})</code></pre><ul>
+<li>最后一步数据的准备是创建iterators。每个itartion都会返回一个batch的examples。</li>
+<li>我们会使用<code>BucketIterator</code>。<code>BucketIterator</code>会把长度差不多的句子放到同一个batch中，确保每个batch中不出现太多的padding。</li>
+<li>严格来说，我们这份notebook中的模型代码都有一个问题，也就是我们把<code>&lt;pad&gt;</code>也当做了模型的输入进行训练。更好的做法是在模型中把由<code>&lt;pad&gt;</code>产生的输出给消除掉。在这节课中我们简单处理，直接把<code>&lt;pad&gt;</code>也用作模型输入了。由于<code>&lt;pad&gt;</code>数量不多，模型的效果也不差。</li>
+<li>如果我们有GPU，还可以指定每个iteration返回的tensor都在GPU上。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">BATCH_SIZE = <span class="number">64</span></span><br><span class="line"></span><br><span class="line">device = torch.device(<span class="string">'cuda'</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">'cpu'</span>)</span><br><span class="line"></span><br><span class="line">train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits(</span><br><span class="line">    (train_data, valid_data, test_data), </span><br><span class="line">    batch_size=BATCH_SIZE,</span><br><span class="line">    device=device,</span><br><span class="line">    repeat=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># for i, _ in enumerate(train_iterator):</span></span><br><span class="line"><span class="comment">#     print(i)</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">batch = next(iter(train_iterator))</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">batch.text</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>tensor([[   65,  6706,    23,  ...,  3101,    54,    87],
+        [   52, 11017,    83,  ..., 24113,    15,  1078],
+        [    8,     3,   671,  ...,    52,    73,     3],
+        ...,
+        [    1,     1,     1,  ...,     1,     1,     1],
+        [    1,     1,     1,  ...,     1,     1,     1],
+        [    1,     1,     1,  ...,     1,     1,     1]], device=&apos;cuda:0&apos;)</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token]</span><br><span class="line">mask = batch.text == PAD_IDX</span><br><span class="line">mask</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>tensor([[0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        [0, 0, 0,  ..., 0, 0, 0],
+        ...,
+        [1, 1, 1,  ..., 1, 1, 1],
+        [1, 1, 1,  ..., 1, 1, 1],
+        [1, 1, 1,  ..., 1, 1, 1]], device=&apos;cuda:0&apos;, dtype=torch.uint8)</code></pre><h2 id="Word-Averaging模型"><a href="#Word-Averaging模型" class="headerlink" title="Word Averaging模型"></a>Word Averaging模型</h2><ul>
+<li>我们首先介绍一个简单的Word Averaging模型。这个模型非常简单，我们把每个单词都通过<code>Embedding</code>层投射成word embedding vector，然后把一句话中的所有word vector做个平均，就是整个句子的vector表示了。接下来把这个sentence vector传入一个<code>Linear</code>层，做分类即可。</li>
+</ul>
+<p><img src="assets/sentiment8.png" alt=""></p>
+<ul>
+<li>我们使用<a href="https://pytorch.org/docs/stable/nn.html?highlight=avg_pool2d#torch.nn.functional.avg_pool2d" target="_blank" rel="noopener"><code>avg_pool2d</code></a>来做average pooling。我们的目标是把sentence length那个维度平均成1，然后保留embedding这个维度。</li>
+</ul>
+<p><img src="assets/sentiment9.png" alt=""></p>
+<ul>
+<li><code>avg_pool2d</code>的kernel size是 (<code>embedded.shape[1]</code>, 1)，所以句子长度的那个维度会被压扁。</li>
+</ul>
+<p><img src="assets/sentiment10.png" alt=""></p>
+<p><img src="assets/sentiment11.png" alt=""></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WordAVGModel</span><span class="params">(nn.Module)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, vocab_size, embedding_dim, output_dim, pad_idx)</span>:</span></span><br><span class="line">        super().__init__()</span><br><span class="line">        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=pad_idx)</span><br><span class="line">        self.fc = nn.Linear(embedding_dim, output_dim)</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, text, mask)</span>:</span></span><br><span class="line">        embedded = self.embedding(text) <span class="comment"># [batch_size, seq_len, emb_dim]</span></span><br><span class="line">        sent_embed = torch.sum(embedded * mask.unsqueeze(<span class="number">2</span>), <span class="number">1</span>) / mask.sum(<span class="number">1</span>).unsqueeze(<span class="number">1</span>) <span class="comment"># [batch size, embedding_dim]</span></span><br><span class="line">        <span class="keyword">return</span> self.fc(sent_embed)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">INPUT_DIM = len(TEXT.vocab)</span><br><span class="line">EMBEDDING_DIM = <span class="number">100</span></span><br><span class="line">OUTPUT_DIM = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">model = WordAVGModel(INPUT_DIM, EMBEDDING_DIM, OUTPUT_DIM, PAD_IDX)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">count_parameters</span><span class="params">(model)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> sum(p.numel() <span class="keyword">for</span> p <span class="keyword">in</span> model.parameters() <span class="keyword">if</span> p.requires_grad)</span><br><span class="line"></span><br><span class="line">print(<span class="string">f'The model has <span class="subst">&#123;count_parameters(model):,&#125;</span> trainable parameters'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>The model has 2,500,301 trainable parameters</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pretrained_embeddings = TEXT.vocab.vectors</span><br><span class="line">model.embedding.weight.data.copy_(pretrained_embeddings)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>tensor([[-0.1117, -0.4966,  0.1631,  ...,  1.2647, -0.2753, -0.1325],
+        [-0.8555, -0.7208,  1.3755,  ...,  0.0825, -1.1314,  0.3997],
+        [-0.0382, -0.2449,  0.7281,  ..., -0.1459,  0.8278,  0.2706],
+        ...,
+        [-0.7244, -0.0186,  0.0996,  ...,  0.0045, -1.0037,  0.6646],
+        [-1.1243,  1.2040, -0.6489,  ..., -0.7526,  0.5711,  1.0081],
+        [ 0.0860,  0.1367,  0.0321,  ..., -0.5542, -0.4557, -0.0382]])</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">UNK_IDX = TEXT.vocab.stoi[TEXT.unk_token]</span><br><span class="line"></span><br><span class="line">model.embedding.weight.data[UNK_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line">model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)</span><br></pre></td></tr></table></figure>
+
+<h2 id="训练模型"><a href="#训练模型" class="headerlink" title="训练模型"></a>训练模型</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim</span><br><span class="line"></span><br><span class="line">optimizer = optim.Adam(model.parameters())</span><br><span class="line">criterion = nn.BCEWithLogitsLoss()</span><br><span class="line">model = model.to(device)</span><br><span class="line">criterion = criterion.to(device)</span><br></pre></td></tr></table></figure>
+
+<p>计算预测的准确率</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">binary_accuracy</span><span class="params">(preds, y)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Returns accuracy per batch, i.e. if you get 8/10 right, this returns 0.8, NOT 8</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#round predictions to the closest integer</span></span><br><span class="line">    rounded_preds = torch.round(torch.sigmoid(preds))</span><br><span class="line">    correct = (rounded_preds == y).float() <span class="comment">#convert into float for division </span></span><br><span class="line">    acc = correct.sum()/len(correct)</span><br><span class="line">    <span class="keyword">return</span> acc</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">train</span><span class="params">(model, iterator, optimizer, criterion)</span>:</span></span><br><span class="line">    </span><br><span class="line">    epoch_loss = <span class="number">0</span></span><br><span class="line">    epoch_acc = <span class="number">0</span></span><br><span class="line">    model.train()</span><br><span class="line">    </span><br><span class="line">    i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> batch <span class="keyword">in</span> iterator:</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        <span class="comment"># CHANGED</span></span><br><span class="line">        text = batch.text.permute(<span class="number">1</span>, <span class="number">0</span>) <span class="comment"># [batch_size, seq_length]</span></span><br><span class="line">        mask = <span class="number">1.</span> - (text == PAD_IDX).float() <span class="comment"># [batch_size, seq_len]</span></span><br><span class="line">        predictions = model(text, mask).squeeze(<span class="number">1</span>)</span><br><span class="line">        loss = criterion(predictions, batch.label.float())</span><br><span class="line">        acc = binary_accuracy(predictions, batch.label.float())</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">            print(<span class="string">"batch &#123;&#125;, loss &#123;&#125;"</span>.format(i, loss.item()))</span><br><span class="line">        i += <span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        epoch_loss += loss.item()</span><br><span class="line">        epoch_acc += acc.item()</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> epoch_loss / len(iterator), epoch_acc / len(iterator)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate</span><span class="params">(model, iterator, criterion)</span>:</span></span><br><span class="line">    </span><br><span class="line">    epoch_loss = <span class="number">0</span></span><br><span class="line">    epoch_acc = <span class="number">0</span></span><br><span class="line">    model.eval()</span><br><span class="line">    </span><br><span class="line">    i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        <span class="keyword">for</span> batch <span class="keyword">in</span> iterator:</span><br><span class="line">            text = batch.text.permute(<span class="number">1</span>, <span class="number">0</span>) <span class="comment"># [batch_size, seq_length]</span></span><br><span class="line">            mask = <span class="number">1.</span> - (text == PAD_IDX).float() <span class="comment"># [batch_size, seq_len]</span></span><br><span class="line">            predictions = model(text, mask).squeeze(<span class="number">1</span>)</span><br><span class="line">            loss = criterion(predictions, batch.label.float())</span><br><span class="line">            acc = binary_accuracy(predictions, batch.label.float())</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">                print(<span class="string">"batch &#123;&#125;, loss &#123;&#125;"</span>.format(i, loss.item()))</span><br><span class="line">            i += <span class="number">1</span></span><br><span class="line">            epoch_loss += loss.item()</span><br><span class="line">            epoch_acc += acc.item()</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> epoch_loss / len(iterator), epoch_acc / len(iterator)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">epoch_time</span><span class="params">(start_time, end_time)</span>:</span></span><br><span class="line">    elapsed_time = end_time - start_time</span><br><span class="line">    elapsed_mins = int(elapsed_time / <span class="number">60</span>)</span><br><span class="line">    elapsed_secs = int(elapsed_time - (elapsed_mins * <span class="number">60</span>))</span><br><span class="line">    <span class="keyword">return</span> elapsed_mins, elapsed_secs</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">N_EPOCHS = <span class="number">10</span></span><br><span class="line"></span><br><span class="line">best_valid_loss = float(<span class="string">'inf'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(N_EPOCHS):</span><br><span class="line"></span><br><span class="line">    start_time = time.time()</span><br><span class="line">    </span><br><span class="line">    train_loss, train_acc = train(model, train_iterator, optimizer, criterion)</span><br><span class="line">    valid_loss, valid_acc = evaluate(model, valid_iterator, criterion)</span><br><span class="line">    </span><br><span class="line">    end_time = time.time()</span><br><span class="line"></span><br><span class="line">    epoch_mins, epoch_secs = epoch_time(start_time, end_time)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> valid_loss &lt; best_valid_loss:</span><br><span class="line">        best_valid_loss = valid_loss</span><br><span class="line">        torch.save(model.state_dict(), <span class="string">'wordavg-model.pt'</span>)</span><br><span class="line">    </span><br><span class="line">    print(<span class="string">f'Epoch: <span class="subst">&#123;epoch+<span class="number">1</span>:<span class="number">02</span>&#125;</span> | Epoch Time: <span class="subst">&#123;epoch_mins&#125;</span>m <span class="subst">&#123;epoch_secs&#125;</span>s'</span>)</span><br><span class="line">    print(<span class="string">f'\tTrain Loss: <span class="subst">&#123;train_loss:<span class="number">.3</span>f&#125;</span> | Train Acc: <span class="subst">&#123;train_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br><span class="line">    print(<span class="string">f'\t Val. Loss: <span class="subst">&#123;valid_loss:<span class="number">.3</span>f&#125;</span> |  Val. Acc: <span class="subst">&#123;valid_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>batch 0, loss 0.6835149526596069
+batch 100, loss 0.6759217977523804
+batch 200, loss 0.6536192297935486
+batch 0, loss 0.5802608132362366
+batch 100, loss 0.6405552625656128
+Epoch: 01 | Epoch Time: 0m 2s
+    Train Loss: 0.661 | Train Acc: 66.62%
+     Val. Loss: 0.615 |  Val. Acc: 74.25%
+batch 0, loss 0.6175215244293213
+batch 100, loss 0.5193076133728027
+batch 200, loss 0.523094654083252
+batch 0, loss 0.41260701417922974
+batch 100, loss 0.546144425868988
+Epoch: 02 | Epoch Time: 0m 2s
+    Train Loss: 0.542 | Train Acc: 78.82%
+     Val. Loss: 0.482 |  Val. Acc: 81.45%
+batch 0, loss 0.48719578981399536
+batch 100, loss 0.3965785503387451
+batch 200, loss 0.4322021007537842
+batch 0, loss 0.35118478536605835
+batch 100, loss 0.46531984210014343
+Epoch: 03 | Epoch Time: 0m 2s
+    Train Loss: 0.414 | Train Acc: 85.14%
+     Val. Loss: 0.391 |  Val. Acc: 85.33%
+batch 0, loss 0.31555071473121643
+batch 100, loss 0.3576723039150238
+batch 200, loss 0.43358099460601807
+batch 0, loss 0.3284790515899658
+batch 100, loss 0.4068619906902313
+Epoch: 04 | Epoch Time: 0m 2s
+    Train Loss: 0.333 | Train Acc: 88.22%
+     Val. Loss: 0.341 |  Val. Acc: 86.73%
+batch 0, loss 0.21446196734905243
+batch 100, loss 0.29952651262283325
+batch 200, loss 0.33016496896743774
+batch 0, loss 0.33019396662712097
+batch 100, loss 0.372672975063324
+Epoch: 05 | Epoch Time: 0m 2s
+    Train Loss: 0.284 | Train Acc: 90.08%
+     Val. Loss: 0.311 |  Val. Acc: 87.85%
+batch 0, loss 0.21933476626873016
+batch 100, loss 0.20656771957874298
+batch 200, loss 0.2411007285118103
+batch 0, loss 0.3338389992713928
+batch 100, loss 0.35051852464675903
+Epoch: 06 | Epoch Time: 0m 2s
+    Train Loss: 0.248 | Train Acc: 91.57%
+     Val. Loss: 0.292 |  Val. Acc: 88.37%
+batch 0, loss 0.2381495237350464
+batch 100, loss 0.3066502809524536
+batch 200, loss 0.17593657970428467
+batch 0, loss 0.33260178565979004
+batch 100, loss 0.3287006616592407
+Epoch: 07 | Epoch Time: 0m 2s
+    Train Loss: 0.220 | Train Acc: 92.62%
+     Val. Loss: 0.281 |  Val. Acc: 88.89%
+batch 0, loss 0.18733319640159607
+batch 100, loss 0.2353360801935196
+batch 200, loss 0.19918608665466309
+batch 0, loss 0.34648358821868896
+batch 100, loss 0.3191569447517395
+Epoch: 08 | Epoch Time: 0m 2s
+    Train Loss: 0.197 | Train Acc: 93.63%
+     Val. Loss: 0.269 |  Val. Acc: 89.23%
+batch 0, loss 0.10634639114141464
+batch 100, loss 0.11403544247150421
+batch 200, loss 0.29342859983444214
+batch 0, loss 0.35649430751800537
+batch 100, loss 0.3183209300041199
+Epoch: 09 | Epoch Time: 0m 2s
+    Train Loss: 0.177 | Train Acc: 94.27%
+     Val. Loss: 0.264 |  Val. Acc: 89.26%
+batch 0, loss 0.16292411088943481
+batch 100, loss 0.08687698841094971
+batch 200, loss 0.21162091195583344
+batch 0, loss 0.3467680811882019
+batch 100, loss 0.2997514605522156
+Epoch: 10 | Epoch Time: 0m 2s
+    Train Loss: 0.160 | Train Acc: 94.98%
+     Val. Loss: 0.258 |  Val. Acc: 89.72%</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> spacy</span><br><span class="line">nlp = spacy.load(<span class="string">'en'</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">predict_sentiment</span><span class="params">(sentence)</span>:</span></span><br><span class="line">    tokenized = [tok.text <span class="keyword">for</span> tok <span class="keyword">in</span> nlp.tokenizer(sentence)]</span><br><span class="line">    indexed = [TEXT.vocab.stoi[t] <span class="keyword">for</span> t <span class="keyword">in</span> tokenized]</span><br><span class="line">    tensor = torch.LongTensor(indexed).to(device)</span><br><span class="line">    text = tensor.unsqueeze(<span class="number">0</span>)</span><br><span class="line">    mask = <span class="number">1.</span> - (text == PAD_IDX).float() <span class="comment"># [batch_size, seq_len]</span></span><br><span class="line">    prediction = torch.sigmoid(model(tensor, mask))</span><br><span class="line">    <span class="keyword">return</span> prediction.item()</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(<span class="string">"This film is terrible"</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>2.4536811471520537e-10</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(<span class="string">"This film is great"</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>1.0</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">model.load_state_dict(torch.load(<span class="string">'wordavg-model.pt'</span>))</span><br><span class="line">test_loss, test_acc = evaluate(model, test_iterator, criterion)</span><br><span class="line">print(<span class="string">f'Test Loss: <span class="subst">&#123;test_loss:<span class="number">.3</span>f&#125;</span> | Test Acc: <span class="subst">&#123;test_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>batch 0, loss 0.32167336344718933
+batch 100, loss 0.34431976079940796
+batch 200, loss 0.18615691363811493
+batch 300, loss 0.37860944867134094
+Test Loss: 0.290 | Test Acc: 88.03%</code></pre><h2 id="RNN模型"><a href="#RNN模型" class="headerlink" title="RNN模型"></a>RNN模型</h2><ul>
+<li>下面我们尝试把模型换成一个<strong>recurrent neural network</strong> (RNN)。RNN经常会被用来encode一个sequence<br>$$h_t = \text{RNN}(x_t, h_{t-1})$$</li>
+<li>我们使用最后一个hidden state $h_T$来表示整个句子。</li>
+<li>然后我们把$h_T$通过一个线性变换$f$，然后用来预测句子的情感。</li>
+</ul>
+<p><img src="assets/sentiment1.png" alt=""></p>
+<p><img src="assets/sentiment7.png" alt=""></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RNN</span><span class="params">(nn.Module)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, vocab_size, embedding_dim, hidden_dim, output_dim, </span></span></span><br><span class="line"><span class="function"><span class="params">                 n_layers, bidirectional, dropout, pad_idx, avg_hidden=True)</span>:</span></span><br><span class="line">        super().__init__()</span><br><span class="line">        self.bidirectional = bidirectional</span><br><span class="line">        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=pad_idx)</span><br><span class="line">        self.rnn = nn.LSTM(embedding_dim, hidden_dim, num_layers=n_layers, </span><br><span class="line">                           bidirectional=bidirectional, dropout=dropout)</span><br><span class="line">        </span><br><span class="line">        self.fc = nn.Linear(hidden_dim*<span class="number">2</span> <span class="keyword">if</span> self.bidirectional <span class="keyword">else</span> hidden_dim, output_dim)</span><br><span class="line">        self.dropout = nn.Dropout(dropout)</span><br><span class="line">        self.avg_hidden = avg_hidden</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, text, mask)</span>:</span></span><br><span class="line">        embedded = self.dropout(self.embedding(text)) <span class="comment">#[sent len, batch size, emb dim]</span></span><br><span class="line">        <span class="comment"># CHANGED</span></span><br><span class="line">        seq_length = mask.sum(<span class="number">1</span>)</span><br><span class="line">        embedded = torch.nn.utils.rnn.pack_padded_sequence(</span><br><span class="line">            input=embedded, </span><br><span class="line">            lengths=seq_length, </span><br><span class="line">            batch_first=<span class="literal">True</span>,</span><br><span class="line">            enforce_sorted=<span class="literal">False</span>)</span><br><span class="line">        output, (hidden, cell) = self.rnn(embedded)</span><br><span class="line">        output, seq_length = torch.nn.utils.rnn.pad_packed_sequence(</span><br><span class="line">            sequence=output,</span><br><span class="line">            batch_first=<span class="literal">True</span>,</span><br><span class="line">            padding_value=<span class="number">0</span>,</span><br><span class="line">            total_length=mask.shape[<span class="number">1</span>]</span><br><span class="line">        )</span><br><span class="line">        <span class="comment">#output = [sent len, batch size, hid dim * num directions]</span></span><br><span class="line">        <span class="comment">#hidden = [num layers * num directions, batch size, hid dim]</span></span><br><span class="line">        <span class="comment">#cell = [num layers * num directions, batch size, hid dim]</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> self.avg_hidden:</span><br><span class="line"><span class="comment">#             print(output)</span></span><br><span class="line">            hidden = torch.sum(output * mask.unsqueeze(<span class="number">2</span>), <span class="number">1</span>) / torch.sum(mask, <span class="number">1</span>, keepdim=<span class="literal">True</span>) <span class="comment"># [batch size, embedding_dim]</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">if</span> self.bidirectional:</span><br><span class="line">                <span class="comment">#concat the final forward (hidden[-2,:,:]) and backward (hidden[-1,:,:]) hidden layers</span></span><br><span class="line">                hidden = torch.cat((hidden[<span class="number">-2</span>,:,:], hidden[<span class="number">-1</span>,:,:]), dim=<span class="number">1</span>) <span class="comment"># [batch size, hid dim * num directions]</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                hidden = self.dropout(hidden[<span class="number">-1</span>,:,:]) <span class="comment"># [batch size, hid dim * num directions]</span></span><br><span class="line">        <span class="comment"># apply dropout</span></span><br><span class="line">        hidden = self.dropout(hidden)</span><br><span class="line">        <span class="keyword">return</span> self.fc(hidden)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">INPUT_DIM = len(TEXT.vocab)</span><br><span class="line">EMBEDDING_DIM = <span class="number">100</span></span><br><span class="line">HIDDEN_DIM = <span class="number">256</span></span><br><span class="line">OUTPUT_DIM = <span class="number">1</span></span><br><span class="line">N_LAYERS = <span class="number">2</span></span><br><span class="line">BIDIRECTIONAL = <span class="literal">True</span></span><br><span class="line">DROPOUT = <span class="number">0.5</span></span><br><span class="line">PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token]</span><br><span class="line"></span><br><span class="line">model = RNN(INPUT_DIM, EMBEDDING_DIM, HIDDEN_DIM, OUTPUT_DIM, </span><br><span class="line">            N_LAYERS, BIDIRECTIONAL, DROPOUT, PAD_IDX, avg_hidden=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">f'The model has <span class="subst">&#123;count_parameters(model):,&#125;</span> trainable parameters'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>The model has 4,810,857 trainable parameters</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">model.embedding.weight.data.copy_(pretrained_embeddings)</span><br><span class="line">UNK_IDX = TEXT.vocab.stoi[TEXT.unk_token]</span><br><span class="line"></span><br><span class="line">model.embedding.weight.data[UNK_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line">model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line"></span><br><span class="line">print(model.embedding.weight.data)</span><br></pre></td></tr></table></figure>
+
+<pre><code>tensor([[ 0.0000,  0.0000,  0.0000,  ...,  0.0000,  0.0000,  0.0000],
+        [ 0.0000,  0.0000,  0.0000,  ...,  0.0000,  0.0000,  0.0000],
+        [-0.0382, -0.2449,  0.7281,  ..., -0.1459,  0.8278,  0.2706],
+        ...,
+        [-0.7244, -0.0186,  0.0996,  ...,  0.0045, -1.0037,  0.6646],
+        [-1.1243,  1.2040, -0.6489,  ..., -0.7526,  0.5711,  1.0081],
+        [ 0.0860,  0.1367,  0.0321,  ..., -0.5542, -0.4557, -0.0382]])</code></pre><h2 id="训练RNN模型"><a href="#训练RNN模型" class="headerlink" title="训练RNN模型"></a>训练RNN模型</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">optimizer = optim.Adam(model.parameters())</span><br><span class="line">model = model.to(device)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">N_EPOCHS = <span class="number">5</span></span><br><span class="line">best_valid_loss = float(<span class="string">'inf'</span>)</span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(N_EPOCHS):</span><br><span class="line">    start_time = time.time()</span><br><span class="line">    train_loss, train_acc = train(model, train_iterator, optimizer, criterion)</span><br><span class="line">    valid_loss, valid_acc = evaluate(model, valid_iterator, criterion)</span><br><span class="line">    </span><br><span class="line">    end_time = time.time()</span><br><span class="line"></span><br><span class="line">    epoch_mins, epoch_secs = epoch_time(start_time, end_time)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> valid_loss &lt; best_valid_loss:</span><br><span class="line">        best_valid_loss = valid_loss</span><br><span class="line">        torch.save(model.state_dict(), <span class="string">'lstm-model.pt'</span>)</span><br><span class="line">    </span><br><span class="line">    print(<span class="string">f'Epoch: <span class="subst">&#123;epoch+<span class="number">1</span>:<span class="number">02</span>&#125;</span> | Epoch Time: <span class="subst">&#123;epoch_mins&#125;</span>m <span class="subst">&#123;epoch_secs&#125;</span>s'</span>)</span><br><span class="line">    print(<span class="string">f'\tTrain Loss: <span class="subst">&#123;train_loss:<span class="number">.3</span>f&#125;</span> | Train Acc: <span class="subst">&#123;train_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br><span class="line">    print(<span class="string">f'\t Val. Loss: <span class="subst">&#123;valid_loss:<span class="number">.3</span>f&#125;</span> |  Val. Acc: <span class="subst">&#123;valid_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>batch 0, loss 0.6940298080444336
+batch 100, loss 0.6605077981948853
+batch 200, loss 0.5677657723426819
+batch 0, loss 0.6464325189590454
+batch 100, loss 0.7902224659919739
+Epoch: 01 | Epoch Time: 1m 1s
+    Train Loss: 0.651 | Train Acc: 61.65%
+     Val. Loss: 0.717 |  Val. Acc: 52.98%
+batch 0, loss 0.7926035523414612
+batch 100, loss 0.7492727637290955
+batch 200, loss 0.7025203704833984
+batch 0, loss 0.6599957942962646
+batch 100, loss 0.6523773670196533
+Epoch: 02 | Epoch Time: 1m 1s
+    Train Loss: 0.673 | Train Acc: 57.12%
+     Val. Loss: 0.659 |  Val. Acc: 61.20%
+batch 0, loss 0.64130699634552
+batch 100, loss 0.6027564406394958
+batch 200, loss 0.6683254837989807
+batch 0, loss 0.5396684408187866
+batch 100, loss 0.5652653574943542
+Epoch: 03 | Epoch Time: 1m 2s
+    Train Loss: 0.610 | Train Acc: 66.25%
+     Val. Loss: 0.597 |  Val. Acc: 68.90%
+batch 0, loss 0.580141544342041
+batch 100, loss 0.2638660669326782
+batch 200, loss 0.4949319064617157
+batch 0, loss 0.3330756723880768
+batch 100, loss 0.39001500606536865
+Epoch: 04 | Epoch Time: 1m 1s
+    Train Loss: 0.479 | Train Acc: 77.27%
+     Val. Loss: 0.378 |  Val. Acc: 84.53%
+batch 0, loss 0.4124695062637329
+batch 100, loss 0.5047512054443359
+batch 200, loss 0.4246818423271179
+batch 0, loss 0.3377535343170166
+batch 100, loss 0.29955512285232544
+Epoch: 05 | Epoch Time: 1m 1s
+    Train Loss: 0.343 | Train Acc: 85.52%
+     Val. Loss: 0.309 |  Val. Acc: 87.28%</code></pre><h3 id="我们来尝试一个AVG的版本"><a href="#我们来尝试一个AVG的版本" class="headerlink" title="我们来尝试一个AVG的版本"></a>我们来尝试一个AVG的版本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">INPUT_DIM = len(TEXT.vocab)</span><br><span class="line">EMBEDDING_DIM = <span class="number">100</span></span><br><span class="line">HIDDEN_DIM = <span class="number">256</span></span><br><span class="line">OUTPUT_DIM = <span class="number">1</span></span><br><span class="line">N_LAYERS = <span class="number">2</span></span><br><span class="line">BIDIRECTIONAL = <span class="literal">True</span></span><br><span class="line">DROPOUT = <span class="number">0.5</span></span><br><span class="line">PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token]</span><br><span class="line"></span><br><span class="line">rnn_model_avg = RNN(INPUT_DIM, EMBEDDING_DIM, HIDDEN_DIM, OUTPUT_DIM, </span><br><span class="line">            N_LAYERS, BIDIRECTIONAL, DROPOUT, PAD_IDX)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">f'The model has <span class="subst">&#123;count_parameters(rnn_model_avg):,&#125;</span> trainable parameters'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>The model has 4,810,857 trainable parameters</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">rnn_model_avg.embedding.weight.data.copy_(pretrained_embeddings)</span><br><span class="line">UNK_IDX = TEXT.vocab.stoi[TEXT.unk_token]</span><br><span class="line"></span><br><span class="line">rnn_model_avg.embedding.weight.data[UNK_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line">rnn_model_avg.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line"></span><br><span class="line">print(rnn_model_avg.embedding.weight.data)</span><br></pre></td></tr></table></figure>
+
+<pre><code>tensor([[ 0.0000,  0.0000,  0.0000,  ...,  0.0000,  0.0000,  0.0000],
+        [ 0.0000,  0.0000,  0.0000,  ...,  0.0000,  0.0000,  0.0000],
+        [-0.0382, -0.2449,  0.7281,  ..., -0.1459,  0.8278,  0.2706],
+        ...,
+        [-0.7244, -0.0186,  0.0996,  ...,  0.0045, -1.0037,  0.6646],
+        [-1.1243,  1.2040, -0.6489,  ..., -0.7526,  0.5711,  1.0081],
+        [ 0.0860,  0.1367,  0.0321,  ..., -0.5542, -0.4557, -0.0382]])</code></pre><h2 id="训练RNN模型-1"><a href="#训练RNN模型-1" class="headerlink" title="训练RNN模型"></a>训练RNN模型</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">optimizer = optim.Adam(rnn_model_avg.parameters())</span><br><span class="line">rnn_model_avg = rnn_model_avg.to(device)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">N_EPOCHS = <span class="number">5</span></span><br><span class="line">best_valid_loss = float(<span class="string">'inf'</span>)</span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(N_EPOCHS):</span><br><span class="line">    start_time = time.time()</span><br><span class="line">    train_loss, train_acc = train(rnn_model_avg, train_iterator, optimizer, criterion)</span><br><span class="line">    valid_loss, valid_acc = evaluate(rnn_model_avg, valid_iterator, criterion)</span><br><span class="line">    </span><br><span class="line">    end_time = time.time()</span><br><span class="line"></span><br><span class="line">    epoch_mins, epoch_secs = epoch_time(start_time, end_time)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> valid_loss &lt; best_valid_loss:</span><br><span class="line">        best_valid_loss = valid_loss</span><br><span class="line">        torch.save(rnn_model_avg.state_dict(), <span class="string">'lstm-avg-model.pt'</span>)</span><br><span class="line">    </span><br><span class="line">    print(<span class="string">f'Epoch: <span class="subst">&#123;epoch+<span class="number">1</span>:<span class="number">02</span>&#125;</span> | Epoch Time: <span class="subst">&#123;epoch_mins&#125;</span>m <span class="subst">&#123;epoch_secs&#125;</span>s'</span>)</span><br><span class="line">    print(<span class="string">f'\tTrain Loss: <span class="subst">&#123;train_loss:<span class="number">.3</span>f&#125;</span> | Train Acc: <span class="subst">&#123;train_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br><span class="line">    print(<span class="string">f'\t Val. Loss: <span class="subst">&#123;valid_loss:<span class="number">.3</span>f&#125;</span> |  Val. Acc: <span class="subst">&#123;valid_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>batch 0, loss 0.6885155439376831
+batch 100, loss 0.5888913869857788
+batch 200, loss 0.4656108617782593
+batch 0, loss 0.4603933095932007
+batch 100, loss 0.38754644989967346
+Epoch: 01 | Epoch Time: 1m 20s
+    Train Loss: 0.528 | Train Acc: 72.70%
+     Val. Loss: 0.362 |  Val. Acc: 84.47%
+batch 0, loss 0.29848513007164
+batch 100, loss 0.27336984872817993
+batch 200, loss 0.35852643847465515
+batch 0, loss 0.4745270907878876
+batch 100, loss 0.32764753699302673
+Epoch: 02 | Epoch Time: 1m 20s
+    Train Loss: 0.342 | Train Acc: 85.55%
+     Val. Loss: 0.294 |  Val. Acc: 88.03%
+batch 0, loss 0.31138738989830017
+batch 100, loss 0.3301498591899872
+batch 200, loss 0.5036394596099854
+batch 0, loss 0.36463940143585205
+batch 100, loss 0.3079427480697632
+Epoch: 03 | Epoch Time: 1m 20s
+    Train Loss: 0.276 | Train Acc: 88.91%
+     Val. Loss: 0.257 |  Val. Acc: 89.85%
+batch 0, loss 0.19154249131679535
+batch 100, loss 0.24453845620155334
+batch 200, loss 0.2616804540157318
+batch 0, loss 0.4100673198699951
+batch 100, loss 0.29790183901786804
+Epoch: 04 | Epoch Time: 1m 20s
+    Train Loss: 0.230 | Train Acc: 91.25%
+     Val. Loss: 0.250 |  Val. Acc: 90.16%
+batch 0, loss 0.21265330910682678
+batch 100, loss 0.34193551540374756
+batch 200, loss 0.19812607765197754
+batch 0, loss 0.3696991205215454
+batch 100, loss 0.30417782068252563
+Epoch: 05 | Epoch Time: 1m 20s
+    Train Loss: 0.202 | Train Acc: 92.49%
+     Val. Loss: 0.251 |  Val. Acc: 90.26%</code></pre><p>You may have noticed the loss is not really decreasing and the accuracy is poor. This is due to several issues with the model which we’ll improve in the next notebook.</p>
+<p>Finally, the metric we actually care about, the test loss and accuracy, which we get from our parameters that gave us the best validation loss.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rnn_model_avg.load_state_dict(torch.load(<span class="string">'lstm-avg-model.pt'</span>))</span><br><span class="line">test_loss, test_acc = evaluate(model, test_iterator, criterion)</span><br><span class="line">print(<span class="string">f'Test Loss: <span class="subst">&#123;test_loss:<span class="number">.3</span>f&#125;</span> | Test Acc: <span class="subst">&#123;test_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>batch 0, loss 0.24243609607219696
+batch 100, loss 0.28235137462615967
+batch 200, loss 0.20145781338214874
+batch 300, loss 0.3198160231113434
+Test Loss: 0.335 | Test Acc: 85.88%</code></pre><h2 id="CNN模型"><a href="#CNN模型" class="headerlink" title="CNN模型"></a>CNN模型</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CNN</span><span class="params">(nn.Module)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, vocab_size, embedding_dim, n_filters, </span></span></span><br><span class="line"><span class="function"><span class="params">                 filter_sizes, output_dim, dropout, pad_idx)</span>:</span></span><br><span class="line">        super().__init__()</span><br><span class="line">        </span><br><span class="line">        self.filter_sizes = filter_sizes</span><br><span class="line">        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=pad_idx)</span><br><span class="line">        self.convs = nn.ModuleList([</span><br><span class="line">                                    nn.Conv2d(in_channels = <span class="number">1</span>, out_channels = n_filters, </span><br><span class="line">                                              kernel_size = (fs, embedding_dim)) </span><br><span class="line">                                    <span class="keyword">for</span> fs <span class="keyword">in</span> filter_sizes</span><br><span class="line">                                    ])</span><br><span class="line">        self.fc = nn.Linear(len(filter_sizes) * n_filters, output_dim)</span><br><span class="line">        self.dropout = nn.Dropout(dropout)</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, text, mask)</span>:</span></span><br><span class="line">        <span class="comment"># CHANGED</span></span><br><span class="line">        embedded = self.embedding(text) <span class="comment"># [batch size, sent len, emb dim]</span></span><br><span class="line">        embedded = embedded.unsqueeze(<span class="number">1</span>) <span class="comment"># [batch size, 1, sent len, emb dim]</span></span><br><span class="line">        conved = [F.relu(conv(embedded)).squeeze(<span class="number">3</span>) <span class="keyword">for</span> conv <span class="keyword">in</span> self.convs]</span><br><span class="line">            </span><br><span class="line">        <span class="comment">#conv_n = [batch size, n_filters, sent len - filter_sizes[n]]</span></span><br><span class="line">        </span><br><span class="line"><span class="comment">#         print((1.-mask[:, :-3+1]).unsqueeze(1).byte().shape)</span></span><br><span class="line">        conved = [conv.masked_fill((<span class="number">1.</span>-mask[:, :-filter_size+<span class="number">1</span>]).unsqueeze(<span class="number">1</span>).byte(), <span class="number">-999999</span>) \</span><br><span class="line">                  <span class="keyword">for</span> (conv, filter_size) <span class="keyword">in</span> zip(conved, self.filter_sizes)]</span><br><span class="line">        </span><br><span class="line">        pooled = [F.max_pool1d(conv, conv.shape[<span class="number">2</span>]).squeeze(<span class="number">2</span>) <span class="keyword">for</span> conv <span class="keyword">in</span> conved]</span><br><span class="line">        </span><br><span class="line">        <span class="comment">#pooled_n = [batch size, n_filters]</span></span><br><span class="line">        </span><br><span class="line">        cat = self.dropout(torch.cat(pooled, dim=<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line">        <span class="comment">#cat = [batch size, n_filters * len(filter_sizes)]</span></span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> self.fc(cat)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">INPUT_DIM = len(TEXT.vocab)</span><br><span class="line">EMBEDDING_DIM = <span class="number">100</span></span><br><span class="line">N_FILTERS = <span class="number">100</span></span><br><span class="line">FILTER_SIZES = [<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>]</span><br><span class="line">OUTPUT_DIM = <span class="number">1</span></span><br><span class="line">DROPOUT = <span class="number">0.5</span></span><br><span class="line">PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">model = CNN(INPUT_DIM, EMBEDDING_DIM, N_FILTERS, FILTER_SIZES, OUTPUT_DIM, DROPOUT, PAD_IDX)</span><br><span class="line">model.embedding.weight.data.copy_(pretrained_embeddings)</span><br><span class="line">UNK_IDX = TEXT.vocab.stoi[TEXT.unk_token]</span><br><span class="line"></span><br><span class="line">model.embedding.weight.data[UNK_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line">model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line">model = model.to(device)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">optimizer = optim.Adam(model.parameters())</span><br><span class="line">criterion = nn.BCEWithLogitsLoss()</span><br><span class="line">criterion = criterion.to(device)</span><br><span class="line"></span><br><span class="line">N_EPOCHS = <span class="number">5</span></span><br><span class="line"></span><br><span class="line">best_valid_loss = float(<span class="string">'inf'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(N_EPOCHS):</span><br><span class="line"></span><br><span class="line">    start_time = time.time()</span><br><span class="line">    </span><br><span class="line">    train_loss, train_acc = train(model, train_iterator, optimizer, criterion)</span><br><span class="line">    valid_loss, valid_acc = evaluate(model, valid_iterator, criterion)</span><br><span class="line">    </span><br><span class="line">    end_time = time.time()</span><br><span class="line"></span><br><span class="line">    epoch_mins, epoch_secs = epoch_time(start_time, end_time)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> valid_loss &lt; best_valid_loss:</span><br><span class="line">        best_valid_loss = valid_loss</span><br><span class="line">        torch.save(model.state_dict(), <span class="string">'CNN-model.pt'</span>)</span><br><span class="line">    </span><br><span class="line">    print(<span class="string">f'Epoch: <span class="subst">&#123;epoch+<span class="number">1</span>:<span class="number">02</span>&#125;</span> | Epoch Time: <span class="subst">&#123;epoch_mins&#125;</span>m <span class="subst">&#123;epoch_secs&#125;</span>s'</span>)</span><br><span class="line">    print(<span class="string">f'\tTrain Loss: <span class="subst">&#123;train_loss:<span class="number">.3</span>f&#125;</span> | Train Acc: <span class="subst">&#123;train_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br><span class="line">    print(<span class="string">f'\t Val. Loss: <span class="subst">&#123;valid_loss:<span class="number">.3</span>f&#125;</span> |  Val. Acc: <span class="subst">&#123;valid_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>batch 0, loss 0.7456250190734863
+batch 100, loss 0.7356712818145752
+batch 200, loss 0.608451247215271
+batch 0, loss 0.5171981453895569
+batch 100, loss 0.5627424716949463
+Epoch: 01 | Epoch Time: 0m 11s
+    Train Loss: 0.653 | Train Acc: 61.19%
+     Val. Loss: 0.511 |  Val. Acc: 78.05%
+batch 0, loss 0.5206002593040466
+batch 100, loss 0.4522325098514557
+batch 200, loss 0.39397668838500977
+batch 0, loss 0.36625632643699646
+batch 100, loss 0.34350645542144775
+Epoch: 02 | Epoch Time: 0m 11s
+    Train Loss: 0.430 | Train Acc: 80.41%
+     Val. Loss: 0.356 |  Val. Acc: 85.21%
+batch 0, loss 0.3453408479690552
+batch 100, loss 0.3106832504272461
+batch 200, loss 0.29214251041412354
+batch 0, loss 0.34314772486686707
+batch 100, loss 0.27926790714263916
+Epoch: 03 | Epoch Time: 0m 11s
+    Train Loss: 0.305 | Train Acc: 87.17%
+     Val. Loss: 0.318 |  Val. Acc: 86.52%
+batch 0, loss 0.2820616066455841
+batch 100, loss 0.2185526192188263
+batch 200, loss 0.2295588254928589
+batch 0, loss 0.3212977647781372
+batch 100, loss 0.2501620352268219
+Epoch: 04 | Epoch Time: 0m 11s
+    Train Loss: 0.222 | Train Acc: 91.30%
+     Val. Loss: 0.311 |  Val. Acc: 87.25%
+batch 0, loss 0.06584674119949341
+batch 100, loss 0.1338910311460495
+batch 200, loss 0.22213703393936157
+batch 0, loss 0.32934656739234924
+batch 100, loss 0.2596980333328247
+Epoch: 05 | Epoch Time: 0m 11s
+    Train Loss: 0.162 | Train Acc: 94.01%
+     Val. Loss: 0.318 |  Val. Acc: 87.29%</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">model.load_state_dict(torch.load(<span class="string">'CNN-model.pt'</span>))</span><br><span class="line">test_loss, test_acc = evaluate(model, test_iterator, criterion)</span><br><span class="line">print(<span class="string">f'Test Loss: <span class="subst">&#123;test_loss:<span class="number">.3</span>f&#125;</span> | Test Acc: <span class="subst">&#123;test_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>batch 0, loss 0.1641087532043457
+batch 100, loss 0.38564836978912354
+batch 200, loss 0.26448047161102295
+batch 300, loss 0.4913085401058197
+Test Loss: 0.350 | Test Acc: 85.04%</code></pre>
+        </div>
+    
+
+</div>
+            
+                
+<div class="post">
+
+    <div class="post-header index">
+        <h1 class="title">
             <a href="/2020/02/29/4.sentiment/">
                 4.sentiment
             </a>
@@ -3628,6 +4110,10 @@ francis</code></pre>
         <ul>
             
             <li>
+                <a class="footer-post" href="/2020/03/08/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0%20%E6%9C%80%E9%87%8D%E8%A6%81%E7%9A%84%E7%9F%A9%E9%98%B5%EF%BC%9A%E5%AF%B9%E7%A7%B0%E7%9F%A9%E9%98%B5/">线性代数 最重要的矩阵：对称矩阵</a>
+            </li>
+            
+            <li>
                 <a class="footer-post" href="/2020/03/07/%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86/">二叉树遍历</a>
             </li>
             
@@ -3637,10 +4123,6 @@ francis</code></pre>
             
             <li>
                 <a class="footer-post" href="/2020/03/07/Jupyter%20Notebook%20%E5%9C%A8%20macOS%20%E7%B3%BB%E7%BB%9F%E4%B8%8A%E7%9A%84%E5%BF%AB%E6%8D%B7%E9%94%AE/">Jupyter Notebook 在 macOS </a>
-            </li>
-            
-            <li>
-                <a class="footer-post" href="/2020/03/05/multi-view%20learning/">multi-view learning</a>
             </li>
             
         </ul>
