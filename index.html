@@ -1330,6 +1330,82 @@
 
     <div class="post-header index">
         <h1 class="title">
+            <a href="/2020/04/08/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E7%BB%98%E5%9B%BE/">
+                R语言基础绘图
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-04-08</span>
+            
+            
+            
+        </div>
+    </div>
+
+    
+        <div class="content">
+            <font size=5>
+#R语言基础绘图
+这是一期不怎么严谨的CSDN搬运专栏,主要介绍如何用R绘制基本统计图形
+##创建图形
+###图形的核心:plot()函数
+plot()函数是R语言创建图形最基本的函数,plot()是一个泛型函数,真正被调用的函数依赖于对象所属的类
+
+<p>plot函数最基本的参数x,y,分别表示横纵坐标的取值向量<br>参数main指定标题,sub指定副标题,xlab和ylab分别指定x轴和y轴标签<br><img src="https://i.imgur.com/XYeryug.png" alt=""><br>###abline()函数和lines()函数<br>abline()函数可以用于向图中添加线条</p>
+<p>例如:在当前图形中添加y=2+1*x描述的直线</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">abline(c(2,1))</span><br></pre></td></tr></table></figure>
+<p><img src="https://i.imgur.com/xVigTxx.png" alt=""></p>
+<p>abline()在编写时特意考虑了参数是回归结果的情形,因此如果参数是回归结果的对象,那么这个函数就会从lmout$coefficients中提取斜率和截距,然后画出这条直线</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">library(&quot;wooldridge&quot;)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#96;&#96;&#96;</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96;library(&quot;lmtest&quot;)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#96;&#96;&#96;</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96;lmout&#x3D;lm(wage1$lwage~wage1$educ)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>abline(lmout)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">![](https:&#x2F;&#x2F;i.imgur.com&#x2F;RekAKL4.png)</span><br><span class="line"></span><br><span class="line">lines()函数同样用于向图中添加直线,尽管lines()有很多的参数,但是有两个最基本的参数,分别表示x轴的取值向量和y轴的取值向量.两个参数联合起来表示向当前图形添加的点对(x,y),并在之后依次用线条把它们连接起来</span><br><span class="line"></span><br><span class="line">如果你只想画出线条,而不想将其中的连接点绘制出来,可以将参数type&#x3D;&quot;1&quot;添加到lines()或plot()中</span><br><span class="line"></span><br><span class="line">还可以用plot()中的参数lty来指定线条类型,如指定实线还是虚线</span><br><span class="line">###points()函数</span><br><span class="line">points()函数可以向现有的图形中添加一系列的点对(x,y),每个点都用一种图形元素来表现</span><br><span class="line"></span><br><span class="line">例如:向当前图中添加Exam1和Exam2成绩的散点图,其中每一个点都用&quot;+&quot;来标记</span><br></pre></td></tr></table></figure>
+<p>points(testscore$Exam1,testscor$Exam3,pch=”+”)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">###legend()函数</span><br><span class="line">legend()函数用于向拥有多条曲线的图中添加图例</span><br><span class="line">###text()函数</span><br><span class="line">利用text()函数可以在图形的任意位置加上一些文字</span><br></pre></td></tr></table></figure>
+<p>text(2.5,4,”abc”)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">![](https:&#x2F;&#x2F;i.imgur.com&#x2F;MYtGvpt.png)</span><br><span class="line">这将在图形中点(2.5,4)的位置加上文字&quot;abc&quot;,字符串的中心,将正好位于(2.5,4)</span><br><span class="line">###locator()函数</span><br><span class="line">调用locator()函数,然后在图形中需要的位置点击鼠标,这个函数就会返回你点中之处的坐标.利用locator()函数,可以将文字精确放在你想要的位置.</span><br><span class="line">下面这个命令将会告诉R,你会在图中点击二次.</span><br></pre></td></tr></table></figure>
+<p>locator(2)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">下面是一个简单的例子:点击之后,函数会返回一个列表,其元素x,y分别表示所点位置的横纵坐标</span><br></pre></td></tr></table></figure>
+<p>hist(c(12,5,13,25,16))</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#96;&#96;&#96; </span><br><span class="line">locator(2)</span><br></pre></td></tr></table></figure>
+
+<p>$x</p>
+<p>[1] 12.06204 17.31315</p>
+<p>$y</p>
+<p>[1] 1.998410 1.032207<br>##改变图形<br>###改变字符大小:cex<br>cex选项用于放大或缩小图形中的字符,在许多绘图函数中,你都可以将它作为一个参数代入其中.<br>例如:输入以下命令可以实现对”abc”字符的放大输出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">text(2.5,4,&quot;abc&quot;,cex&#x3D;1.5)</span><br></pre></td></tr></table></figure>
+<p>###改变坐标轴的范围:xlim和ylim选项<br>你可能希望x轴或y轴的范围比默认情况更大或更小,要做到这一点,你可以在plot()和points()函数中指定xlim和ylim参数来对坐标轴调整.</p>
+<p>如果你要绘制多条曲线,又没有指定xlim或ylim,那么就应该首先绘制最高最宽的那条.否则R只会根据第一条曲线绘制图形,然后将最高的那些在顶部截断<br>###平滑散点:lowess()<br>可以用lowess()对散点拟合一条平滑的非参数回归线</p>
+<p>例如:可以实现考试成绩之间的平滑</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plot(testscores)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lines(lowess(testscores))</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.imgur.com/46wY9Gx.png" alt=""><br>###绘制具有显式表达式的函数<br>如果你想绘制函数g(t)=t+1在0到5之间的图像,可以利用curve()函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curve(x+1,0,5)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.imgur.com/ks76kui.png" alt=""></p>
+<p>如果想向图中添加这条曲线,则可以使用add参数:add=”T”<br>###function(x)<br>同样,如果想绘制函数在某区间上的图像,也可以用function(x)说明对函数画图<br>例如想画pnorm函数在(-3,3)的图像</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plot(function(x) pnorm(x,lower.tail&#x3D;F), -3, 3)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.imgur.com/k6L2cvw.png" alt=""></p>
+
+        </div>
+    
+
+</div>
+            
+                
+<div class="post">
+
+    <div class="post-header index">
+        <h1 class="title">
             <a href="/2020/03/30/%E8%B4%B9%E9%9B%AA%E4%BF%A1%E6%81%AF%E7%9F%A9%E9%98%B5/">
                 费雪信息矩阵
             </a>
@@ -2051,43 +2127,6 @@ $$
 
 </div>
             
-                
-<div class="post">
-
-    <div class="post-header index">
-        <h1 class="title">
-            <a href="/2020/03/05/multi-view%20learning/">
-                multi-view learning
-            </a>
-        </h1>
-        <div class="post-info">
-            
-                <span class="date">2020-03-05</span>
-            
-            
-            
-        </div>
-    </div>
-
-    
-        <div class="content">
-            <h1 id="多视图学习（multi-view-learning）"><a href="#多视图学习（multi-view-learning）" class="headerlink" title="多视图学习（multi-view learning）"></a>多视图学习（multi-view learning）</h1><p><strong>概括：</strong>多视图学习就是360度，全方位无死角的欣赏（学习）然后得到最接近真实值的判定。</p>
-<p>话说那么一天啊，一个人和一个蚂蚁在对话，他们看着一个米饭粒，人说，这个米饭粒胖嘟嘟的一定很香，蚂蚁说：你胡说，这米粒明明是长方形的，你干嘛说他胖嘟嘟的。然后他们就吵得面红耳赤，就去问上帝，这米究竟是什么样子的。上帝说：你们都没有错，人看到的是三维的世界，所以他们能看到立体的东西，而蚂蚁只能看到二维的，所以蚂蚁只能看到平面的。</p>
-<p>从上面的小故事我们可以看出，多视图学习就是从多个角度去学习，然后数据进行预测提高准确性。</p>
-<h1 id="一-半监督学习"><a href="#一-半监督学习" class="headerlink" title="一 半监督学习"></a>一 半监督学习</h1><p>半监督学习问题在真实世界中大量存在,以下列举几例:</p>
-<p>在文本分类中,例如,垃圾邮件过滤问题,所有邮件都可以作为未标记数据,标记数据的获取要求用户标注哪些是垃圾邮件,哪些不是,如果使用传统的监督学习方法,需要用户标记上千个邮件作为样本,才能使训练的学习器有较好的过滤性能,而几乎没有用户愿意花如此多的时间标记邮件，在只有少量的用户标记邮件和大量的未标记邮件的情况下,使用半监督学习方法训练垃圾邮件过滤器可能是一个好的选择。在图像处理中,例如,计算机辅助医学图像分析问题,可以从医院获得大量的医学图像作为未标记数据,但如果要求医学专家把这些图像中的病灶都标识出来,往往是不现实的,一般只能对少量医学图像中的病灶进行标识,所以需要使用半监督学习方法来减少对标记数据的需求，在自然语言处理中,例如,句法分析问题,为了训练一个好的句法分析器需要构造句子/句法树,这是一项十分耗时的工作,构造几千个句法树可能要耗费一个语言学家几年的时间，而可以作为未标记数据使用的句子是普遍存在的,考虑未标记数据的半监督学习能解决语言学家的困难，上述实例表明,随着信息技术的飞速发展,我们面临的问题是,数据大量存在,但获取数据的标记却需要耗费大量的人力物力，传统的监督学习方法在标记数据较少的情况下很难获得好的预测性能”半监督学习正是为了解决这类问题而提出，在理论和实际中都具有重要意义。</p>
-<h2 id="1-1多视图的半监督学习"><a href="#1-1多视图的半监督学习" class="headerlink" title="1.1多视图的半监督学习"></a>1.1多视图的半监督学习</h2><h3 id="1-1-1多视图数据"><a href="#1-1-1多视图数据" class="headerlink" title="1.1.1多视图数据"></a>1.1.1多视图数据</h3><p>在一些实际问题中，对于同一事物可以从多种不同的途径或不同的角度对其进行描述,这多种描述构成事物的多个视图(multi view)。本文用带下标的xi表示第i个数据点,用带上标的x(t)表示数据的第i个视图,则多视图数据可表示为xi={x1x2,…,xn}其中,表示视图的个数,多视图数据在真实世界中广泛存在,以下列举几例:在网页分类问题中,既可以根据网页本身包含的信息来对网页进行分类,也可以利用链接到该网页的超链接所包含的信息来进行分类,这样,网页数据就可以用两个视图表示,刻画网页本身包含信息的特征集构成第一个视图,刻画超链接所包含信息的特征集构成第二个视图,在电视片段的识别问题中,既可以根据视频中包含的信息来进行识别,也可以根据音频中包含的信息来进行识别,所以电视数据可以用视频和音频这两个视图表示”在自然语言理解问题中,同一语义对象,可以用不同的语言来表达,这些不同的语言描述就构成了此语义对象的不同视图表示,上述示例中,多视图用于表示数据的不同特征集,多视图还可以用于表示数据的不同来源;例如对于同一个数据源,用不同的采集装置进行采集,这多个采集结果构成了数据的不同视图;另外,多视图还可以用于表示数据间的不同关系;例如,学术论文的分类问题中,论文间既有参考文献的引用关系,也有作者的合作关系,可以把不同的关系用不同的视图来表示;有一些文献涉及多模态(multimodal)学习问题,但不同的文献中模态一词的含义不同”狭义的多模态是指人的不同感官,如视觉,听觉,嗅觉!触觉等;视觉所对应的图像或文字信息,和听觉所对应的声音信息,就构成多模态数据;广义的模态数据是指对于一个事物,通过不同的方法收集到的数据”例如在人脸识别中,可能收集到人脸的2D图像和3D形状模型,这就构成人脸数据的两个模态;在指纹识别中,用不同传感器采集的一个指纹的多种不同印痕,构成指纹数据的多个模态;对比多模态数据和多视图数据的概念可以看出,多视图的含义里包含了多模态,多视图可以表示更广泛的实际问题;</p>
-<h3 id="1-3-2多视图数据的表示"><a href="#1-3-2多视图数据的表示" class="headerlink" title="1.3.2多视图数据的表示"></a>1.3.2多视图数据的表示</h3><p>数据的表示问题是机器学习的重点和难点问题之一，因为学习效果往往受到数据表示方法的影响。对于客观世界的对象,常常提取它的特征，然后用特征向量表示此对象，即xi={x1, x2… xn}了,其中n代表特征的个数。人们希望提取的特征体现了此对象的本质，从而能够用这些特征学习到目标概念。然而，对于一个学习问题，需要的最小特征集是不可知的，在缺乏先验信息的情况下,只能提取尽可能多的特征,提供给学习器,期望学习器能获得更好的预测性能”另外，数据收集技术的发展，使得人们可以通过更加复杂多样的手段对事物进行描述，这也导致数据的特征较多。这些描述对象的特征中，有些特征具有不同的属性，因此不适合使用同一种学习器进行学习。例如上述电视片段的识别问题中，电视片段具有视频和音频两部分特征，这两部分特征更适合分别用图像识别方法和声音识别方法来学习。如果使用单视图(即用所有特征组成一个特征向量，来表示电视片段，将无法选择一种既适合图像又适合声音的普适学习方法，在这种情况下，使用多视图的表示法较为适合，即把数据表示成多个特征集,然后在每个特征集上可以用不同的学习方法进行学习。</p>
-<p>即使数据的特征能够使用同一种学习器进行学习,多视图学习也可能比单视图学习具有优势”例如上述网页分类问题中,网页本身所包含的信息和指向该网页的超链接所包含的信息均由单词构成,网页视图和超链接视图都可以表示成文本向量的形式,在这两个视图上可以用同一种学习器进行学习”然而,如果要把这两个视图合成一个视图,则得到的特征向量失去了原有的意义,而且可能增加了特征空间的维数,从而给学习带来不必要的困难”另外,数据的多视图表示方法还能够发挥各个视图的优势,利用未标记数据达到协同学习的目的,以改善学习性能,这一点接下来将具体介绍。</p>
-<h3 id="1-3-3多视图的半监督学习"><a href="#1-3-3多视图的半监督学习" class="headerlink" title="1.3.3多视图的半监督学习"></a>1.3.3多视图的半监督学习</h3><p>在多视图的半监督学习中,一方面数据有多个视图,即x=xt,另一方面数据由标记数据集L和未标记数据集U组成,学习算法应考虑如何利用多个视图蕴含的信息和未标记数据蕴含的信息,来辅助传统的监督学习.在该领域具有代表性的算法有A.Blum和T.Mitchell提出的协同训练算法 (co一training)。该算法假设数据有两个视图，首先在两个视图上利用标记数据分别训练出一个分类器，然后，在协同训练过程中，每个分类器从未标记数据中挑选若干预测置信度较高的数据进行标记,并把标记后的数据加入另一个分类器的标记数据集中,以便对方利用这些新标记的数据进行更新，此过程不断迭代进行，直到达到某个停止条件。</p>
-<p><img src="https://tva1.sinaimg.cn/large/00831rSTgy1gciccan4njj30hj08cab3.jpg" alt="img"></p>
-<p>上图展示了协同训练算法的主要思想，图中,Cl和C2分别代表两个类别的数据,用两个不同的颜色表示,X(l)和X(2)代表数据的两个不同视图，在视图X(1)中，这两个类别的数据可以被分类器很好地区别开来,而在视图X(2)中,这两个类别的数据混合分布,很难训练得到好的分类器，在这种情况下，用视图X(l)训练的分类器可以把它对未标记数据的分类结果中比较置信那些的未标记数据,连同它对那些未标记数据的分类结果,一起提供给视图X(2)上的分类器，然后，用视图x(2)训练的分类器能够利用从视图X(l)上得到的信息，排除自身的不确定性,从而提高用视图X(2)训练的分类器性能，反之亦然，多视图学习正是利用数据在不同的视图学习的难易程度不同，来发挥视图之间的相互作用,，优势互补，协同学习。自从协同训练算法被提出以后,多视图的半监督学习得到研究者的重视，涌现出了一批相关工作，并取得了很多研究以根据音频中包含的信息来进行识别，所以电视数据可以用视频和音频这两个视图表示，在自然语言理解问题中，同一语义对象，可以用不同的语言来表达，这些不同的语言描述就构成了此语义对象的不同视图表示。上述示例中，多视图用于表示数据的不同特征集，多视图还可以用于表示数据的不同来源。例如对于同一个数据源，用不同的采集装置进行采集，这多个采集结果构成了数据的不同视图。另外，多视图还可以用于表示数据间的不同关系。例如，学术论文的分类问题中，论文间既有参考文献的引用关系,也有作者的合作关系，可以把不同的关系用不同的视图来表示，有一些文献涉及多模态(multimodal)学习问题，但不同的文献中模态一词的含义不同。狭义的多模态是指人的不同感官，如视觉，听觉，嗅觉，触觉等视觉所对应的图像或文字信息，和听觉所对应的声音信息，就构成多模态数据。广义的多模态数据是指对于一个事物，通过不同的方法收集到的数据。例如在人脸识别中，可能收集到人脸的3D图像和3D形状模型，这就构成人脸数据的两个模态。在指纹识别中，用不同传感器采集的一个指纹的多种不同印痕，构成指纹数据的多个模态。对比多模态数据和多视图数据的概念可以看出，多视图的含义里包含了多模态，多视图可以表示更广泛的实际问题。</p>
-
-        </div>
-    
-
-</div>
-            
         </section>
     </div>
 </div>
@@ -2134,15 +2173,15 @@ $$
             </li>
             
             <li>
+                <a class="footer-post" href="/2020/04/08/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E7%BB%98%E5%9B%BE/">R语言基础绘图</a>
+            </li>
+            
+            <li>
                 <a class="footer-post" href="/2020/03/30/%E8%B4%B9%E9%9B%AA%E4%BF%A1%E6%81%AF%E7%9F%A9%E9%98%B5/">费雪信息矩阵</a>
             </li>
             
             <li>
                 <a class="footer-post" href="/2020/03/08/AlexNet%E8%AF%A6%E7%BB%86%E8%A7%A3%E8%AF%BB/">AlexNet详细解读</a>
-            </li>
-            
-            <li>
-                <a class="footer-post" href="/2020/03/08/%E5%8D%B7%E7%A9%8D%E4%B8%AD%E7%9A%84stride%E5%92%8Cpadding/">卷積中的stride和padding</a>
             </li>
             
         </ul>
