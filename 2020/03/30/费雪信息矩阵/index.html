@@ -10,6 +10,10 @@
 
     <!--Description-->
     
+        <meta name="description" content="介绍费雪信息矩阵是用来度量随机变量X所含有的关于自身随机分布函数位置参数$\theta$ 的信息量，最大似然估计中有着重要的度量价值
+费雪信息矩阵体现了最大似然估计的参数方差，可以体现似然方法的准确程度，在统计学中有重要的地位，并且在经济学、医学等的相关统计领域应用广泛
+定义对于一个i.i.d.的数">
+    
 
     <!--Author-->
     
@@ -18,7 +22,7 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="My New Post"/>
+        <meta property="og:title" content="费雪信息矩阵"/>
     
 
     <!--Open Graph Description-->
@@ -43,7 +47,7 @@
 
     <!-- Title -->
     
-    <title>My New Post - Hexo</title>
+    <title>费雪信息矩阵 - Hexo</title>
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
@@ -149,13 +153,13 @@
 
     <div class="post-header">
         <h1 class="title">
-            <a href="/2020/02/28/My-New-Post/">
-                My New Post
+            <a href="/2020/03/30/%E8%B4%B9%E9%9B%AA%E4%BF%A1%E6%81%AF%E7%9F%A9%E9%98%B5/">
+                费雪信息矩阵
             </a>
         </h1>
         <div class="post-info">
             
-                <span class="date">2020-02-28</span>
+                <span class="date">2020-03-30</span>
             
             
             
@@ -168,7 +172,69 @@
         
 
         <!-- Post Content -->
-        
+        <h4 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h4><p>费雪信息矩阵是用来度量随机变量X所含有的关于自身随机分布函数位置参数$\theta$ 的信息量，最大似然估计中有着重要的度量价值</p>
+<p>费雪信息矩阵体现了最大似然估计的参数方差，可以体现似然方法的准确程度，在统计学中有重要的地位，并且在经济学、医学等的相关统计领域应用广泛</p>
+<h4 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h4><p>对于一个i.i.d.的数据组$X_1,X_2,…,X_n$存在概率密度函数且服从一个概率分布$f(X,\theta)$, $\theta$ 为描述此分布的参数，利用最大似然估计法，当$X_i$已知，但$\theta$未知，得到使得发生所有$X_i$对应的最可能的 $\theta$值<br>$$<br>L(\textbf{X})=\prod_{i=1}^nf(X_i;\theta)\<br>\hat{\theta}=argmax_{\theta}L(\textbf{X})<br>$$<br>此时 $\theta$ 的估计值 $\hat{\theta}$ 就是使得 $L(\textbf{X})$ 取得最大值的值</p>
+<p>对 $L(X)$ 先取对数，再求一阶偏导，得到其一阶偏导数的矩阵，记为$S(\textbf{X};\theta)$ 。事实上，使得$S=0$ 的 $\theta$ 的值代表了MLE的估计值<br>$$<br>S(\textbf{X}; \theta)=\sum_{i=1}^n\frac{\part \log f(X_i;\theta)}{\partial \theta}<br>$$<br>$S$ 维度为$n\times 1$, $n$ 为 $\theta$ 的维度 $(S$ 之后会用得到$)$ </p>
+<p>那我们定义费雪信息矩阵 $I(\theta)$ 为 $S(I,\theta)$ 的二阶中心矩,同时又等于为$L(\textbf{X};\theta)$二阶偏导的期望矩阵<br>$$<br>I(\theta)=E[S(\textbf{X};\theta)^2|\theta]<br>=E[\frac{\part \log L(\textbf{X};\theta)}{\partial\theta}\frac{\part \log L(\textbf{X};\theta)}{\partial\theta^T}|\theta]<br>=-E[\frac{\part ^2\log L(\textbf{X};\theta)}{\partial\theta\partial\theta^T}|\theta]<br>$$<br>（第二个等号的证明用到第一个性质$E[S(\textbf{X};\theta)]=0,$ 可自行验证）</p>
+<h4 id="举例正态分布"><a href="#举例正态分布" class="headerlink" title="举例正态分布"></a>举例正态分布</h4><p>对于满足正态分布的$n$个 i.i.d. 随机变量<br>$$<br>\log L(\mu,\sigma^2)=-\frac{n}{2}\log (\sigma^2)-\frac{n}{2}\log (2\pi)-\frac{1}{2\sigma^2}\sum_{i=1}^n(X_i-\mu)^2<br>$$<br>不论直接计算二阶偏导的期望矩阵还是计算一阶偏导生成矩阵的期望，都可以得到<br>$$<br>I(\mu,\sigma^2)=\left\lbrack \begin{array}{cc}<br>\frac{n}{\sigma^2 } &amp; 0\<br>0 &amp; \frac{n}{2\sigma^4 }<br>\end{array}\right\rbrack<br>$$</p>
+<h4 id="性质以及用途"><a href="#性质以及用途" class="headerlink" title="性质以及用途"></a>性质以及用途</h4><p>在一般情形下<br>$$<br>E[S(\textbf{X};\theta)|\theta]=E[\frac{\part }{\part\theta}\log f(\textbf{X};\theta)|\theta]=\int\frac{\frac{\part}{\part\theta } f(x;\theta)}{f(x;\theta)}f(x;\theta)dx=\frac{\part}{\part\theta}\int f(x;\theta)dx=\frac{\part}{\part\theta}1=0<br>$$<br>因此添加上该零项之后：<br>$$<br>I(\theta)=E[S(\textbf{X};\theta)^2|\theta]-E[S(\textbf{X};\theta)|\theta]^2=Var[S(\textbf{X};\theta)|\theta]<br>$$<br>从而费雪信息矩阵在直观上代表了MLE方程的方差，在一定程度上会与解得的$\hat{\theta}$的方差有关。</p>
+<p>下面不予以详细说明。代表方差的性质可以用来估计在某一分布下，不同的 $\textbf{X}$  所得到 $\theta$ 的方差。</p>
+<p>事实上，所解得到的 $\hat{\theta}$ 满足如下分布：<br>$$<br>\sqrt{nI(\theta_0)}(\hat{\theta}-\theta_0)\overset{D}{\to} N(0,I_p)<br>$$<br>其中 $\theta_0$ 为参数的真实值，$I_p$ 为单位矩阵，$I(\theta_0)$中元素的值的大小与解得的$\hat{\theta}$的方差负相关</p>
+<p>例如刚才的正态分布，</p>
+ $$
+\left\lbrack \begin{array}{cc}
+\frac{n}{\sigma } & 0\\
+0 & \frac{n}{\sqrt{2}\sigma^2 }
+\end{array}\right\rbrack \left(\left\lbrack \begin{array}{c}
+\hat{\mu} \\
+\hat{\sigma^2 } 
+\end{array}\right\rbrack -\left\lbrack \begin{array}{c}
+\mu \\
+\sigma^2 
+\end{array}\right\rbrack \right)\overset{D}{\to} N\left(0,I_p \right)
+$$ 
+<p>所以</p>
+ $$
+\left\lbrack \begin{array}{c}
+\hat{\mu} \\
+\hat{\sigma^2 } 
+\end{array}\right\rbrack \overset{D}{\to} N\left(\left\lbrack \begin{array}{c}
+\mu \\
+\sigma^2 
+\end{array}\right\rbrack ,\left\lbrack \begin{array}{cc}
+\frac{n^2 }{\sigma^2 } & 0\\
+0 & \frac{n^2 }{{2\sigma }^4 }
+\end{array}\right\rbrack ^{-1}\right)
+$$ 
+<p>那这样根据估计值 $[\hat{\mu},\hat{\sigma}^2]^T$ ，并且用该点处的费雪矩阵近似替换掉真实点处的费雪矩阵，得到对应95%的置信区间</p>
+ $$
+\left(\left\lbrack \begin{array}{c}
+\hat{\mu} \\
+\hat{\sigma^2 } 
+\end{array}\right\rbrack -\left\lbrack \begin{array}{cc}
+\frac{n}{\hat{\sigma} } & 0\\
+0 & \frac{n}{\sqrt{2}{\hat{\sigma} }^2 }
+\end{array}\right\rbrack ^{-1}\left\lbrack \begin{array}{c}
+\Phi^{-1} \left(1-0\ldotp 025\right)\\
+\Phi^{-1} \left(1-0\ldotp 025\right)
+\end{array}\right\rbrack,\left\lbrack \begin{array}{c}
+\hat{\mu} \\
+\hat{\sigma^2 } 
+\end{array}\right\rbrack +\left\lbrack \begin{array}{cc}
+\frac{n}{\hat{\sigma} } & 0\\
+0 & \frac{n}{\sqrt{2}{\hat{\sigma} }^2 }
+\end{array}\right\rbrack ^{-1}\left\lbrack \begin{array}{c}
+\Phi^{-1} \left(1-0\ldotp 025\right)\\
+\Phi^{-1} \left(1-0\ldotp 025\right)
+\end{array}\right\rbrack\right)
+$$ 
+
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>费雪矩阵总体而言是相当有帮助的，对于确定估计值的准确性意义重大，而更多的有用性质尚未陈列，大家可以自行搜索了解</p>
+<p>参考：复旦侯燕曦老师金融计量学课件</p>
+<p>​            维基百科</p>
+<p>​            CSDN <a href="https://blog.csdn.net/artifact1/article/details/80731417" target="_blank" rel="noopener">https://blog.csdn.net/artifact1/article/details/80731417</a></p>
+
     </div>
 
     
