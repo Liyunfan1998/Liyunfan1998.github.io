@@ -152,6 +152,142 @@
 
     <div class="post-header index">
         <h1 class="title">
+            <a href="/2020/04/17/2DPE_pics/clip/">
+                2DPE_pics/clip
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-04-17</span>
+            
+            
+            
+        </div>
+    </div>
+
+    
+        <div class="content">
+            
+        </div>
+    
+
+</div>
+            
+                
+<div class="post">
+
+    <div class="post-header index">
+        <h1 class="title">
+            <a href="/2020/04/17/#%20%E4%BA%BA%E4%BD%93%E5%A7%BF%E6%80%81%E4%BC%B0%E8%AE%A1(Human%20Pose%20Estimation)%E7%BB%8F%E5%85%B8%E6%96%B9%E6%B3%95%E6%95%B4%E7%90%86/">
+                # 人体姿态估计(Human Pose Estimation)经典方法整理
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-04-17</span>
+            
+            
+            
+        </div>
+    </div>
+
+    
+        <div class="content">
+            <h1 id="人体姿态估计-Human-Pose-Estimation-经典方法整理"><a href="#人体姿态估计-Human-Pose-Estimation-经典方法整理" class="headerlink" title="人体姿态估计(Human Pose Estimation)经典方法整理"></a>人体姿态估计(Human Pose Estimation)经典方法整理</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上学期搬砖期间做了一些pose estimation相关的工作，但一直没有系统的整理过相关方法。近日疫情当头封闭在家，闲暇之余重温了一下之前看过的论文，对pose estimation的部分经典方法做了一个整理。内容大多为个人对这些方法的理解，所以本文也算是一个<strong>论文笔记合集</strong>吧。</p>
+<p>本文涉及到的工作仅包含个人读过的部分论文，按时间顺序进行了整理，并不能代表pose estimation这一领域完整的发展历程。比如bottom-up中的PersonLab、PifPaf，以及传统top-down/bottom-up方法之外的一些single-stage方法等，都是近年来出现的一些值得研究的工作，由于个人还没有仔细了解过暂时没写，<strong>之后可能会继续更新</strong>。</p>
+<h3 id="本文目录如下："><a href="#本文目录如下：" class="headerlink" title="本文目录如下："></a>本文目录如下：</h3><h4 id="·-top-down"><a href="#·-top-down" class="headerlink" title="·    top-down"></a>·    top-down</h4><p>o  CPM</p>
+<p>o  Hourglass</p>
+<p>o  CPN</p>
+<p>o  Simple Baselines</p>
+<p>o  HRNet</p>
+<p>o  MSPN</p>
+<h4 id="·-bottom-up"><a href="#·-bottom-up" class="headerlink" title="·    bottom-up"></a>·    bottom-up</h4><p>o  openpose</p>
+<p>o  Hourglass+Associative Embedding</p>
+<p>o  HigherHRNet</p>
+<p><strong>在整理过程中，我参照了以下几篇文章的思路，也添加了一些个人的理解。这几篇文章整理的思路都非常清晰，作者的水平也都比我高得多，推荐大家阅读。</strong></p>
+<p><a href="https://zhuanlan.zhihu.com/p/85506259" target="_blank" rel="noopener">俞刚：人体姿态估计的过去，现在，未来zhuanlan.zhihu.com</a><a href="https://zhuanlan.zhihu.com/p/72561165" target="_blank" rel="noopener">哇噻：重新思考人体姿态估计 Rethinking Human Pose Estimationzhuanlan.zhihu.com</a><a href="https://link.zhihu.com/?target=https%3A//nanonets.com/blog/human-pose-estimation-2d-guide/">A 2019 guide to Human Pose Estimation with Deep Learningnanonets.com</a></p>
+<p>正文开始之前还是希望各位<strong>带着批判的眼光阅读</strong>，毕竟本人目前大三水平有限，可能有理解不到位或不正确的地方，希望大家批评指正，欢迎大家评论区或私信随时交流。</p>
+<h2 id="Review-of-2D-Human-Pose-Estimation-with-Deep-Learning"><a href="#Review-of-2D-Human-Pose-Estimation-with-Deep-Learning" class="headerlink" title="Review of 2D Human Pose Estimation with Deep Learning"></a>Review of 2D Human Pose Estimation with Deep Learning</h2><p>人体姿态估计（Human Pose Estimation）是计算机视觉中的一个重要任务，也是计算机理解人类动作、行为必不可少的一步。近年来，使用深度学习进行人体姿态估计的方法陆续被提出，且达到了远超传统方法的表现。在实际求解时，对人体姿态的估计常常转化为对人体关键点的预测问题，即首先预测出人体各个关键点的位置坐标，然后根据先验知识确定关键点之间的空间位置关系，从而得到预测的人体骨架。</p>
+<p>姿态估计问题可以分为两大类：<strong>2D姿态估计</strong>和<strong>3D姿态估计</strong>。顾名思义，前者是为每个关键点预测一个二维坐标 ；后者是为每个关键点预测一个三维坐标 ，增加了一维深度信息。本文主要介绍2D姿态估计。</p>
+<p>对于2D姿态估计，当下研究的多为<strong>多人姿态估计</strong>，即每张图片可能包含多个人。解决该类问题的思路通常有两种：top-down和bottom-up：</p>
+<p>·    top-down的思路是首先对图片进行目标检测，找出所有的人；然后将人从原图中crop出来，resize后输入到网络中进行姿态估计。换言之，top-down是<strong>将多人姿态估计的问题转化为多个单人姿态估计的问题</strong>。</p>
+<p>·    bottom-up的思路是<strong>首先找出图片中所有关键点，然后对关键点进行分组</strong>，从而得到一个个人。</p>
+<p>通常来说，<strong>top-down具有更高的精度，而bottom-up具有更快的速度</strong>。下面分别对这两种思路的经典算法展开介绍。</p>
+<h2 id="Top-down"><a href="#Top-down" class="headerlink" title="Top-down"></a>Top-down</h2><p>由上文我们知道，top-down的方法将多人姿态估计转换为单人姿态估计，那么网络的输入就是包含一个人的bounding box，网络预测的是人的 个关键点坐标。对于关键点的ground truth（对应网络的输出）如何表示有两种思路：</p>
+<p>·    ，即<strong>直接对坐标进行回归</strong>，网络的输出是经过fc层输出的 个数字</p>
+<p>·    个heatmap，即<strong>为每个关键点预测一个heatmap</strong>作为关键点的中间表示，heatmap上的最大值处即对应关键点的坐标。对于改种方法，heatmap的ground truth是<strong>以关键点为中心的二维高斯分布</strong>（高斯核大小为超参）</p>
+<p>早期的工作如DeepPose多为直接回归坐标，当下的工作多数以heatmap作为网络的输出，这种中间表示形式使得回归结果更加精确。接下来我们介绍top-down发展过程中的一些landmark。</p>
+<p>需要说明的是，CPM和Hourglass提出时主要面向的是单人姿态估计，因为当时还没有COCO数据集，多使用MPII数据集进行evaluation。但top-down的方法本质上也是在解决单人姿态估计问题，所以将这两个模型放在此处介绍。</p>
+<h3 id="CPM"><a href="#CPM" class="headerlink" title="CPM"></a>CPM</h3><p>CPM，Convolutional Pose Machines，是2015年CMU的一个工作。这个工作提出了很重要的一点：使用神经网络同时学习<strong>图片特征(image features)和空间信息(spatial context)</strong>，这是处理姿态估计问题必不可少的两样信息。在此之前，我们多使用CNN来提取图片特征，使用graphical model或其他模型来表达各个身体部位在空间上的联系。使用神经网络同时学习这两种信息，不仅效果更好，而且使<strong>端到端(end-to-end)</strong>学习成为可能。</p>
+<p>CPM是一个<strong>multi-stage</strong>的结构，如下图所示。每个stage的输入是原始图片特征和上一个阶段输出的belief map，这个belief map可以认为是之前的stage学到的spatial context的一个encoding。这样当前stage根据这两种信息继续通过卷积层提取信息，并产生新的belief map，这样经过不断的<strong>refinement</strong>，最后产生一个较为准确的结果。</p>
+<p><img src="2DPE_pics/clip_image002.jpg" alt="截图里有图片  描述已自动生成"></p>
+<p>下面这张图给出了一个具体的例子来强调spatial context的重要性，也展现了refinement的过程。在stage1时，错误的将right elbow定位到了right knee处；在stage2时，由于有了stage1提供的spatial context信息，我们根据right shoulder的位置能够对right elbow的位置进行纠正，从图中可以看到响应的峰值已经基本到了正确位置。在stage3时，stage2中一些错误的响应（left elbow、right knee）彻底被消除，right elbow的定位也更加精确。</p>
+<p><img src="2DPE_pics/clip_image003.jpg" alt="图片包含 女人, 钟表, 站, 华美  描述已自动生成"></p>
+<p>这篇文章还提出了很重要的一点，就是<strong>通过intermediate supervision来解决梯度消失的问题</strong>。由于我们的网络可以包含许多个stage，随着网络的加深，梯度消失问题的出现导致网络无法收敛。因此，在每个stage结束后我们给当前的belief map加一个监督，可以有效缓解梯度消失的问题，后面可以看到在multi-stage的网络中这是比较常用的一种技巧。</p>
+<h3 id="Hourglass"><a href="#Hourglass" class="headerlink" title="Hourglass"></a>Hourglass</h3><p>Hourglass也是一种multi-stage的结构，是2016年的一个工作，与CPM相比更加简洁一些，如下图所示。这个网络由多个堆叠起来的Hourglass module组成（因为网络长的很像多个堆叠起来的沙漏）。每个Hourglass module的结构都包含<strong>一个bottom-up过程和一个top-down过程</strong>，前者通过卷积和pooling将图片从高分辨率降到低分辨率，后者通过upsample将图片从低分辨率恢复到高分辨率。</p>
+<p><img src="2DPE_pics/clip_image004.jpg" alt="图片包含 游戏机, 画, 桌子  描述已自动生成"></p>
+<p>每个Hourglass module的结构如下图所示，其中每个box都是一个残差结构。可以看到在top-down阶段，对于两个<strong>相邻</strong>分辨率的feature map，我们通过upsampling（这里用的是nearest neighbor upsampling）对较低分辨率的feature map进行上采样，然后通过<strong>skip connection</strong>将bottom-up阶段较高分辨率的feature map拿过来，此时再通过element-wise addition将这两部分特征进行合并。通过这种方式，在top-down阶段将不同分辨率下的特征逐步进行了融合。</p>
+<p><img src="2DPE_pics/clip_image005.jpg" alt="图片包含 游戏机, 桌子, 体育  描述已自动生成"></p>
+<p>总而言之，Hourglass最大的特点就是能够<strong>提取并整合所有scale下的特征</strong>，这种设计的出发点也是出于我们在姿态估计时对各个不同scale下特征的需要。这种网络结构在当时达到了很好的效果。</p>
+<p>值得注意的是，Hourglass也使用了intermediate supervision，对于multi-stage的网络这一点通常是必要的。</p>
+<h3 id="CPN"><a href="#CPN" class="headerlink" title="CPN"></a>CPN</h3><p>CPN，Cascaded Pyramid Network，是2017年旷视提出的一种网络结构，获得了COCO 2017 Keypoint Benchmark的冠军，网络结构如下图所示。这个网络可以分为两部分：GlobalNet和RefineNet，从名字也可以看出<strong>后半部分网络是在前半部分的基础上做refinement</strong>。GlobalNet的作用主要是对关键点进行一个初步的检测，由于<strong>使用了强大的ResNet作为backbone</strong>，网络能够提取到较为丰富的特征（在此之前的CPM、Hourglass都没有使用，因此网络的特征提取能力较差），并且使用了FPN结构加强了特征提取，在这个过程中像head、eyes这些简单且可见的关键点基本能够被有效地定位。而对于GlobalNet没有检测到的关键点，使用RefineNet进行进一步的挖掘，RefineNet实际上是将pyramid结构中不同分辨率下的特征进行了一个整合，这样一些<strong>被遮挡的、难以定位</strong>的关键点，根据融合后的上下文语境信息能够更好的被定位到。</p>
+<p><img src="2DPE_pics/clip_image006.jpg" alt="手机屏幕截图  描述已自动生成"></p>
+<p>下面这张图给出了一个例子（绿点表示ground truth），对于eye来说较容易定位，通过GlobalNet即可定位到。而对于hip来说，在原图中被遮挡，仅仅使用GlobalNet难以直接精确定位。通过RefineNet将语境信息整合进来，才使得这些关键点被定位。</p>
+<p><img src="2DPE_pics/clip_image007.jpg" alt="图片包含 游戏机, 画  描述已自动生成"></p>
+<h3 id="Simple-Baselines"><a href="#Simple-Baselines" class="headerlink" title="Simple Baselines"></a>Simple Baselines</h3><p>Simple Baselines，是2018年MSRA的工作，网络结构如下图所示。之所以叫这个名字，是因为这个网络真的很简单。该网络就是在ResNet的基础上接了一个head，这个head仅仅包含几个<strong>deconvolutional layer</strong>，用于提升ResNet输出的feature map的分辨率，我们提到过多次高分辨率是姿态估计任务的需要。这里的deconvolutional layer是一种不太严谨的说法，阅读源代码可知，deconvolutional layer实际上是将<strong>transpose convolution、BatchNorm、ReLU</strong>封装成了一个结构。所以关键之处在于transpose convolution，可以认为是convolution的逆过程。</p>
+<p>从图中看可以发现Simple Baselines的网络结构有点类似Hourglass中的一个module，但可以发现：①该网络没有使用类似Hourglass中的skip connection；②该网络是single-stage，Hourglass是multi-stage的。但令人惊讶的是，该网络的效果却超过了Hourglass。我个人认为有两点原因，一是Simple Baselines以ResNet作为backbone，特征提取能力相比Hourglass更强。二是Hourglass中上采样使用的是简单的nearest neighbor upsampling，而这里使用的是deconvolutional layer，后者的效果更好（后面可以看到在MSRA的Higher-HRNet中依旧使用了这种结构）。</p>
+<p><img src="2DPE_pics/clip_image008.jpg" alt="图片包含 游戏机, 画, 钟表  描述已自动生成"></p>
+<h3 id="HRNet"><a href="#HRNet" class="headerlink" title="HRNet"></a>HRNet</h3><p>HRNet，是2019年MSRA的工作，网络结构如下图所示，这个网络结构和之前的相比还是很novel的。我们知道，要想准确定位关键点，既离不开高分辨率的表示，也离不开低分辨率的语义信息。之前提到的几种网络结构也都着力于充分利用多个分辨率的信息，但之前的网络比如Hourglass、Simple Baselines，都是经历了一个先bottom-up再top-down的过程，换言之，我们得到的高分辨率的feature map都是从低分辨率的feature map经过upsampling/deconvolution恢复过来的，这样总会有一些潜在的信息丢失。HRNet的最大特点就是将不同分辨率feature map之间的连接<strong>从串行改成了并行</strong>，从图中可以清楚的看到，在整个过程中一直保持高分辨率分支的存在，并且随着网络的深入，逐渐添加低分辨率的分支，最后网络结构就是同时<strong>保持多个分辨率分支的并行网络</strong>。</p>
+<p><img src="2DPE_pics/clip_image009.jpg" alt="图片包含 游戏机  描述已自动生成"></p>
+<p>此外非常重要的一点，从图中我们也可以看到，为了使不同分辨率之间的信息融合在一起，从而获得包含多个分辨率下信息的feature map，在相邻的stage之间（每添加一个新的低分辨率分支时视为一个新stage的开始）加了<strong>fusion</strong>结构，fusion直观上类似在两边的feature maps之间加了一个fc层，下采样通过多个 卷积，上采样就是简单的nearest neighbor upsampling。这里的融合就是简单的累加。通过多次fusion，最后得到的feature map包含的信息是非常丰富的，也因此HRNet达到了很好的效果。</p>
+<p><img src="2DPE_pics/clip_image010.jpg" alt="图片包含 游戏机, 钟表  描述已自动生成"></p>
+<p>值得一提的是，MSRA后来在HRNet上做了一点微小的改动，称为HRNetv2。HRNetv1输出的feature map(heatmap)是最后一层最高分辨率的feature map，HRNetv2输出的feature map(heatmap)是最后一层所有分辨率的feature map变换scale后concat在一起。之后他们将该任务应用到了object detection、semantic segmentation、facial landmark detection等其他多个任务上，在许多数据集上达到了SOTA。</p>
+<h3 id="MSPN"><a href="#MSPN" class="headerlink" title="MSPN"></a>MSPN</h3><p>MSPN，是2019年旷视的工作，网络结构如下图所示。此前我们介绍的网络中，有single-stage的例如CPN、Simple Baselines，也有multi-stage的如CPM、Hourglass，理论上multi-stage的效果应该更好，但实际上在COCO数据集上single-stage的表现超过了multi-stage。MSPN沿用了multi-stage的思路，并做出了一系列改进，最终使得MSPN的效果超过了当前的single-stage网络。</p>
+<p>首先，对于每个stage的module，MSPN采用了前面提到的CPN中的GlobalNet（backbone为ResNet），当然这里使用其他backbone也没问题。其次，MSPN增加了跨阶段的特征融合，即图中的黄色箭头。由于经过反复的下采样-上采样，会有不可避免的信息损失，故MSPN中将前一个stage下采样和上采样过程中对应分辨率的两个feature maps都连接过来，与当前stage下采样的feature map进行融合，这样当前stage得到的feature map就包含了更多prior information，减少了stage之间的信息丢失。此外，这种类似残差结构的设计也有助于缓解梯度消失问题。最后，MSPN还采用了<strong>coarse-to-fine supervision</strong>，我们知道姿态估计的ground truth是以关键点为中心的二维高斯分布，这里的高斯核大小是一个超参数。直观上来说，对于multi-stage网络，随着stage的增加，我们对keypoint的估计是一个coarse-to-fine的过程，这样我们进行intermediate supervision的时候，可以将ground truth也设置成coarse-to-fine的heatmap，也就是前面stage的高斯核较大，后面stage的高斯核较小，随着stage的增加要求关键点位置越来越精确。</p>
+<p><img src="2DPE_pics/clip_image011.jpg" alt="手机屏幕截图  描述已自动生成"></p>
+<h2 id="Bottom-up"><a href="#Bottom-up" class="headerlink" title="Bottom-up"></a>Bottom-up</h2><p>前面我们提到诸多top-down的方法都是将多人姿态估计转化为单人姿态估计问题，但在进行多人姿态估计时，top-down的方法有两个缺点：①<strong>性能受到detector性能的影响</strong>（虽然在CPN的论文中证明了当detector性能足够好时提高detector的性能对最后的结果提高很微小）；②<strong>运行时间随着图片中人数增加而增加</strong>。而bottom-up的方法则是另一条思路：先检测出图中所有人的所有关键点，再对关键点进行分组，进而组装成多个人。这种方法的好处是性能受人数影响较小，实际上bottom-up的速度往往会比top-down的更快，几乎能做到real-time，在移动端部署的时候往往采用的也是bottom-up的方法。接下来介绍近年出现的一些有代表性的bottom-up的工作。</p>
+<h3 id="Openpose"><a href="#Openpose" class="headerlink" title="Openpose"></a>Openpose</h3><p>Openpose是2016年CMU的一个工作，获得了COCO 2016 Keypoints challenge的冠军，这个工作在后来产生了很大的影响，github上目前有15.8k个stars。下图是openpose的pipeline，首先根据输入图片(a)生成一个<strong>Part Confidence Maps</strong>(b)和一个<strong>Part Affinity Fields</strong>(c)：前者就是我们上文常提到的heatmap，用来预测关键点的位置；后者是本文的一个主要创新点）——PAF，PAF实际上是在关键点之间建立的一个向量场，描述一个limb的方向。有了heatmap和PAF，我们使用二分图最大权匹配算法来对关键点进行组装(d)，从而得到人体骨架(e)。由于文字描述过于抽象，下面花一些篇幅引用原文中的一些数学表达形式来分别介绍这几部分。</p>
+<p><img src="2DPE_pics/clip_image012.jpg" alt="图片包含 照片, 球, 球拍, 监控  描述已自动生成"></p>
+<p>对于生成heatmap和PAF的部分，使用了下图所示的网络结构。首先 是初始的feature map，网络的输出是heatmap和PAF，分别用 和 表示，其中 是part(即上文中的keypoint，这里遵循原文中的说法)的数量， 是limb的数量。 ，即第 个part对应的heatmap，每个pixel对应一个响应值，可以认为是概率值； ，即第 个limb对应的PAF，每个pixel对应一个二维向量，表示该pixel所在limb的方向。二者都是pixel-wise的。这里借鉴CPM使用了多个stage不断进行<strong>refinement</strong>，后一阶段的输入是前一阶段的 、 和初始的 的结合。</p>
+<p><img src="2DPE_pics/clip_image013.jpg" alt="手机屏幕截图  描述已自动生成"></p>
+<p>接下来需要说明heatmap和PAF的ground truth分别是怎样的。heatmap和top-down中的类似，对于第 个人的第 个part，令其位置为 ，则ground truth是以 为中心的二维高斯分布，用 表示。在这里由于一张图片中有多个人，ground truth中的每个channel对应一个part，第 个part对应的ground truth为 ， 表示单个位置，即对所有人该part的ground truth按pixel取<strong>max</strong>。</p>
+<p>PAF的ground truth则更加复杂，对于第 个人的第 个limb（连接关键点 和 ），ground truth用 表示。如果位置 在这个limb上， ，否则为零向量。这里 实际上是 指向 的单位向量。那么如何判断一个位置 是否在当前limb上呢？只要 满足：①在线段 上，②距离线段 在一个阈值范围内（框处了一个矩形范围），就认为 在该limb上。最后对于某个limb的所有，按pixel采用<strong>average</strong>进行处理，即 ，这里 为 位置处非零向量的个数，也就是只有非零向量才参与均值计算。此处用到的一些符号在图中含义如下。</p>
+<p><img src="2DPE_pics/clip_image014.jpg" alt="图片包含 游戏机, 刀  描述已自动生成"></p>
+<p>至于loss的计算，就是对每个stage的 和 分别计算L2 loss，最后所有stage的loss相加即可。同样类似之前top-down中提到的，intermediate supervision有助于缓解梯度消失的问题。</p>
+<p>现在我们有了heatmap，在heatmap上采用<strong>nms</strong>可以为每个part找出一系列候选点（因为图中有不止一个人，以及false positive的点），这些候选点之间互相组合能够产生大量可能的limb，如何从中选出真正的limb，这就需要使用我们预测的PAF。首先定义两个关键点 和 之间组合的权值 ，这里 ， 分别表示 的坐标。实际上就是<strong>对</strong> <strong>和</strong> <strong>间各点的PAF在线段</strong> <strong>上投影的积分</strong>，直观上说，如果线段上各点的PAF方向与线段的方向越一致， 就越大，那么这两个点组成一个limb的可能性就越大。</p>
+<p>知道了如何计算两个候选点之间组合的权值，对于任意两个part对应的候选点集合，我们使用<strong>二分图最大权匹配算法</strong>即可给出一组匹配。但如果我们考虑所有part之间的PAF，这将是一个K分图最大权匹配问题，该问题是NP-Hard的。因此我们做一个简化，我们抽取人体骨架的一棵<strong>最小生成树</strong>，这样对每条树边连接的两个part采用二分图最大权匹配来求解，不同树边之间是互不干扰的。也就是将原问题<strong>划分成了若干个二分图最大权匹配问题</strong>，最后将每条树边对应的匹配集合组装在一起即可得到人体骨架。</p>
+<p><img src="2DPE_pics/clip_image015.jpg" alt="图片包含 游戏机, 画, 钟表  描述已自动生成"></p>
+<p>上述即openpose的整个pipeline，虽然看起来比较复杂，但许多想法都是围绕PAF展开的，毕竟PAF还是这篇文章最大的亮点。</p>
+<h3 id="Hourglass-Associative-Embedding"><a href="#Hourglass-Associative-Embedding" class="headerlink" title="Hourglass+Associative Embedding"></a>Hourglass+Associative Embedding</h3><p>Associative embedding，是一种处理detection+grouping任务的方法。也就是先检测再组装的任务，比如多人姿态估计是检测出所有关键点再组装成多个人体，实例分割是先检测出所有像素点的语义类别再组装成多个实例。往往这类任务都是two-stage的，即先detection，再grouping。这篇文章的作者提出了一种新的思路：<strong>同时处理detection和grouping两个任务</strong>，这么做的初衷是因为detection和grouping两个任务之间本身密切相关，分成两步来先后处理可能会导致性能下降。作者将该方法应用到了Hourglass上，在当时达到了多人姿态估计任务的SOTA。</p>
+<p>在单人姿态估计时，我们网络的输出是m个heatmap，m表示关键点数量。现在在之前的基础上多输出了m个associative embeddings。Associative embeddings实际上是给heatmap的每个值都<strong>额外嵌入一个vector作为一个tag</strong>用于标识所在的组，拥有相同tag的所有关键点我们将其划分为一组，也就是属于某一个人。下图是Hourglass+Associative embedding的示意图，Hourglass输出了m个detection heatmaps（灰色）和m个associative embeddings（蓝色），根据heatmaps上的响应值确定关键点的坐标，根据embeddings上的tag（下图中不同tag用不同颜色表示）确定哪些关键点属于同一个人。</p>
+<p><img src="2DPE_pics/clip_image016.jpg" alt="卡通人物  描述已自动生成"></p>
+<p>现在我们考虑ground truth，对于heatmaps来说和之前一样，不再赘述。对于embeddings来说实际上<strong>没有ground truth</strong>，因为<strong>tag的绝对值并不重要</strong>，只要保证同一个人的关键点tag相同，不同人的关键点tag之间互不相同即可。这里需要说明的是，tag虽然是一个vector，但vector的维数并不重要，实践证明1D vector已经足够（即一个实数）。为了使tag满足上述要求，我们需要设计一个loss来评价当前的tag是否符合实际的分组。用 表示第 个关键点对应的embeddings(tagging heatmap)， 表示人的数量， 表示关键点数量， 表示第 个人第 个关键点的坐标。我们定义第 个人的参考embeddings为 ，则loss定义为 。loss的前半部分使<strong>同一个人的所有embeddings尽量接近</strong>，后半部分 使<strong>不同人的embeddings间隔尽量增大</strong>。最后所有关键点的embeddings分布如下图所示。inference时将距离小于一定阈值的embeddings分为一组即可。</p>
+<p><img src="2DPE_pics/clip_image017.jpg" alt="图片包含 游戏机  描述已自动生成"></p>
+<h3 id="HigherHRNet"><a href="#HigherHRNet" class="headerlink" title="HigherHRNet"></a>HigherHRNet</h3><p>HigherHRNet，是微软在HRNet之后延续的一个工作。前面我们提到过HRNet在top-down的方法中表现的很好，是因为这种并行的结构使得最后的feature map能够包含各个分辨率的信息，尤其是对高分辨率信息保留的效果较之前提升尤为明显。在bottom-up的方法中，作者认为有两个问题需要解决：①<strong>scale variation</strong>，即图片中有各种scale的人，如果仅仅在一个分辨率的feature map下进行预测，难以保证每个scale的人的关键点都能被精确预测；②精确定位<strong>small person的关键点</strong>。之前一些网络在推理时使用<strong>multiscale evaluation</strong>，能够缓解问题①，但仍然无法解决问题②，对small person的预测不够精确。</p>
+<p>HigherHRNet的思路是首先使用HRNet生成feature map（最高分辨率分支），然后接一个类似Simple Baselines中的deconvolution层，生成一个更高分辨率的feature map。显然，更高分辨率的feature map有助于更加<strong>精确地定位small person的关键点</strong>（实践证明接一层deconv. module足够）。在训练时，使用<strong>multi-resolution supervision</strong>，即对原图1/4和1/2大小的两个feature map同时进行监督，这样做是为了<strong>在训练时就使网络获得处理scale variation的能力</strong>，1/4的feature map主要处理大一些的人，1/2的feature map主要处理小一些的人，而不是在推理时依赖multiscale evaluation处理scale variation的问题。在推理时，使用<strong>multi-resolution heatmap aggregation</strong>，即将不同分辨率的heatmap取平均用于最后的预测，也是为了处理scale variation。</p>
+<p><img src="2DPE_pics/clip_image018.jpg" alt="图片包含 游戏机  描述已自动生成"></p>
+<p>前面仅仅讨论了如何生成一个准确且scale-aware的heatmap，对于grouping采用的也是上文提到的<strong>associative embedding</strong>。最后这个工作达到了SOTA，是目前bottom-up方法中性能最强劲的网络之一。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>·    Convolutional Pose Machines, Wei etc, CVPR 2016</p>
+<p>·    Stacked Hourglass Networks for Human Pose Estimation, Newell etc, ECCV 2016</p>
+<p>·    Cascaded Pyramid Network for Multi-Person Pose Estimation, Chen etc, CVPR 2017</p>
+<p>·    Simple Baselines for Human Pose Estimation and Tracking, Xiao etc, ECCV 2018</p>
+<p>·    Deep High-Resolution Representation Learning for Human Pose Estimation, Sun etc, CVPR 2019</p>
+<p>·    Rethinking on Multi-Stage Networks for Human Pose Estimation, Li etc, Arxiv 2019</p>
+<p>·    Realtime Multi-Person 2D Pose Estimation using Part Affinity Fields, Cao etc, CVPR 2017</p>
+<p>·    Associative Embedding: End-to-End Learning for Joint Detection and Grouping, Newell etc, NIPS 2017</p>
+<p>·    Bottom-up Higher-Resolution Networks for Multi-Person Pose Estimation, Cheng etc, Arxiv 2019</p>
+<p>编辑于 2020-02-03</p>
+
+        </div>
+    
+
+</div>
+            
+                
+<div class="post">
+
+    <div class="post-header index">
+        <h1 class="title">
             <a href="/2020/04/17/%E9%9B%B6%E6%AC%A1%E5%AD%A6%E4%B9%A0%EF%BC%88Zero-Shot%20Learning%EF%BC%89%E5%85%A5%E9%97%A8/">
                 零次学习（Zero-Shot Learning）入门
             </a>
@@ -1947,114 +2083,6 @@ $$
 
 </div>
             
-                
-<div class="post">
-
-    <div class="post-header index">
-        <h1 class="title">
-            <a href="/2020/03/07/%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86/">
-                二叉树遍历
-            </a>
-        </h1>
-        <div class="post-info">
-            
-                <span class="date">2020-03-07</span>
-            
-            
-            
-        </div>
-    </div>
-
-    
-        <div class="content">
-            <h1 id="二叉树遍历（前序、中序、后序、层次遍历、深度优先、广度优先）"><a href="#二叉树遍历（前序、中序、后序、层次遍历、深度优先、广度优先）" class="headerlink" title="二叉树遍历（前序、中序、后序、层次遍历、深度优先、广度优先）"></a>二叉树遍历（前序、中序、后序、层次遍历、深度优先、广度优先）</h1><p>二叉树是一种非常重要的数据结构，很多其它数据结构都是基于二叉树的基础演变而来的。对于二叉树，有深度遍历和广度遍历，深度遍历有前序、中序以及后序三种遍历方法，广度遍历即我们平常所说的层次遍历。因为树的定义本身就是递归定义，因此采用递归的方法去实现树的三种遍历不仅容易理解而且代码很简洁，而对于广度遍历来说，需要其他数据结构的支撑，比如堆了。所以，对于一段代码来说，可读性有时候要比代码本身的效率要重要的多。</p>
-<p>四种主要的遍历思想为：</p>
-<p>前序遍历：根结点 —&gt; 左子树 —&gt; 右子树</p>
-<p>中序遍历：左子树—&gt; 根结点 —&gt; 右子树</p>
-<p>后序遍历：左子树 —&gt; 右子树 —&gt; 根结点</p>
-<p>层次遍历：只需按层次遍历即可</p>
-<p><img src="https://tva1.sinaimg.cn/large/00831rSTgy1gclqutmnqsj30bo0afwfg.jpg" alt="二叉树"></p>
-<p>前序遍历：1  2  4  5  7  8  3  6 </p>
-<p>中序遍历：4  2  7  5  8  1  3  6</p>
-<p>后序遍历：4  7  8  5  2  6  3  1</p>
-<p>层次遍历：1  2  3  4  5  6  7  8</p>
-<h3 id="一、前序遍历"><a href="#一、前序遍历" class="headerlink" title="一、前序遍历"></a>一、前序遍历</h3><p>1）根据上文提到的遍历思路：根结点 —&gt; 左子树 —&gt; 右子树，很容易写出递归版本：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preOrderTraverse1</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (root != null) &#123;</span><br><span class="line">			System.out.<span class="built_in">print</span>(root.val+<span class="string">"  "</span>);</span><br><span class="line">			preOrderTraverse1(root.left);</span><br><span class="line">			preOrderTraverse1(root.right);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>2）现在讨论非递归的版本：<br>根据前序遍历的顺序，优先访问根结点，然后在访问左子树和右子树。所以，对于任意结点node，第一部分即直接访问之，之后在判断左子树是否为空，不为空时即重复上面的步骤，直到其为空。若为空，则需要访问右子树。注意，在访问过左孩子之后，需要反过来访问其右孩子，所以，需要栈这种数据结构的支持。对于任意一个结点node，具体步骤如下：</p>
-<p>a)访问之，并把结点node入栈，当前结点置为左孩子；</p>
-<p>b)判断结点node是否为空，若为空，则取出栈顶结点并出栈，将右孩子置为当前结点；否则重复a)步直到当前结点为空或者栈为空（可以发现栈中的结点就是为了访问右孩子才存储的）</p>
-<p>代码如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preOrderTraverse2</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">		LinkedList&lt;TreeNode&gt; <span class="built_in">stack</span> = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">		TreeNode pNode = root;</span><br><span class="line">		<span class="keyword">while</span> (pNode != null || !<span class="built_in">stack</span>.isEmpty()) &#123;</span><br><span class="line">			<span class="keyword">if</span> (pNode != null) &#123;</span><br><span class="line">				System.out.<span class="built_in">print</span>(pNode.val+<span class="string">"  "</span>);</span><br><span class="line">				<span class="built_in">stack</span>.push(pNode);</span><br><span class="line">				pNode = pNode.left;</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123; <span class="comment">//pNode == null &amp;&amp; !stack.isEmpty()</span></span><br><span class="line">				TreeNode node = <span class="built_in">stack</span>.pop();</span><br><span class="line">				pNode = node.right;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-<h3 id="二、中序遍历"><a href="#二、中序遍历" class="headerlink" title="二、中序遍历"></a>二、中序遍历</h3><p>1)根据上文提到的遍历思路：左子树 —&gt; 根结点 —&gt; 右子树，很容易写出递归版本：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inOrderTraverse1</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (root != null) &#123;</span><br><span class="line">			inOrderTraverse1(root.left);</span><br><span class="line">			System.out.<span class="built_in">print</span>(root.val+<span class="string">"  "</span>);</span><br><span class="line">			inOrderTraverse1(root.right);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-<p>2）非递归实现，有了上面前序的解释，中序也就比较简单了，相同的道理。只不过访问的顺序移到出栈时。代码如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inOrderTraverse2</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">		LinkedList&lt;TreeNode&gt; <span class="built_in">stack</span> = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">		TreeNode pNode = root;</span><br><span class="line">		<span class="keyword">while</span> (pNode != null || !<span class="built_in">stack</span>.isEmpty()) &#123;</span><br><span class="line">			<span class="keyword">if</span> (pNode != null) &#123;</span><br><span class="line">				<span class="built_in">stack</span>.push(pNode);</span><br><span class="line">				pNode = pNode.left;</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123; <span class="comment">//pNode == null &amp;&amp; !stack.isEmpty()</span></span><br><span class="line">				TreeNode node = <span class="built_in">stack</span>.pop();</span><br><span class="line">				System.out.<span class="built_in">print</span>(node.val+<span class="string">"  "</span>);</span><br><span class="line">				pNode = node.right;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h3 id="三、后序遍历"><a href="#三、后序遍历" class="headerlink" title="三、后序遍历"></a>三、后序遍历</h3><p>1）根据上文提到的遍历思路：左子树 —&gt; 右子树 —&gt; 根结点，很容易写出递归版本：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postOrderTraverse1</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (root != null) &#123;</span><br><span class="line">			postOrderTraverse1(root.left);</span><br><span class="line">			postOrderTraverse1(root.right);</span><br><span class="line">			System.out.<span class="built_in">print</span>(root.val+<span class="string">"  "</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-<p>2）非递归的代码，暂且不写</p>
-<h3 id="四、层次遍历"><a href="#四、层次遍历" class="headerlink" title="四、层次遍历"></a>四、层次遍历</h3><p>层次遍历的代码比较简单，只需要一个队列即可，先在队列中加入根结点。之后对于任意一个结点来说，在其出队列的时候，访问之。同时如果左孩子和右孩子有不为空的，入队列。代码如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">levelTraverse</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (root == null) &#123;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		LinkedList&lt;TreeNode&gt; <span class="built_in">queue</span> = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">		<span class="built_in">queue</span>.offer(root);</span><br><span class="line">		<span class="keyword">while</span> (!<span class="built_in">queue</span>.isEmpty()) &#123;</span><br><span class="line">			TreeNode node = <span class="built_in">queue</span>.poll();</span><br><span class="line">			System.out.<span class="built_in">print</span>(node.val+<span class="string">"  "</span>);</span><br><span class="line">			<span class="keyword">if</span> (node.left != null) &#123;</span><br><span class="line">				<span class="built_in">queue</span>.offer(node.left);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> (node.right != null) &#123;</span><br><span class="line">				<span class="built_in">queue</span>.offer(node.right);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="五、深度优先遍历"><a href="#五、深度优先遍历" class="headerlink" title="五、深度优先遍历"></a>五、深度优先遍历</h3><p>其实深度遍历就是上面的前序、中序和后序。但是为了保证与广度优先遍历相照应，也写在这。代码也比较好理解，其实就是前序遍历，代码如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">depthOrderTraverse</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (root == null) &#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	LinkedList&lt;TreeNode&gt; <span class="built_in">stack</span> = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">	<span class="built_in">stack</span>.push(root);</span><br><span class="line">	<span class="keyword">while</span> (!<span class="built_in">stack</span>.isEmpty()) &#123;</span><br><span class="line">		TreeNode node = <span class="built_in">stack</span>.pop();</span><br><span class="line">		System.out.<span class="built_in">print</span>(node.val+<span class="string">"  "</span>);</span><br><span class="line">		<span class="keyword">if</span> (node.right != null) &#123;</span><br><span class="line">			<span class="built_in">stack</span>.push(node.right);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (node.left != null) &#123;</span><br><span class="line">			<span class="built_in">stack</span>.push(node.left);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-        </div>
-    
-
-</div>
-            
-                
-<div class="post">
-
-    <div class="post-header index">
-        <h1 class="title">
-            <a href="/2020/03/07/Gram%E7%9F%A9%E9%98%B5/">
-                Gram矩阵
-            </a>
-        </h1>
-        <div class="post-info">
-            
-                <span class="date">2020-03-07</span>
-            
-            
-            
-        </div>
-    </div>
-
-    
-        <div class="content">
-            <p>Gram Matrix实际上可看做是feature之间的偏心协方差矩阵（即没有减去均值的协方差矩阵），在feature map中，每一个数字都来自于一个特定滤波器在特定位置的卷积，因此每个数字就代表一个特征的强度，而Gram计算的实际上是两两特征之间的相关性，哪两个特征是同时出现的，哪两个是此消彼长的等等，同时，Gram的对角线元素，还体现了每个特征在图像中出现的量，因此，Gram有助于把握整个图像的大体风格。有了表示风格的Gram Matrix，要度量两个图像风格的差异，只需比较他们Gram Matrix的差异即可。</p>
-
-        </div>
-    
-
-</div>
-            
         </section>
     </div>
 </div>
@@ -2097,19 +2125,19 @@ $$
         <ul>
             
             <li>
+                <a class="footer-post" href="/2020/04/17/2DPE_pics/clip/">2DPE_pics/clip</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/04/17/#%20%E4%BA%BA%E4%BD%93%E5%A7%BF%E6%80%81%E4%BC%B0%E8%AE%A1(Human%20Pose%20Estimation)%E7%BB%8F%E5%85%B8%E6%96%B9%E6%B3%95%E6%95%B4%E7%90%86/"># 人体姿态估计(Human Pose Estim</a>
+            </li>
+            
+            <li>
                 <a class="footer-post" href="/2020/04/17/%E9%9B%B6%E6%AC%A1%E5%AD%A6%E4%B9%A0%EF%BC%88Zero-Shot%20Learning%EF%BC%89%E5%85%A5%E9%97%A8/">零次学习（Zero-Shot Learning）入</a>
             </li>
             
             <li>
                 <a class="footer-post" href="/2020/04/13/LaTeX%E5%85%AC%E5%BC%8F%E6%89%8B%E5%86%8C(%E5%85%A8%E7%BD%91%E6%9C%80%E5%85%A8)/">LaTeX公式手册(全网最全)</a>
-            </li>
-            
-            <li>
-                <a class="footer-post" href="/2020/04/08/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E7%BB%98%E5%9B%BE/">R语言基础绘图</a>
-            </li>
-            
-            <li>
-                <a class="footer-post" href="/2020/03/30/%E8%B4%B9%E9%9B%AA%E4%BF%A1%E6%81%AF%E7%9F%A9%E9%98%B5/">费雪信息矩阵</a>
             </li>
             
         </ul>
