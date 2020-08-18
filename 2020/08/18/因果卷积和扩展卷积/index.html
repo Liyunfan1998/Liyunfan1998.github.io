@@ -10,7 +10,7 @@
 
     <!--Description-->
     
-        <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in ">
+        <meta name="description" content="因果卷积（causal）与扩展卷积（dilated）之An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling本文首发于https://www.cnblogs.com/f">
     
 
     <!--Author-->
@@ -20,7 +20,7 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Hello World"/>
+        <meta property="og:title" content="因果卷积和扩展卷积"/>
     
 
     <!--Open Graph Description-->
@@ -45,7 +45,7 @@
 
     <!-- Title -->
     
-    <title>Hello World - Hexo</title>
+    <title>因果卷积和扩展卷积 - Hexo</title>
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
@@ -151,13 +151,13 @@
 
     <div class="post-header">
         <h1 class="title">
-            <a href="/2020/02/29/hello-world/">
-                Hello World
+            <a href="/2020/08/18/%E5%9B%A0%E6%9E%9C%E5%8D%B7%E7%A7%AF%E5%92%8C%E6%89%A9%E5%B1%95%E5%8D%B7%E7%A7%AF/">
+                因果卷积和扩展卷积
             </a>
         </h1>
         <div class="post-info">
             
-                <span class="date">2020-02-29</span>
+                <span class="date">2020-08-18</span>
             
             
             
@@ -170,19 +170,22 @@
         
 
         <!-- Post Content -->
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <h3 id="因果卷积（causal）与扩展卷积（dilated）之An-Empirical-Evaluation-of-Generic-Convolutional-and-Recurrent-Networks-for-Sequence-Modeling"><a href="#因果卷积（causal）与扩展卷积（dilated）之An-Empirical-Evaluation-of-Generic-Convolutional-and-Recurrent-Networks-for-Sequence-Modeling" class="headerlink" title="因果卷积（causal）与扩展卷积（dilated）之An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling"></a>因果卷积（causal）与扩展卷积（dilated）之An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling</h3><p>本文首发于<a href="https://www.cnblogs.com/fantastic123/p/9389128.html，这个博客也是我的，所以不是搬运他人的" target="_blank" rel="noopener">https://www.cnblogs.com/fantastic123/p/9389128.html，这个博客也是我的，所以不是搬运他人的</a></p>
+<p>author：gswycf</p>
+<p>　　最近在看关于NLP（自然语言处理）方面的文章，（其实不是自己要看），anyway，看了一个“An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling“，讲到了：虽然人们现在都在用RNN和LSTm去处理序列问题（sequence modeling），但是明显最近几年这些模型在这些问题上出现了瓶颈，你们之前都说CNN不适合处理sequence modeling问题，但其实并不是的，作者提出了一个普适的CNNN模型，在多个序列问题上和之前的RNN和LSTM比较，结果发现，CNN在这方面的能力确实是被低估了，CNN建立的model要比之前人们之前用的RNN要好很多，而且简洁。</p>
+<p>　　这篇blog并不是要讲那篇文章，我可能会单独写一篇（看有没有时间），这篇blog主要是结束那篇文章中提出的两个概念：因果卷积（causal）与扩展卷积（dilated）</p>
+<p>　　</p>
+<p>　　因果卷积：</p>
+<p>　　因为要处理序列问题（即要考虑时间问题，）就不能使用普通的CNN卷积，必须使用新的CNN模型，这个就是因果卷积的作用，看下面一个公式，对与序列问题（sequence modeling），主要抽象为，根据x1……xt和y1…..yt-1去预测yt，使得yt接近于实际值</p>
+<p><img src="/2020/08/18/%E5%9B%A0%E6%9E%9C%E5%8D%B7%E7%A7%AF%E5%92%8C%E6%89%A9%E5%B1%95%E5%8D%B7%E7%A7%AF/1383870-20180730100014982-1169540039.png" alt="img"></p>
+<p>　　</p>
+<p>　　我们根据图片来看下因果卷积的样子，下面这个图片来自：<a href="https://deepmind.com/blog/wavenet-generative-model-raw-audio/" target="_blank" rel="noopener">https://deepmind.com/blog/wavenet-generative-model-raw-audio/</a></p>
+<p>​               <img src="/2020/08/18/%E5%9B%A0%E6%9E%9C%E5%8D%B7%E7%A7%AF%E5%92%8C%E6%89%A9%E5%B1%95%E5%8D%B7%E7%A7%AF/1383870-20180730100824670-1288691528.png" alt="img"></p>
+<p>　　上面的图片可以详细的解释因果卷积，但是问题就来，如果我要考虑很久之前的变量x，那么卷积层数就必须增加（自行体会）。。。卷积层数的增加就带来：梯度消失，训练复杂，拟合效果不好的问题，为了决绝这个问题，出现了扩展卷积（dilated）</p>
+<p>　　扩展卷积：</p>
+<p>　　对于因果卷积，存在的一个问题是需要很多层或者很大的filter来增加卷积的感受野。本文中，我们通过大小排列来的扩大卷积来增加感受野。扩大卷积（dilated convolution）是通过跳过部分输入来使filter可以应用于大于filter本身长度的区域。等同于通过增加零来从原始filter中生成更大的filter。</p>
+<p>​                           <img src="/2020/08/18/%E5%9B%A0%E6%9E%9C%E5%8D%B7%E7%A7%AF%E5%92%8C%E6%89%A9%E5%B1%95%E5%8D%B7%E7%A7%AF/1383870-20180730100217229-1516234421.gif" alt="img"></p>
+<p>   这就可以解决因果卷积带来的问题，在示意图中，卷积感受野扩大了1,2,4,8倍。扩大卷积（dilated convolution）可以使模型在层数不大的情况下有非常大的感受野。</p>
 
     </div>
 
