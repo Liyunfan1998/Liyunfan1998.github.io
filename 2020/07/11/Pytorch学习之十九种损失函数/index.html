@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="Pytorch学习之十九种损失函数损失函数通过torch.nn包实现，
+1 基本用法criterion = LossCriterion() #构造函数有自己的参数loss = criterion(x, y) #调用标准时也有参数2
+2 损失函数2-1 L1范数损失 L1Loss计算 output 和">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Yunfan Li">
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="Pytorch学习之十九种损失函数"/>
+    
+
+    <!--Open Graph Description-->
+    
+
+    <!--Open Graph Site Name-->
+    <meta property="og:site_name" content="Hexo"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article" />
+    
+
+    <!--Page Cover-->
+    
+
+    
+        <meta name="twitter:card" content="summary" />
+    
+    
+    
+
+    <!-- Title -->
+    
+    <title>Pytorch学习之十九种损失函数 - Hexo</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet" />
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Google Analytics -->
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+<div class="bg-gradient"></div>
+<div class="bg-pattern"></div>
+
+<!-- Menu -->
+<!--Menu Links and Overlay-->
+<div class="menu-bg">
+    <div class="menu-container">
+        <ul>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Home
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Archives
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/about.html">
+                    About
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/tags">
+                    Tags
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/categories">
+                    Categories
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/contact.html">
+                    Contact
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+<!--Hamburger Icon-->
+<nav>
+    <a href="#menu"></a>
+</nav>
+
+<div class="container">
+
+    <!-- Main Content -->
+    <div class="row">
+    <div class="col-sm-12">
+
+        <!--Title and Logo-->
+        <header>
+    <div class="logo">
+        <a href="/"><i class="logo-icon fa fa-cube" aria-hidden="true"></i></a>
+        
+    </div>
+</header>
+
+        <section class="main">
+            
+<div class="post">
+
+    <div class="post-header">
+        <h1 class="title">
+            <a href="/2020/07/11/Pytorch%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%81%E4%B9%9D%E7%A7%8D%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">
+                Pytorch学习之十九种损失函数
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-07-11</span>
+            
+            
+            
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- Gallery -->
+        
+
+        <!-- Post Content -->
+        <h1 id="Pytorch学习之十九种损失函数"><a href="#Pytorch学习之十九种损失函数" class="headerlink" title="Pytorch学习之十九种损失函数"></a>Pytorch学习之十九种损失函数</h1><p>损失函数通过torch.nn包实现，</p>
+<h2 id="1-基本用法"><a href="#1-基本用法" class="headerlink" title="1 基本用法"></a>1 基本用法</h2><p>criterion = LossCriterion() #构造函数有自己的参数<br>loss = criterion(x, y) #调用标准时也有参数2</p>
+<h2 id="2-损失函数"><a href="#2-损失函数" class="headerlink" title="2 损失函数"></a>2 损失函数</h2><h3 id="2-1-L1范数损失-L1Loss"><a href="#2-1-L1范数损失-L1Loss" class="headerlink" title="2-1 L1范数损失 L1Loss"></a>2-1 L1范数损失 L1Loss</h3><p>计算 output 和 target 之差的绝对值。</p>
+<p>torch.nn.L1Loss(reduction=’mean’)参数：</p>
+<p>reduction-三个值，none: 不使用约简；mean:返回loss和的平均值； sum:返回loss的和。默认：mean。</p>
+<h3 id="2-2-均方误差损失-MSELoss"><a href="#2-2-均方误差损失-MSELoss" class="headerlink" title="2-2 均方误差损失 MSELoss"></a>2-2 均方误差损失 MSELoss</h3><p>计算 output 和 target 之差的均方差。</p>
+<p>torch.nn.MSELoss(reduction=’mean’)参数：</p>
+<p>reduction-三个值，none: 不使用约简；mean:返回loss和的平均值； sum:返回loss的和。默认：mean。</p>
+<h3 id="2-3-交叉熵损失-CrossEntropyLoss"><a href="#2-3-交叉熵损失-CrossEntropyLoss" class="headerlink" title="2-3 交叉熵损失 CrossEntropyLoss"></a>2-3 交叉熵损失 CrossEntropyLoss</h3><p>当训练有 C 个类别的分类问题时很有效. 可选参数 weight 必须是一个1维 Tensor, 权重将被分配给各个类别. 对于不平衡的训练集非常有效。<br>在多分类任务中，经常采用 softmax 激活函数+交叉熵损失函数，因为交叉熵描述了两个概率分布的差异，然而神经网络输出的是向量，并不是概率分布的形式。所以需要 softmax激活函数将一个向量进行“归一化”成概率分布的形式，再采用交叉熵损失函数计算 loss。</p>
+<p>torch.nn.CrossEntropyLoss(weight=None, ignore_index=-100, reduction=’mean’)参数：</p>
+<p>weight (Tensor, optional) – 自定义的每个类别的权重. 必须是一个长度为 C 的 Tensor<br>ignore_index (int, optional) – 设置一个目标值, 该目标值会被忽略, 从而不会影响到 输入的梯度。<br>reduction-三个值，none: 不使用约简；mean:返回loss和的平均值； sum:返回loss的和。默认：mean。</p>
+<h3 id="2-4-KL-散度损失-KLDivLoss"><a href="#2-4-KL-散度损失-KLDivLoss" class="headerlink" title="2-4 KL 散度损失 KLDivLoss"></a>2-4 KL 散度损失 KLDivLoss</h3><p>计算 input 和 target 之间的 KL 散度。KL 散度可用于衡量不同的连续分布之间的距离, 在连续的输出分布的空间上(离散采样)上进行直接回归时 很有效.</p>
+<p>torch.nn.KLDivLoss(reduction=’mean’)参数：</p>
+<p>reduction-三个值，none: 不使用约简；mean:返回loss和的平均值； sum:返回loss的和。默认：mean。</p>
+<h3 id="2-5-二进制交叉熵损失-BCELoss"><a href="#2-5-二进制交叉熵损失-BCELoss" class="headerlink" title="2-5 二进制交叉熵损失 BCELoss"></a>2-5 二进制交叉熵损失 BCELoss</h3><p>二分类任务时的交叉熵计算函数。用于测量重构的误差, 例如自动编码机. 注意目标的值 t[i] 的范围为0到1之间.</p>
+<p>torch.nn.BCELoss(weight=None, reduction=’mean’)参数：</p>
+<p>weight (Tensor, optional) – 自定义的每个 batch 元素的 loss 的权重. 必须是一个长度为 “nbatch” 的 的 Tensor<br>pos_weight(Tensor, optional) – 自定义的每个正样本的 loss 的权重. 必须是一个长度 为 “classes” 的 Tensor</p>
+<h3 id="2-6-BCEWithLogitsLoss"><a href="#2-6-BCEWithLogitsLoss" class="headerlink" title="2-6 BCEWithLogitsLoss"></a>2-6 BCEWithLogitsLoss</h3><p>BCEWithLogitsLoss损失函数把 Sigmoid 层集成到了 BCELoss 类中. 该版比用一个简单的 Sigmoid 层和 BCELoss 在数值上更稳定, 因为把这两个操作合并为一个层之后, 可以利用 log-sum-exp 的 技巧来实现数值稳定.</p>
+<p>torch.nn.BCEWithLogitsLoss(weight=None, reduction=’mean’, pos_weight=None)参数：</p>
+<p>weight (Tensor, optional) – 自定义的每个 batch 元素的 loss 的权重. 必须是一个长度 为 “nbatch” 的 Tensor<br>pos_weight(Tensor, optional) – 自定义的每个正样本的 loss 的权重. 必须是一个长度 为 “classes” 的 Tensor</p>
+<h3 id="2-7-MarginRankingLoss"><a href="#2-7-MarginRankingLoss" class="headerlink" title="2-7 MarginRankingLoss"></a>2-7 MarginRankingLoss</h3><p>torch.nn.MarginRankingLoss(margin=0.0, reduction=’mean’)对于 mini-batch(小批量) 中每个实例的损失函数如下:</p>
+<p>参数：</p>
+<p>margin:默认值0</p>
+<h3 id="2-8-HingeEmbeddingLoss"><a href="#2-8-HingeEmbeddingLoss" class="headerlink" title="2-8 HingeEmbeddingLoss"></a>2-8 HingeEmbeddingLoss</h3><p>torch.nn.HingeEmbeddingLoss(margin=1.0,  reduction=’mean’)对于 mini-batch(小批量) 中每个实例的损失函数如下:</p>
+<p>参数：</p>
+<p>margin:默认值1</p>
+<h3 id="2-9-多标签分类损失-MultiLabelMarginLoss"><a href="#2-9-多标签分类损失-MultiLabelMarginLoss" class="headerlink" title="2-9 多标签分类损失 MultiLabelMarginLoss"></a>2-9 多标签分类损失 MultiLabelMarginLoss</h3><p>torch.nn.MultiLabelMarginLoss(reduction=’mean’)对于mini-batch(小批量) 中的每个样本按如下公式计算损失:</p>
+<h3 id="2-10-平滑版L1损失-SmoothL1Loss"><a href="#2-10-平滑版L1损失-SmoothL1Loss" class="headerlink" title="2-10 平滑版L1损失 SmoothL1Loss"></a>2-10 平滑版L1损失 SmoothL1Loss</h3><p>也被称为 Huber 损失函数。</p>
+<p>torch.nn.SmoothL1Loss(reduction=’mean’)<br>其中</p>
+<h3 id="2-11-2分类的logistic损失-SoftMarginLoss"><a href="#2-11-2分类的logistic损失-SoftMarginLoss" class="headerlink" title="2-11 2分类的logistic损失 SoftMarginLoss"></a>2-11 2分类的logistic损失 SoftMarginLoss</h3><p>torch.nn.SoftMarginLoss(reduction=’mean’)</p>
+<h3 id="2-12-多标签-one-versus-all-损失-MultiLabelSoftMarginLoss"><a href="#2-12-多标签-one-versus-all-损失-MultiLabelSoftMarginLoss" class="headerlink" title="2-12 多标签 one-versus-all 损失 MultiLabelSoftMarginLoss"></a>2-12 多标签 one-versus-all 损失 MultiLabelSoftMarginLoss</h3><p>torch.nn.MultiLabelSoftMarginLoss(weight=None, reduction=’mean’)</p>
+<h3 id="2-13-cosine-损失-CosineEmbeddingLoss"><a href="#2-13-cosine-损失-CosineEmbeddingLoss" class="headerlink" title="2-13 cosine 损失 CosineEmbeddingLoss"></a>2-13 cosine 损失 CosineEmbeddingLoss</h3><p>torch.nn.CosineEmbeddingLoss(margin=0.0, reduction=’mean’)<br>参数：</p>
+<p>margin:默认值0</p>
+<h3 id="2-14-多类别分类的hinge损失-MultiMarginLoss"><a href="#2-14-多类别分类的hinge损失-MultiMarginLoss" class="headerlink" title="2-14 多类别分类的hinge损失 MultiMarginLoss"></a>2-14 多类别分类的hinge损失 MultiMarginLoss</h3><p>torch.nn.MultiMarginLoss(p=1, margin=1.0, weight=None,  reduction=’mean’)<br>参数：</p>
+<p>p=1或者2 默认值：1<br>margin:默认值1</p>
+<h3 id="2-15-三元组损失-TripletMarginLoss"><a href="#2-15-三元组损失-TripletMarginLoss" class="headerlink" title="2-15 三元组损失 TripletMarginLoss"></a>2-15 三元组损失 TripletMarginLoss</h3><p>torch.nn.TripletMarginLoss(margin=1.0, p=2.0, eps=1e-06, swap=False, reduction=’mean’)<br>其中：</p>
+<h3 id="2-16-连接时序分类损失-CTCLoss"><a href="#2-16-连接时序分类损失-CTCLoss" class="headerlink" title="2-16 连接时序分类损失 CTCLoss"></a>2-16 连接时序分类损失 CTCLoss</h3><p>CTC连接时序分类损失，可以对没有对齐的数据进行自动对齐，主要用在没有事先对齐的序列化数据训练上。比如语音识别、ocr识别等等。</p>
+<p>torch.nn.CTCLoss(blank=0, reduction=’mean’)参数：</p>
+<p>reduction-三个值，none: 不使用约简；mean:返回loss和的平均值； sum:返回loss的和。默认：mean。</p>
+<h3 id="2-17-负对数似然损失-NLLLoss"><a href="#2-17-负对数似然损失-NLLLoss" class="headerlink" title="2-17 负对数似然损失 NLLLoss"></a>2-17 负对数似然损失 NLLLoss</h3><p>负对数似然损失. 用于训练 C 个类别的分类问题.</p>
+<p>torch.nn.NLLLoss(weight=None, ignore_index=-100,  reduction=’mean’)参数：</p>
+<p>weight (Tensor, optional) – 自定义的每个类别的权重. 必须是一个长度为 C 的 Tensor<br>ignore_index (int, optional) – 设置一个目标值, 该目标值会被忽略, 从而不会影响到 输入的梯度.</p>
+<h3 id="2-18-NLLLoss2d"><a href="#2-18-NLLLoss2d" class="headerlink" title="2-18 NLLLoss2d"></a>2-18 NLLLoss2d</h3><p>对于图片输入的负对数似然损失. 它计算每个像素的负对数似然损失.</p>
+<p>torch.nn.NLLLoss2d(weight=None, ignore_index=-100, reduction=’mean’)参数：</p>
+<p>weight (Tensor, optional) – 自定义的每个类别的权重. 必须是一个长度为 C 的 Tensor<br>reduction-三个值，none: 不使用约简；mean:返回loss和的平均值； sum:返回loss的和。默认：mean。</p>
+<h3 id="2-19-PoissonNLLLoss"><a href="#2-19-PoissonNLLLoss" class="headerlink" title="2-19 PoissonNLLLoss"></a>2-19 PoissonNLLLoss</h3><p>目标值为泊松分布的负对数似然损失</p>
+<p>torch.nn.PoissonNLLLoss(log_input=True, full=False,  eps=1e-08,  reduction=’mean’)参数：</p>
+<p>log_input (bool, optional) – 如果设置为 True , loss 将会按照公 式 exp(input) - target * input 来计算, 如果设置为 False , loss 将会按照 input - target * log(input+eps) 计算.<br>full (bool, optional) – 是否计算全部的 loss, i. e. 加上 Stirling 近似项 target * log(target) - target + 0.5 * log(2 * pi * target).<br>eps (float, optional) – 默认值: 1e-8</p>
+
+    </div>
+
+    
+
+    
+
+    <!-- Comments -->
+    
+
+</div>
+        </section>
+
+    </div>
+</div>
+
+
+</div>
+
+<!-- Footer -->
+<div class="push"></div>
+
+<footer class="footer-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 footer-about">
+                <h2>About</h2>
+                <p>
+                    This theme was developed by <a href="https://github.com/klugjo" target="_blank" rel="noopener">Jonathan Klughertz</a>. The source code is available on Github. Create Websites. Make Magic.
+                </p>
+            </div>
+            
+    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 recent-posts">
+        <h2>Recent Posts</h2>
+        <ul>
+            
+            <li>
+                <a class="footer-post" href="/2020/07/19/%E3%80%90%E4%BA%BA%E4%BD%93%E5%A7%BF%E6%80%81%E3%80%91Stacked%20Hourglass%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/">【人体姿态】Stacked Hourglass算法</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/07/19/pytorch_resnet/">pytorch_resnet</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/07/11/VAE/">VAE</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/07/11/Pytorch%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%81%E4%B9%9D%E7%A7%8D%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">Pytorch学习之十九种损失函数</a>
+            </li>
+            
+        </ul>
+    </div>
+
+
+
+            
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <ul class="list-inline footer-social-icons">
+                    
+                    <li class="list-inline-item">
+                        <a href="https://github.com/klugjo/hexo-theme-alpha-dust" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-github"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://twitter.com/?lang=en" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-twitter"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-facebook"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-instagram"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://dribbble.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-dribbble"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://plus.google.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-google-plus"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.behance.net/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-behance"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://500px.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-500px"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="mailto:test@example.com">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-envelope-o"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="\#">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-rss"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="footer-copyright">
+                    @Untitled. All right reserved | Design & Hexo <a href="http://www.codeblocq.com/" target="_blank" rel="noopener">Jonathan Klughertz</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- After footer scripts -->
+
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Tween Max -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.18.5/TweenMax.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Custom JavaScript -->
+
+<script src="/js/main.js"></script>
+
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

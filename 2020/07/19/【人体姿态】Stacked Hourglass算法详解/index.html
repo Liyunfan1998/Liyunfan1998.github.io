@@ -10,6 +10,8 @@
 
     <!--Description-->
     
+        <meta name="description" content="【人体姿态】Stacked Hourglass算法详解Newell, Alejandro, Kaiyu Yang, and Jia Deng. “Stacked hourglass networks for human pose estimation.” arXiv preprint arXiv:1">
+    
 
     <!--Author-->
     
@@ -18,7 +20,7 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Hexo"/>
+        <meta property="og:title" content="【人体姿态】Stacked Hourglass算法详解"/>
     
 
     <!--Open Graph Description-->
@@ -29,7 +31,7 @@
 
     <!--Type page-->
     
-        <meta property="og:type" content="website" />
+        <meta property="og:type" content="article" />
     
 
     <!--Page Cover-->
@@ -43,7 +45,7 @@
 
     <!-- Title -->
     
-    <title>Archives: 2020 - Hexo</title>
+    <title>【人体姿态】Stacked Hourglass算法详解 - Hexo</title>
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
@@ -132,9 +134,7 @@
 <div class="container">
 
     <!-- Main Content -->
-    
-
-<div class="row">
+    <div class="row">
     <div class="col-sm-12">
 
         <!--Title and Logo-->
@@ -142,349 +142,94 @@
     <div class="logo">
         <a href="/"><i class="logo-icon fa fa-cube" aria-hidden="true"></i></a>
         
-            <h1 id="main-title" class="title">2020</h1>
-        
     </div>
 </header>
 
-        <section class="main archive-container">
+        <section class="main">
             
-                <div class="archive-post">
-    <a href="/2020/02/28/My-New-Post/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        My New Post
-    </a>
+<div class="post">
+
+    <div class="post-header">
+        <h1 class="title">
+            <a href="/2020/07/19/%E3%80%90%E4%BA%BA%E4%BD%93%E5%A7%BF%E6%80%81%E3%80%91Stacked%20Hourglass%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/">
+                【人体姿态】Stacked Hourglass算法详解
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-07-19</span>
+            
+            
+            
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- Gallery -->
+        
+
+        <!-- Post Content -->
+        <h1 id="【人体姿态】Stacked-Hourglass算法详解"><a href="#【人体姿态】Stacked-Hourglass算法详解" class="headerlink" title="【人体姿态】Stacked Hourglass算法详解"></a>【人体姿态】Stacked Hourglass算法详解</h1><p>Newell, Alejandro, Kaiyu Yang, and Jia Deng. “Stacked hourglass networks for human pose estimation.” arXiv preprint arXiv:1603.06937 (2016).</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>本文使用全卷积网络解决人体姿态分析问题，截至2016年5月，在MPII姿态分析竞赛中暂列榜首，PCKh（误差小于一半头高的样本比例）达到89.4%。与排名第二的CPM(Convolutiona Pose Machine)1方法相比，思路更明晰，网络更简洁。<br>作者给出了基于Torch的代码和模型。单显卡，测试时间约130ms，使用cudnn4的训练时间约3天，比CPM方法有显著优势。</p>
+<p>本篇博客结合源码，从无到有介绍Stacked Hourglass的搭建思路，之后介绍代价函数与训练过程，最后总结值得学习的思想。</p>
+<h2 id="模块化"><a href="#模块化" class="headerlink" title="模块化"></a>模块化</h2><p>本篇论文的源码体现了模块-&gt;子网络-&gt;完整网络的设计思想。</p>
+<h3 id="Residual模块"><a href="#Residual模块" class="headerlink" title="Residual模块"></a>Residual模块</h3><blockquote>
+<p>先来复习一下卷积层和pooling层的属性：<br>核尺寸（kernel）决定了特征的尺度；步长（stride）决定了降采样的比例；算子的通道数（channel）决定了输出数据的层数/深度</p>
+</blockquote>
+<p>本文使用的初级模块称为Residual Module，得名于其中的旁路相加结构（在这篇论文中2称为residual learning）</p>
+<p>第一行为卷积路，由三个核尺度不同的卷积层（白色）串联而成，间插有Batch Normalization（浅蓝）和ReLU（浅紫）；<br>第二行为跳级路，只包含一个核尺度为1的卷积层；如果跳级路的输入输出通道数相同，则这一路为单位映射。<br>所有卷积层的步长为1，pading为1，不改变数据尺寸，只对数据深度（channel）进行变更。<br>Residual Module由两个参数控制：输入深度M和输出深度N。可以对任意尺寸图像操作。</p>
+<blockquote>
+<p>设计思想：channel大的卷积，kernel要小；kernel大的卷积，channel要小。<br>其实许多网络已经隐含了模块化的思想，例如AlexNet中重复出现的conv+relu+pool模式。</p>
+</blockquote>
+<p>作用：Residual模块提取了较高层次的特征（卷积路），同时保留了原有层次的信息（跳级路）。不改变数据尺寸，只改变数据深度。可以把它看做一个保尺寸的高级“卷积”层。</p>
+<h2 id="Hourglass子网络"><a href="#Hourglass子网络" class="headerlink" title="Hourglass子网络"></a>Hourglass子网络</h2><p>Hourglass是本文的核心部件，由Residual模块组成。根据阶数不同，有不同的复杂程度。</p>
+<h3 id="一阶Hourglass"><a href="#一阶Hourglass" class="headerlink" title="一阶Hourglass"></a>一阶Hourglass</h3><p>上下两个半路都包含若干Residual模块（浅绿），逐步提取更深层次特征。但上半路在原尺度进行，下半路经历了先降采样（红色/2）再升采样（红色*2）的过程。<br>降采样使用max pooling，升采样使用最近邻插值。</p>
+<p>另一种进行升采样的方法是反卷积层（Deconv），可以参看这篇解决分割问题的Fully Convolutional论文。</p>
+<h3 id="二阶Hourglass"><a href="#二阶Hourglass" class="headerlink" title="二阶Hourglass"></a>二阶Hourglass</h3><p>把一阶模块的灰框内部分替换成一个一阶Hourglass（输入通道256，输出通道N），得到二阶Hourglass：</p>
+<p>两个层次的下半路组成了一条两次降采样，再两次升采样的过程。两个层次的下半路则分别在原始尺寸（OriSize）和1/2原始尺寸，辅助升采样。</p>
+<h3 id="四阶Hourglass"><a href="#四阶Hourglass" class="headerlink" title="四阶Hourglass"></a>四阶Hourglass</h3><p>本文使用的是四阶Hourglass：</p>
+<p>每次降采样之前，分出上半路保留原尺度信息；<br>每次升采样之后，和上一个尺度的数据相加；<br>两次降采样之间，使用三个Residual模块提取特征；<br>两次相加之间，使用一个Residual模块提取特征。</p>
+<p>由于考虑了各个尺度的特征，本文不需要像CPM3方法一样独立地在图像金字塔上多次运行，速度更快。</p>
+<p>作用：n阶Hourglass子网络提取了从原始尺度到1/2n1/2n尺度的特征。不改变数据尺寸，只改变数据深度。</p>
+<h2 id="完整网络结构"><a href="#完整网络结构" class="headerlink" title="完整网络结构"></a>完整网络结构</h2><h3 id="一级网络"><a href="#一级网络" class="headerlink" title="一级网络"></a>一级网络</h3><p>以一个Hourglass（深绿色）为中心，可以从彩色图像预测K个人体部件的响应图：</p>
+<p>原始图像经过一次降采样（橙色），输入到Hourglass子网络中。Hourglass的输出结果经过两个线性模块（灰色），得到最终响应图。期间使用Residual模块（浅绿）和卷积层（白色）逐步提取特征。</p>
+<h3 id="二级网络"><a href="#二级网络" class="headerlink" title="二级网络"></a>二级网络</h3><p>本文使用的完整网络包含两个Hourglass：</p>
+<p>对比上图，二级网络重复了一级网络的后半结构。第二个Hourglass的输入包含三路：</p>
+<ul>
+<li>第一个Hourglass的输入数据</li>
+<li>第一个Hourglass的输出数据</li>
+<li>第一级预测结果<br>这三路数据通过串接（concat）和相加进行融合，它们的尺度不同，体现了当下流行的跳级结构思想。</li>
+</ul>
+<h2 id="代价函数与训练"><a href="#代价函数与训练" class="headerlink" title="代价函数与训练"></a>代价函数与训练</h2><p>对于H×W×3H×W×3的输入图像，每一个hourglass级都会生成一个H/2×W/2×KH/2×W/2×K的响应图。对于每个响应图，都比较其与真值的误差作为代价。这种做法和CPM方法类似，都体现了中继监督(intermediate supervision)的思想。</p>
+<blockquote>
+<p>在源码中，整个网络的输出结果包含每个级别的响应图，但在测试中只使用最后一级结果。这是因为torch的代价函数只能绑定在输出数据上。</p>
+</blockquote>
+<p>使用cudnn4，在单个TitanX GPU(12G显存)上训练MPII数据，本文方法需要3天时间。</p>
+<p>总结<br>本论文中值得学习的思想如下：</p>
+<ul>
+<li>使用模块进行网络设计</li>
+<li>先降采样，再升采样的全卷积结构</li>
+<li>跳级结构辅助升采样</li>
+<li>中继监督训练</li>
+</ul>
+<p>Wei, Shih-En, et al. “Convolutional Pose Machines.” CVPR, 2016 ↩<br>He, Kaiming, et al. “Deep Residual Learning for Image Recognition.” arXiv preprint arXiv:1512.03385 (2015). ↩<br>Wei, Shih-En, et al. “Convolutional Pose Machines.” CVPR, 2016 ↩<br>————————————————<br>版权声明：本文为CSDN博主「shenxiaolu1984」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/shenxiaolu1984/article/details/51428392" target="_blank" rel="noopener">https://blog.csdn.net/shenxiaolu1984/article/details/51428392</a></p>
+
+    </div>
+
+    
+
+    
+
+    <!-- Comments -->
+    
+
 </div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/hello-world/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        Hello World
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/3.language-model/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        3.language-model
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/4.sentiment/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        4.sentiment
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/7.seq2seq/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        7.seq2seq
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/4.sentiment_with_mask/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        4.sentiment_with_mask
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/2.word-embedding/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        2.word-embedding
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/1.two_layer_neural_net/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        1.two_layer_neural_net
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/6.style_GAN/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        6.style_GAN
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/02/29/5.CNN-Image-Classification/">
-        <span class="archive-date">
-            Feb 2020
-        </span>
-        5.CNN-Image-Classification
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/01/%E7%AE%80%E5%8E%86/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        简历
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/05/multi-view%20learning/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        multi-view learning
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/07/Jupyter%20Notebook%20%E5%9C%A8%20macOS%20%E7%B3%BB%E7%BB%9F%E4%B8%8A%E7%9A%84%E5%BF%AB%E6%8D%B7%E9%94%AE/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        Jupyter Notebook 在 macOS 系统上的快捷键
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/07/Gram%E7%9F%A9%E9%98%B5/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        Gram矩阵
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/07/%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        二叉树遍历
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/08/%E5%AF%B9%E7%A7%B0%E7%9F%A9%E9%98%B5summary/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        对称矩阵summary
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/08/Why%20does%20overlapped%20pooling%20help%20reduce%20overfitting%20in%20conv%20nets/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        Why does overlapped pooling help reduce overfitting in conv nets
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/08/%E5%8D%B7%E7%A9%8D%E4%B8%AD%E7%9A%84stride%E5%92%8Cpadding/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        卷積中的stride和padding
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/08/AlexNet%E8%AF%A6%E7%BB%86%E8%A7%A3%E8%AF%BB/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        AlexNet详细解读
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/04/13/LaTeX%E5%85%AC%E5%BC%8F%E6%89%8B%E5%86%8C(%E5%85%A8%E7%BD%91%E6%9C%80%E5%85%A8)/">
-        <span class="archive-date">
-            Apr 2020
-        </span>
-        LaTeX公式手册(全网最全)
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/03/30/%E8%B4%B9%E9%9B%AA%E4%BF%A1%E6%81%AF%E7%9F%A9%E9%98%B5/">
-        <span class="archive-date">
-            Mar 2020
-        </span>
-        费雪信息矩阵
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/04/08/R%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E7%BB%98%E5%9B%BE/">
-        <span class="archive-date">
-            Apr 2020
-        </span>
-        R语言基础绘图
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/04/17/%E9%9B%B6%E6%AC%A1%E5%AD%A6%E4%B9%A0%EF%BC%88Zero-Shot%20Learning%EF%BC%89%E5%85%A5%E9%97%A8/">
-        <span class="archive-date">
-            Apr 2020
-        </span>
-        零次学习（Zero-Shot Learning）入门
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/04/17/2DPE_pics/clip/">
-        <span class="archive-date">
-            Apr 2020
-        </span>
-        2DPE_pics/clip
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/04/17/#%20%E4%BA%BA%E4%BD%93%E5%A7%BF%E6%80%81%E4%BC%B0%E8%AE%A1(Human%20Pose%20Estimation)%E7%BB%8F%E5%85%B8%E6%96%B9%E6%B3%95%E6%95%B4%E7%90%86/">
-        <span class="archive-date">
-            Apr 2020
-        </span>
-        # 人体姿态估计(Human Pose Estimation)经典方法整理
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/04/29/02spring%20IOC%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8/">
-        <span class="archive-date">
-            Apr 2020
-        </span>
-        02spring IOC基本使用
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/04/29/01spring%E5%88%9D%E8%AF%86/">
-        <span class="archive-date">
-            Apr 2020
-        </span>
-        01spring初识
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/04/30/PPT%E7%BB%8F%E9%AA%8C/">
-        <span class="archive-date">
-            Apr 2020
-        </span>
-        PPT经验
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/04/29/%E5%A4%9A%E7%BA%BF%E7%A8%8Bstarter/">
-        <span class="archive-date">
-            Apr 2020
-        </span>
-        多线程starter
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/04/17/ZSL_pics/clip/">
-        <span class="archive-date">
-            Apr 2020
-        </span>
-        ZSL_pics/clip
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/06/05/COCO%20%E6%95%B0%E6%8D%AE%E9%9B%86%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%E7%AD%89%E7%9B%B8%E5%85%B3%E8%AF%84%E6%B5%8B%E6%8C%87%E6%A0%87/">
-        <span class="archive-date">
-            Jun 2020
-        </span>
-        COCO 数据集目标检测等相关评测指标
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/07/09/CVAE/">
-        <span class="archive-date">
-            Jul 2020
-        </span>
-        CVAE
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/07/11/Pytorch%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%81%E4%B9%9D%E7%A7%8D%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">
-        <span class="archive-date">
-            Jul 2020
-        </span>
-        Pytorch学习之十九种损失函数
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/07/11/VAE/">
-        <span class="archive-date">
-            Jul 2020
-        </span>
-        VAE
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/07/19/pytorch_resnet/">
-        <span class="archive-date">
-            Jul 2020
-        </span>
-        pytorch_resnet
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/07/19/%E3%80%90%E4%BA%BA%E4%BD%93%E5%A7%BF%E6%80%81%E3%80%91Stacked%20Hourglass%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/">
-        <span class="archive-date">
-            Jul 2020
-        </span>
-        【人体姿态】Stacked Hourglass算法详解
-    </a>
-</div>
-            
-                <div class="archive-post">
-    <a href="/2020/06/05/%E8%BF%9C%E7%A8%8B%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%EF%BC%8C%E6%9C%89%E8%BF%99%E4%B8%80%E7%AF%87%E5%B0%8F%E8%AE%A1%E5%B0%B1%E5%A4%9F%E4%BA%86/">
-        <span class="archive-date">
-            Jun 2020
-        </span>
-        远程深度学习，有这一篇小计就够了
-    </a>
-</div>
-            
         </section>
+
     </div>
 </div>
+
 
 </div>
 

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="VAE回顾VAE的目标是最大化对数似然函数
+
+其中，
+$\mathcal{L}(\theta, \phi; \text{x}^{(i)}) = \mathbb{E}{q{\phi}(\text{z}|\text{x})} [\log p_{\theta}(\text{x,z}) - \log q_{">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Yunfan Li">
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="CVAE"/>
+    
+
+    <!--Open Graph Description-->
+    
+
+    <!--Open Graph Site Name-->
+    <meta property="og:site_name" content="Hexo"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article" />
+    
+
+    <!--Page Cover-->
+    
+
+    
+        <meta name="twitter:card" content="summary" />
+    
+    
+    
+
+    <!-- Title -->
+    
+    <title>CVAE - Hexo</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet" />
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Google Analytics -->
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+
+<div class="bg-gradient"></div>
+<div class="bg-pattern"></div>
+
+<!-- Menu -->
+<!--Menu Links and Overlay-->
+<div class="menu-bg">
+    <div class="menu-container">
+        <ul>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Home
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/archives">
+                    Archives
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/about.html">
+                    About
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/tags">
+                    Tags
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/categories">
+                    Categories
+                </a>
+            </li>
+            
+            <li class="menu-item">
+                <a href="/contact.html">
+                    Contact
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+<!--Hamburger Icon-->
+<nav>
+    <a href="#menu"></a>
+</nav>
+
+<div class="container">
+
+    <!-- Main Content -->
+    <div class="row">
+    <div class="col-sm-12">
+
+        <!--Title and Logo-->
+        <header>
+    <div class="logo">
+        <a href="/"><i class="logo-icon fa fa-cube" aria-hidden="true"></i></a>
+        
+    </div>
+</header>
+
+        <section class="main">
+            
+<div class="post">
+
+    <div class="post-header">
+        <h1 class="title">
+            <a href="/2020/07/09/CVAE/">
+                CVAE
+            </a>
+        </h1>
+        <div class="post-info">
+            
+                <span class="date">2020-07-09</span>
+            
+            
+            
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- Gallery -->
+        
+
+        <!-- Post Content -->
+        <h2 id="VAE回顾"><a href="#VAE回顾" class="headerlink" title="VAE回顾"></a>VAE回顾</h2><p>VAE的目标是最大化对数似然函数</p>
+<p><img src="https://www.zhihu.com/equation?tex=%5Csum_i+%5Clog+p_%7B%5Ctheta%7D%28%5Ctext%7Bx%7D%5E%7B%28i%29%7D%29%3D%5Csum_i+KL%28q_%7B%5Cphi%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%7D%5E%7B%28i%29%7D%29%7C%7Cp_%7B%5Ctheta%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%7D%5E%7B%28i%29%7D%29%29+%2B+%5Csum_i+%5Cmathcal%7BL%7D%28%5Ctheta%2C%5Cphi%3B%5Ctext%7Bx%7D%5E%7B%28i%29%7D%29" alt="[公式]"></p>
+<p>其中，</p>
+<p>$\mathcal{L}(\theta, \phi; \text{x}^{(i)}) = \mathbb{E}<em>{q</em>{\phi}(\text{z}|\text{x})} [\log p_{\theta}(\text{x,z}) - \log q_{\phi}(\text{z}|\text{x})]= -KL(q_{\phi}(\text{z}|\text{x}^{(i)})||p_{\theta}(\text{z})) + \mathbb{E}<em>{q</em>{\phi}(\text{z}|\text{x}^{(i)})} \log p_{\theta}(\text{x}^{(i)}|\text{z})$</p>
+<p>由于KL散度非负，对数似然函数的变分下界即为上式中的<img src="https://www.zhihu.com/equation?tex=%5Cmathcal%7BL%7D" alt="[公式]">)项。一般来说，<img src="https://www.zhihu.com/equation?tex=p_%7B%5Ctheta%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%7D%5E%7B%28i%29%7D%29" alt="[公式]">)是未知的，或者难以获得显式表达式的，因此，直接优化对数似然函数是不可行的，一般转而优化它的变分下界，即上式中的<img src="https://www.zhihu.com/equation?tex=%5Cmathcal%7BL%7D" alt="[公式]">项。Diederik P.Kingma和Max Welling提出了两个算法SGVB和AEVB去估计<img src="https://www.zhihu.com/equation?tex=%5Cmathcal%7BL%7D" alt="[公式]">。</p>
+<h2 id="CVAE"><a href="#CVAE" class="headerlink" title="CVAE"></a>CVAE</h2><p>VAE用的训练集是数据<img src="https://www.zhihu.com/equation?tex=%5C%7B%5Ctext%7Bx%7D%5E%7B%28i%29%7D%5C%7D_%7Bi%3D1%7D%5EN" alt="[公式]">)。当生成数据时，由隐变量<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bz%7D" alt="[公式]">)控制生成数据<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bx%7D" alt="[公式]">)，如果我们现在有的数据不只是<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bx%7D" alt="[公式]">)，我们还有关于数据<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bx%7D" alt="[公式]">)的一些额外信息<img src="https://www.zhihu.com/equation?tex=%5Ctext%7By%7D" alt="[公式]">，最简单的，以手写数字为例，它的标签0-9，那么我们是否能够利用上这些额外的信息呢？</p>
+<p><strong>CVAE-1</strong></p>
+<p>一个简答的想法，考虑条件概率分布<img src="https://www.zhihu.com/equation?tex=p_%7B%5Ctheta%7D%28%5Ctext%7Bx%7D%7C%5Ctext%7By%7D%29" alt="[公式]">，套用原来的VAE模型，我们不难作出以下推导：</p>
+<p>$KL(q_{\phi}(\text{z}|\text{x,y})||p_{\theta}(\text{z}|\text{x,y})) = \mathbb{E}<em>{q</em>{\phi}(\text{z}|\text{x,y})} \log \frac{q_{\phi}(\text{z}|\text{x,y})}{p_{\theta}(\text{z}|\text{x,y})} \<br>= \mathbb{E}<em>{q</em>{\phi}(\text{z}|\text{x,y})} \log \frac{q_{\phi}(\text{z}|\text{x,y}) p_{\theta}(\text{x}|\text{y})}{p_{\theta}(\text{z}|\text{x,y}) p_{\theta}(\text{x}|\text{y})} \<br>= \mathbb{E}<em>{q</em>{\phi}(\text{z}|\text{x,y})} \log \frac{q_{\phi}(\text{z}|\text{x,y}) p_{\theta}(\text{x}|\text{y})}{p_{\theta}(\text{x,z}|\text{y})} \<br>= KL(q_{\phi}(\text{z}|\text{x,y}) || p_{\theta}(\text{x,z}|\text{y})) + \log p_{\theta}(\text{x}|\text{y}))$</p>
+<p>于是</p>
+<p><img src="https://www.zhihu.com/equation?tex=+%5Clog+p_%7B%5Ctheta%7D%28%5Ctext%7Bx%7D%7C%5Ctext%7By%7D%29%29+%3D+KL%28q_%7B%5Cphi%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%2Cy%7D%29%7C%7Cp_%7B%5Ctheta%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%2Cy%7D%29%29+%2B+%5Cmathcal%7BL%7D%28%5Ctheta%2C%5Cphi%3B%5Ctext%7Bx%2Cy%7D%29" alt="[公式]"></p>
+<p>其中，</p>
+<p>$\mathcal{L}(\theta,\phi;\text{x,y}) = -KL(q_{\phi}(\text{z}|\text{x,y}) || p_{\theta}(\text{x,z}|\text{y})) \<br>= \mathbb{E}<em>{q</em>{\phi}(\text{z}|\text{x,y})} [\log p_{\theta}(\text{x,z}|\text{y}) - \log q_{\phi}(\text{z}|\text{x,y})] \<br>= -KL(q_{\phi}(\text{z}|\text{x,y})||p_{\theta}(\text{z}|\text{y})) + \mathbb{E}<em>{q</em>{\phi}(\text{z}|\text{x,y})} \log p_{\theta}(\text{x}|\text{y,z})$</p>
+<p>类似于VAE，套用SGVB算法，再做一下reparameterization，取适当的分布和网络，我们就得到了一个CVAE模型。</p>
+<p>我们姑且称这个版本的CVAE为CVAE-1模型，没错，CVAE模型不止一个……</p>
+<p><strong>CVAE-2</strong></p>
+<p>此外，与CGAN一样，我们一般假设额外信息<img src="https://www.zhihu.com/equation?tex=%5Ctext%7By%7D" alt="[公式]">)与隐变量<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bz%7D" alt="[公式]">)没有直接的关系，因此条件概率<img src="https://www.zhihu.com/equation?tex=p_%7B%5Ctheta%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7By%7D%29%3Dp_%7B%5Ctheta%7D%28%5Ctext%7Bz%7D%29" alt="[公式]">，于是变分下界可以写成</p>
+<p><img src="https://www.zhihu.com/equation?tex=%5Cmathcal%7BL%7D%28%5Ctheta%2C%5Cphi%3B%5Ctext%7Bx%2Cy%7D%29+%3D+-KL%28q_%7B%5Cphi%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%2Cy%7D%29%7C%7Cp_%7B%5Ctheta%7D%28%5Ctext%7Bz%7D%29%29+%2B+%5Cmathbb%7BE%7D_%7Bq_%7B%5Cphi%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%2Cy%7D%29%7D+%5Clog+p_%7B%5Ctheta%7D%28%5Ctext%7Bx%7D%7C%5Ctext%7By%2Cz%7D%29" alt="[公式]"></p>
+<p>这在文献[3]中提到过。姑且称这个版本为CVAE-2模型。</p>
+<p><strong>CVAE-3</strong></p>
+<p>这就完了吗？文献[2]会告诉你，不要着急，我们也提出了一种CVAE。文中提出的方法不是产生数据<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bx%7D" alt="[公式]">)，而是直接考虑预测问题：预测数据<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bx%7D" alt="[公式]">)的标签<img src="https://www.zhihu.com/equation?tex=%5Ctext%7By%7D" alt="[公式]">)。什么意思呢？它的似然函数是<img src="https://www.zhihu.com/equation?tex=p_%7B%5Ctheta%7D%28%5Ctext%7By%7D%7C%5Ctext%7Bx%7D%29" alt="[公式]">)而不是<img src="https://www.zhihu.com/equation?tex=p_%7B%5Ctheta%7D%28%5Ctext%7Bx%7D%7C%5Ctext%7By%7D%29" alt="[公式]">)。而这个推导也不难，事实上，把<img src="https://www.zhihu.com/equation?tex=%5Ctext%7By%7D" alt="[公式]">)看成我们要生成的“数据”，<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bx%7D" alt="[公式]">)看成是“标签”，在上面推导的结果里面直接交换<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bx%7D%2C+%5Ctext%7By%7D" alt="[公式]">的位置，就得到了</p>
+<p><img src="https://www.zhihu.com/equation?tex=+%5Clog+p_%7B%5Ctheta%7D%28%5Ctext%7By%7D%7C%5Ctext%7Bx%7D%29%29+%3D+KL%28q_%7B%5Cphi%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%2Cy%7D%29%7C%7Cp_%7B%5Ctheta%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%2Cy%7D%29%29+%2B+%5Cmathcal%7BL%7D%28%5Ctheta%2C%5Cphi%3B%5Ctext%7Bx%2Cy%7D%29" alt="[公式]"></p>
+<p>其中，</p>
+<p>$\mathcal{L}(\theta,\phi;\text{x,y}) = -KL(q_{\phi}(\text{z}|\text{x,y}) || p_{\theta}(\text{y,z}|\text{x})) \<br>= \mathbb{E}<em>{q</em>{\phi}(\text{z}|\text{x,y})} [\log p_{\theta}(\text{y,z}|\text{x}) - \log q_{\phi}(\text{z}|\text{x,y})] \<br>= -KL(q_{\phi}(\text{z}|\text{x,y})||p_{\theta}(\text{z}|\text{x})) + \mathbb{E}<em>{q</em>{\phi}(\text{z}|\text{x,y})} \log p_{\theta}(\text{y}|\text{x,z})$</p>
+<p>同样地，对<img src="https://www.zhihu.com/equation?tex=q_%7B%5Cphi%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%2Cy%7D%29" alt="[公式]">)做一下reparameterization，写成<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bz%7D+%3D+g_%7B%5Cphi%7D%28%5Ctext%7Bx%2Cy%7D%2C%5Cepsilon%29%2C+%5Cepsilon+%5Csim+%5Cmathcal%7BN%7D%280%2CI%29" alt="[公式]">)。再取适当的分布和网络，就可以了。值得一提的是，我们会在模型中设定适当的分布<img src="https://www.zhihu.com/equation?tex=p_%7B%5Ctheta%7D%28%5Ctext%7By%7D%7C%5Ctext%7Bx%2Cz%7D%29" alt="[公式]">)，当训练完了以后，可以把模型当成一个分类器，预测输入<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bx%7D" alt="[公式]">的标签：</p>
+<p><img src="https://www.zhihu.com/equation?tex=%5Ctext%7By%7D%5E%2A%3D%5Carg%5Cmax_%7B%5Ctext%7By%7D%7Dp_%7B%5Ctheta%7D%28%5Ctext%7By%7D%7C%5Ctext%7Bx%7D%2C%5Ctext%7Bz%7D%5E%2A%29%2C+%5Cquad+%5Ctext%7Bz%7D%5E%2A%3D%5Cmathbb%7BE%7D%5B%5Ctext%7Bz%7D%7C%5Ctext%7Bx%7D%5D" alt="[公式]"></p>
+<p>上面的预测涉及到求期望，除非有显式结果，否则一般采用均值去近似期望：</p>
+<p><img src="https://www.zhihu.com/equation?tex=%5Ctext%7By%7D%5E%2A%3D%5Carg%5Cmax_%7B%5Ctext%7By%7D%7D+%5Cfrac%7B1%7D%7BL%7D+%5Csum_%7Bl%3D1%7D%5EL+p_%7B%5Ctheta%7D%28%5Ctext%7By%7D%7C%5Ctext%7Bx%7D%2C%5Ctext%7Bz%7D%5E%7B%28l%29%7D%29%2C+%5Cquad+%5Ctext%7Bz%7D%5E%7B%28l%29%7D+%5Csim+p_%5Ctheta%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%7D%29" alt="[公式]"></p>
+<p>姑且这个模型称为CVAE-3，它的图模型结构如下：</p>
+<p><img src="https://pic1.zhimg.com/80/v2-8a0cc590d0edc95dcd10e8adbf8772e8_1440w.jpg" alt="img"></p>
+<p><strong>CVAE-4</strong></p>
+<p>非常抱歉地告诉你，CVAE模型还没完。文献[3]提出了CMMA模型（conditional multimodal autoencoder），实际上它也可以看成是条件版本的VAE。一般来说，我们考虑的CVAE或者CGAN的图模型是长这样的：</p>
+<p><img src="https://pic3.zhimg.com/80/v2-efeb6d666dbfcd69c467a643df811c66_1440w.jpg" alt="img"></p>
+<p>它的特点是<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bz%7D%2C+%5Ctext%7By%7D" alt="[公式]">一般是相互独立的。而CMMA考虑的图模型是长这样的：</p>
+<p><img src="https://pic1.zhimg.com/80/v2-aa979cafea50272ca0017dd8d866180c_1440w.jpg" alt="img"></p>
+<p>这个模型的特点是隐变量是由额外信息<img src="https://www.zhihu.com/equation?tex=%5Ctext%7By%7D" alt="[公式]">)确定的，<img src="https://www.zhihu.com/equation?tex=p_%7B%5Ctheta%7D%28%5Ctext%7Bx%7D%7C%5Ctext%7By%2Cz%7D%29%3Dp_%7B%5Ctheta%7D%28%5Ctext%7Bx%7D%7C%5Ctext%7Bz%7D%29" alt="[公式]">)。整个推导过程跟CVAE-1一模一样，应用<img src="https://www.zhihu.com/equation?tex=p_%7B%5Ctheta%7D%28%5Ctext%7Bx%7D%7C%5Ctext%7By%2Cz%7D%29%3Dp_%7B%5Ctheta%7D%28%5Ctext%7Bx%7D%7C%5Ctext%7Bz%7D%29" alt="[公式]">以后，变分下界可以简化为：</p>
+<p><img src="https://www.zhihu.com/equation?tex=%5Cmathcal%7BL%7D%28%5Ctheta%2C%5Cphi%3B%5Ctext%7Bx%2Cy%7D%29+%3D+-KL%28q_%7B%5Cphi%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%2Cy%7D%29%7C%7Cp_%7B%5Ctheta%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7By%7D%29%29+%2B+%5Cmathbb%7BE%7D_%7Bq_%7B%5Cphi%7D%28%5Ctext%7Bz%7D%7C%5Ctext%7Bx%2Cy%7D%29%7D+%5Clog+p_%7B%5Ctheta%7D%28%5Ctext%7Bx%7D%7C%5Ctext%7Bz%7D%29" alt="[公式]"></p>
+<p>姑且称CMMA模型为CVAE-4。CVAE-4模型将标签信息编码到隐变量<img src="https://www.zhihu.com/equation?tex=%5Ctext%7Bz%7D" alt="[公式]">中，作者指出，这样做的效果更好。</p>
+<p>当然，针对具体的问题，还有一些不一样的CVAE设计，例如，文献[1]用CVAE做半监督学习，用到的CVAE又与上面介绍的有所不同。根据具体问题，有些模型还会对目标函数添加一些惩罚项。</p>
+<p>VAE是个贝叶斯模型，它的条件概率版本根据取条件概率的形式的不同，自然会出现多种多样的模型。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p>\1. <a href="https://link.zhihu.com/?target=https%3A//github.com/RuiShu/cvae">RuiShu/cvae: Conditional variational autoencoder implementation in Torch</a></p>
+<p>\2. <a href="https://link.zhihu.com/?target=https%3A//github.com/kastnerkyle/SciPy2015">kastnerkyle/SciPy2015: Talk for SciPy2015 “Deep Learning: Tips From The Road”</a></p>
+<p>\3. <a href="https://link.zhihu.com/?target=https%3A//github.com/cdoersch/vae_tutorial">Tutorial on Variational Autoencoders</a></p>
+<p>\4. <a href="https://link.zhihu.com/?target=https%3A//github.com/dpkingma/nips14-ssl">dpkingma/nips14-ssl: Code for reproducing results of NIPS 2014 paper “Semi-Supervised Learning with Deep Generative Models”</a></p>
+<p>\5. <a href="https://link.zhihu.com/?target=https%3A//github.com/jramapuram/CVAE">jramapuram/CVAE: Convolutional Variational Autoencoder</a></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>\1. Kingma D P, Mohamed S, Rezende D J, et al. Semi-supervised learning with deep generative models[C]//Advances in Neural Information Processing Systems. 2014: 3581-3589.</p>
+<p>\2. Sohn K, Lee H, Yan X. Learning structured output representation using deep conditional generative models[C]//Advances in Neural Information Processing Systems. 2015: 3483-3491.</p>
+<p>\3. Pandey G, Dukkipati A. Variational methods for conditional multimodal learning: Generating human faces from attributes. arXiv preprint[J]. arXiv, 2016, 1603.</p>
+<p>\4. Walker J, Doersch C, Gupta A, et al. An uncertain future: Forecasting from static images using variational autoencoders[C]//European Conference on Computer Vision. Springer International Publishing, 2016: 835-851.</p>
+<p>\5. Doersch C. Tutorial on variational autoencoders[J]. arXiv preprint arXiv:1606.05908, 2016.</p>
+
+    </div>
+
+    
+
+    
+
+    <!-- Comments -->
+    
+
+</div>
+        </section>
+
+    </div>
+</div>
+
+
+</div>
+
+<!-- Footer -->
+<div class="push"></div>
+
+<footer class="footer-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 footer-about">
+                <h2>About</h2>
+                <p>
+                    This theme was developed by <a href="https://github.com/klugjo" target="_blank" rel="noopener">Jonathan Klughertz</a>. The source code is available on Github. Create Websites. Make Magic.
+                </p>
+            </div>
+            
+    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 recent-posts">
+        <h2>Recent Posts</h2>
+        <ul>
+            
+            <li>
+                <a class="footer-post" href="/2020/07/19/%E3%80%90%E4%BA%BA%E4%BD%93%E5%A7%BF%E6%80%81%E3%80%91Stacked%20Hourglass%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/">【人体姿态】Stacked Hourglass算法</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/07/19/pytorch_resnet/">pytorch_resnet</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/07/11/VAE/">VAE</a>
+            </li>
+            
+            <li>
+                <a class="footer-post" href="/2020/07/11/Pytorch%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%81%E4%B9%9D%E7%A7%8D%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">Pytorch学习之十九种损失函数</a>
+            </li>
+            
+        </ul>
+    </div>
+
+
+
+            
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <ul class="list-inline footer-social-icons">
+                    
+                    <li class="list-inline-item">
+                        <a href="https://github.com/klugjo/hexo-theme-alpha-dust" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-github"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://twitter.com/?lang=en" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-twitter"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-facebook"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-instagram"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://dribbble.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-dribbble"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://plus.google.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-google-plus"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://www.behance.net/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-behance"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="https://500px.com/" target="_blank" rel="noopener">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-500px"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="mailto:test@example.com">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-envelope-o"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="list-inline-item">
+                        <a href="\#">
+                            <span class="footer-icon-container">
+                                <i class="fa fa-rss"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="footer-copyright">
+                    @Untitled. All right reserved | Design & Hexo <a href="http://www.codeblocq.com/" target="_blank" rel="noopener">Jonathan Klughertz</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- After footer scripts -->
+
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Tween Max -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.18.5/TweenMax.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Custom JavaScript -->
+
+<script src="/js/main.js"></script>
+
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>
